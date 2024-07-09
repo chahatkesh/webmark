@@ -42,7 +42,7 @@ const Footer = () => {
         </div>
         <hr />
         <p className="footer-copyright">
-          Copyright 2024 © Webmaek - All Rights Reserved.
+          Copyright 2024 © Webmark - All Rights Reserved.
         </p>
       </div>
     </>
