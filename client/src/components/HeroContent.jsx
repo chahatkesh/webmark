@@ -6,7 +6,7 @@ const Hero = () => {
     <div className="max-w-[72rem] ml-auto mr-auto pl-4 pr-4 md:pl-6 md:pr-6">
       <div className="w-full pt-32 md:pt-40 pb-12 md:pb-20">
         <div className="pb-12 md:pb-16 text-center">
-          <div className="border-t-1 border-b-1 mb-6 border border-transparent border-in-header">
+          <div className="mb-6 border-in-header">
             <div className="flex justify-center ml-[-2px] mr-[-2px]">
               <img
                 className="border-2 border-opacity-0 border-[#f9fafb] rounded-full box-content"
@@ -46,7 +46,7 @@ const Hero = () => {
               />
             </div>
           </div>
-          <h1 className="leading-none text-[2.9rem] md:text-[56px] font-[700] tracking-[-0.037em] border-in-header mb-6 border border-transparent border-t-1 border-b-1">
+          <h1 className="leading-none text-[2.9rem] md:text-[56px] font-[700] tracking-[-0.037em] border-in-header mb-6">
             Simplify Your Bookmark Management
             <br />
             <span className="hidden md:block"> - with Webmark</span>
@@ -55,10 +55,10 @@ const Hero = () => {
             <p className="text-[#374151] text-opacity-100 text-lg leading-normal tracking-[-0.017em] mb-8">
               Easily manage, customize, and search your bookmarks with webmark.
             </p>
-            <div className="relative border-in-header border border-transparent border-t-1 border-b-1">
-              <div className="ml-auto mr-auto max-w-80 md:max-w-none md:flex md:justify-center">
+            <div className="relative border-in-header">
+              <div className="ml-auto mr-auto max-w-80 sm:max-w-none sm:flex sm:justify-center">
                 <a
-                  className="w-full md:w-auto md:mb-0 mb-4 shadow text-white bg-blue-500 hover:bg-blue-600 pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem]"
+                  className="w-full sm:w-auto sm:mb-0 mb-4 shadow text-white bg-blue-500 hover:bg-blue-600 pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem]"
                   href="">
                   <span className="inline-flex items-center relative ">
                     Get Started

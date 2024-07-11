@@ -11,7 +11,7 @@ import Cta from "./components/Cta";
 
 const App = () => {
   return (
-    <div className="overflow-hidden flex flex-col min-h-[100vh]">
+    <div className="app overflow-hidden flex flex-col min-h-[100vh]">
       <Navbar />
       <main className="flex-grow">
         {/* Hero */}

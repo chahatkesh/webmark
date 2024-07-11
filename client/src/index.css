@@ -22,6 +22,9 @@
 body {
   min-height: 100vh;
 }
+.app {
+  background-color: #f9fafb;
+}
 a {
   text-decoration: inherit;
   color: inherit;
@@ -43,6 +46,23 @@ ul {
   border-image-width: 1;
   border-image-outset: 0;
   border-image-repeat: stretch;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+.border-in-header-1 {
+  border-image: linear-gradient(
+      to right,
+      transparent,
+      rgba(203, 213, 225, 0.2),
+      transparent
+    )
+    1;
+  border-image-slice: 1;
+  border-image-width: 1;
+  border-image-outset: 0;
+  border-image-repeat: stretch;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
 }
 .border-in-header-2 {
   border-image: linear-gradient(

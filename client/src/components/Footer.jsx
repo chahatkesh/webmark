@@ -168,7 +168,7 @@ const Footer = () => {
       </div>
       {/* BIG TEXT */}
       <div className="relative w-full h-60 mt-[-4rem]">
-        <div className="pointer-events-none absolute -z-10 left-[50%] text-center text-[352px] font-[700] translate-x-[-50%] leading-none text-gray-100">
+        <div className="pointer-events-none absolute left-[50%] text-center text-[352px] font-[700] translate-x-[-50%] leading-none text-gray-100">
           <span className="drop-shadow-sm">Webmark</span>
         </div>
         {/* GLOW */}

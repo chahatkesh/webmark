@@ -15,6 +15,7 @@ import icon06 from './icon06.png'
 // hero image
 import hero_image from './hero_image.png'
 import stripes from './stripes.svg'
+import stripes_dark from './stripes-dark.svg'
 
 
 // founder message
@@ -34,4 +35,5 @@ export const assets = {
   hero_image,
   stripes,
   chahat,
+  stripes_dark,
 }
