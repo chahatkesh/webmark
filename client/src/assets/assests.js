@@ -11,9 +11,15 @@ import icon04 from './icon04.png'
 import icon05 from './icon05.png'
 import icon06 from './icon06.png'
 
+
 // hero image
 import hero_image from './hero_image.png'
 import stripes from './stripes.svg'
+
+
+// founder message
+import chahat from './chahat.png'
+
 
 export const assets = {
   logo_black,
@@ -26,15 +32,6 @@ export const assets = {
   icon05,
   icon06,
   hero_image,
-  stripes
+  stripes,
+  chahat,
 }
-
-export const bookmark_list = [
-  {
-    bookmark_name: "Instagram",
-    bookmark_icon: "",
-    bookmark_category: "Social Media",
-    bookmark_tag: "account",
-    bookmark_link: "https://www.instagram.com/mr_chahat_kesharwani"
-  },
-]

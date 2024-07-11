@@ -3,7 +3,7 @@ import { assets } from "../assets/assests";
 
 const Hero = () => {
   return (
-    <>
+    <div className="max-w-[72rem] ml-auto mr-auto pl-4 pr-4 md:pl-6 md:pr-6">
       <div className="w-full pt-32 md:pt-40 pb-12 md:pb-20">
         <div className="pb-12 md:pb-16 text-center">
           <div className="border-t-1 border-b-1 mb-6 border border-transparent border-in-header">
@@ -84,7 +84,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
