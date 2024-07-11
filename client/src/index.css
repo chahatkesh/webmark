@@ -22,9 +22,7 @@
 body {
   min-height: 100vh;
 }
-.app {
-  background-color: #f9fafb;
-}
+
 a {
   text-decoration: inherit;
   color: inherit;

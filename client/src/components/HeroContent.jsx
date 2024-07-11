@@ -68,7 +68,7 @@ const Hero = () => {
                   </span>
                 </a>
                 <a
-                  className="w-full md:w-auto md:ml-4 shadow pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem] text-[#1f2937] bg-white hover:bg-gray-50"
+                  className="w-full sm:w-auto sm:ml-4 shadow pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem] text-[#1f2937] bg-white hover:bg-gray-50"
                   href="">
                   Learn More
                 </a>
