@@ -77,3 +77,19 @@ ul {
   border-left-width: 1px;
   border-right-width: 1px;
 }
+@keyframes scroll {
+  to {
+    transform: translateX(-100%);
+  }
+}
+.testimonial .testimonial-list {
+  animation: scroll 80s linear infinite;
+}
+.testimonial:hover {
+  .testimonial-list {
+    animation-play-state: paused;
+  }
+  article {
+    transform: rotate(0);
+  }
+}

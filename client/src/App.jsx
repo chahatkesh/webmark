@@ -8,13 +8,13 @@ import Navbar from "./components/Navbar";
 import Message from "./components/Message";
 import Footer from "./components/Footer";
 import Cta from "./components/Cta";
+import Testimonial from "./components/Testimonial";
 
 const App = () => {
   return (
     <div className="app overflow-hidden flex flex-col min-h-[100vh]">
       <Navbar />
       <main className="flex-grow">
-        {/* Hero */}
         <section className="relative">
           <Background />
           <Circle1 />
@@ -22,9 +22,8 @@ const App = () => {
           <Circle3 />
           <HeroContent />
         </section>
-        {/* founder messages */}
         <Message />
-        {/* Call to Action */}
+        <Testimonial />
         <Cta />
       </main>
       <Footer />
