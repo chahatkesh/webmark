@@ -1,28 +1,61 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: Outfit;
+  font-family: "Inter", sans-serif;
   scroll-behavior: smooth;
+}
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
 }
 body {
   min-height: 100vh;
 }
 a {
-  text-decoration: none;
+  text-decoration: inherit;
   color: inherit;
 }
-.app {
-  width: 80%;
-  margin: auto;
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+.border-in-header {
+  border-image: linear-gradient(
+      to right,
+      transparent,
+      rgba(203, 213, 225, 0.8),
+      transparent
+    )
+    1;
+  border-image-slice: 1;
+  border-image-width: 1;
+  border-image-outset: 0;
+  border-image-repeat: stretch;
+}
+.border-in-header-2 {
+  border-image: linear-gradient(
+      to top,
+      transparent,
+      rgba(203, 213, 225, 0.8),
+      transparent
+    )
+    1;
+  border-image-slice: 1;
+  border-image-width: 1;
+  border-image-outset: 0;
+  border-image-repeat: stretch;
+  border-left-width: 1px;
+  border-right-width: 1px;
 }
