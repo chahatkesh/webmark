@@ -46,7 +46,7 @@ const Hero = () => {
               />
             </div>
           </div>
-          <h1 className="leading-none text-[2.9rem] md:text-[56px] font-[700] tracking-[-0.037em] border-in-header mb-6">
+          <h1 className="leading-none text-[2.9rem] md:text-[56px] font-[700] tracking-[-0.037em] border-in-header mb-6 selection:text-white selection:bg-black">
             Simplify Your Bookmark Management
             <br />
             <span className="hidden md:block"> - with Webmark</span>

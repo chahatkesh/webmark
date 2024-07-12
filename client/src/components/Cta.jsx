@@ -4,7 +4,7 @@ import { assets } from "../assets/assests";
 const Cta = () => {
   return (
     <section className="pl-4 pr-4 sm:pl-6 sm:pr-6 max-w-[72rem] ml-auto mr-auto">
-      <div className="relative shadow-xl text-center rounded-2xl overflow-hidden bg-[#111827]">
+      <div className="relative shadow-xl text-center rounded-xl md:rounded-2xl overflow-hidden bg-[#111827]">
         <div className="pointer-events-none absolute transform translate-x-[-50%] top-0 left-[50%]">
           <img
             className="max-w-none"
