@@ -3,7 +3,7 @@ import { assets } from "../assets/assests";
 
 const Message = () => {
   return (
-    <div className="pl-4 pr-4 md:pl-6 md:pr-6 max-w-[42rem] ml-auto mr-auto">
+    <section className="pl-4 pr-4 md:pl-6 md:pr-6 max-w-[42rem] ml-auto mr-auto">
       <div className="pt-12 pb-12 md:pt-20 md:pb-20">
         <div className="text-center">
           <div className="inline-flex relative">
@@ -41,7 +41,7 @@ const Message = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -3,10 +3,10 @@ import { assets } from "../assets/assests";
 
 const Testimonial = () => {
   return (
-    <div className="relative pt-12 md:pt-20">
+    <section className="relative pt-12 md:pt-20">
       <div className="pl-4 pr-4 sm:pl-6 sm:pr-6 max-w-[72rem] ml-auto mr-auto">
         <div className="max-w-[48rem] text-center ml-auto mr-auto">
-          <h2 className="md:leading-[1.2777] leading-[1.3333] text-[0.875rem] tracking-[-0.037em] md:text-[2.25rem] font-[700]">
+          <h2 className="md:leading-[1.2777] leading-[1.3333] text-[1.875rem] tracking-[-0.037em] md:text-[2.25rem] font-[700]">
             Trusted and loved by Professionals
           </h2>
         </div>
@@ -350,7 +350,7 @@ const Testimonial = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

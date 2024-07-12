@@ -3,7 +3,7 @@ import { assets } from "../assets/assests";
 
 const Hero = () => {
   return (
-    <div className="max-w-[72rem] ml-auto mr-auto pl-4 pr-4 md:pl-6 md:pr-6">
+    <section className="max-w-[72rem] ml-auto mr-auto pl-4 pr-4 md:pl-6 md:pr-6">
       <div className="w-full pt-32 md:pt-40 pb-12 md:pb-20">
         <div className="pb-12 md:pb-16 text-center">
           <div className="mb-6 border-in-header">
@@ -58,7 +58,7 @@ const Hero = () => {
             <div className="relative border-in-header">
               <div className="ml-auto mr-auto max-w-80 sm:max-w-none sm:flex sm:justify-center">
                 <a
-                  className="w-full sm:w-auto sm:mb-0 mb-4 shadow text-white bg-blue-500 hover:bg-blue-600 pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem]"
+                  className="w-full sm:w-auto sm:mb-0 mb-4 shadow text-white bg-blue-500 hover:bg-blue-600 hover:font-[600] pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem]"
                   href="">
                   <span className="inline-flex items-center relative ">
                     Get Started
@@ -68,7 +68,7 @@ const Hero = () => {
                   </span>
                 </a>
                 <a
-                  className="w-full sm:w-auto sm:ml-4 shadow pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem] text-[#1f2937] bg-white hover:bg-gray-50"
+                  className="w-full sm:w-auto sm:ml-4 shadow pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem] text-[#1f2937] bg-white  hover:text-black hover:font-[600]"
                   href="">
                   Learn More
                 </a>
@@ -84,7 +84,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

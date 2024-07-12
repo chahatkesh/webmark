@@ -3,7 +3,7 @@ import React from "react";
 const Navbar = () => {
   let logoColour = "#1361F5";
   return (
-    <div className="z-30 w-full top-4 md:top-6 fixed">
+    <section className="z-30 w-full top-4 md:top-6 fixed">
       <div className="pl-4 pr-4 md:pl-6 md:pr-6 max-w-[72rem] ml-auto mr-auto">
         <div className="bg-white pl-3 opacity-90 pr-3 rounded-[1rem] h-[3.5rem] flex justify-between items-center relative gap-3 shadow">
           <div className="flex items-center flex-1">
@@ -54,19 +54,19 @@ const Navbar = () => {
           </div>
           <nav className="hidden md:flex md:flex-grow text-[#374252]">
             <ul className="flex flex-grow flex-wrap justify-center items-center gap-4 lg:gap-8 text-sm">
-              <li className="cursor-pointer hover:bg-gray-50 rounded pt-1 pb-1 pl-3 pr-3">
+              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
                 home
               </li>
-              <li className="cursor-pointer hover:bg-gray-50 rounded pt-1 pb-1 pl-3 pr-3">
+              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
                 featues
               </li>
-              <li className="cursor-pointer hover:bg-gray-50 rounded pt-1 pb-1 pl-3 pr-3">
+              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
                 how to use
               </li>
-              <li className="cursor-pointer hover:bg-gray-50 rounded pt-1 pb-1 pl-3 pr-3">
+              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
                 about us
               </li>
-              <li className="cursor-pointer hover:bg-gray-50 rounded pt-1 pb-1 pl-3 pr-3">
+              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
                 contact
               </li>
             </ul>
@@ -89,7 +89,7 @@ const Navbar = () => {
           </ul>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

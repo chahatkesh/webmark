@@ -3,7 +3,7 @@ import React from "react";
 const Footer = () => {
   let logoColour = "#1361F5";
   return (
-    <>
+    <section>
       <div className="pl-4 pr-4 sm:pl-6 sm:pr-6 max-w-[72rem] ml-auto mr-auto">
         <div className="pt-8 pb-8 md:pt-12 md:pb-12 grid gap-10 sm:grid-cols-12">
           <div className="sm:col-span-12 lg:col-span-4">
@@ -176,7 +176,7 @@ const Footer = () => {
           <div className="w-56 h-56 blur-[80px] border-[#1d4ed8] border-[20px] rounded-full"></div>
         </div>
       </div>
-    </>
+    </section>
   );
 };
 
