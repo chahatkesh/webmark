@@ -197,3 +197,20 @@ ul {
     border-right-width: 0px;
   }
 }
+@media (min-width: 1024px) {
+  .lg-border-in-header-2 {
+    border-image: linear-gradient(
+        to top,
+        transparent,
+        rgba(203, 213, 225, 0.8),
+        transparent
+      )
+      1;
+    border-image-slice: 1;
+    border-image-width: 1;
+    border-image-outset: 0;
+    border-image-repeat: stretch;
+    border-left-width: 1px;
+    border-right-width: 1px;
+  }
+}

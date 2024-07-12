@@ -9,7 +9,8 @@ import Message from "./components/Message";
 import Footer from "./components/Footer";
 import Cta from "./components/Cta";
 import Testimonial from "./components/Testimonial";
-import Features from "./components/Features";
+import Features1 from "./components/Features1";
+import Features2 from "./components/Features2";
 
 const App = () => {
   return (
@@ -24,7 +25,8 @@ const App = () => {
           <HeroContent />
         </section>
         <Message />
-        <Features />
+        <Features1 />
+        <Features2 />
         <Testimonial />
         <Cta />
       </main>

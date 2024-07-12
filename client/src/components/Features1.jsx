@@ -1,7 +1,7 @@
 import React from "react";
 import { assets } from "../assets/assests";
 
-const Features = () => {
+const Features1 = () => {
   return (
     <section className="relative bg-[#111827]">
       <div className="pl-4 pr-4 sm:pl-6 sm:pr-6 max-w-[72rem] ml-auto mr-auto">
@@ -158,4 +158,4 @@ const Features = () => {
   );
 };
 
-export default Features;
+export default Features1;
