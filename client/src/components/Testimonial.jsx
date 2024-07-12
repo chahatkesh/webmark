@@ -11,7 +11,7 @@ const Testimonial = () => {
           </h2>
         </div>
       </div>
-      <div className="flex relative max-w-[100vw] justify-center ml-auto mr-auto">
+      <div className="flex relative max-w-[100vw] justify-center ml-auto mr-auto ">
         <div className="translate-x-[-9rem] absolute bottom-[5rem] -z-10">
           <div className="blur-[160px] opacity-35 to-[#111827] from-[#3b82f6] bg-gradient-to-tr h-80 w-80 rounded-full"></div>
         </div>
@@ -21,7 +21,7 @@ const Testimonial = () => {
         <div className="absolute bottom-0 -z-10">
           <div className="blur-[20px] h-56 w-56 rounded-full border-[20px] border-white"></div>
         </div>
-        <div className="testimonial w-full pt-12 pb-12 md:pt-20 md:pb-20 inline-flex flex-nowrap justify-start">
+        <div className="testimonial w-full pt-12 pb-12 md:pt-20 md:pb-20 inline-flex flex-nowrap justify-start overflow-scroll scrollbar-hide">
           <div className="testimonial-list flex items-start justify-center md:justify-start">
             {/* item 1 */}
             <article className="rotate-[-1deg] ml-3 mr-3 shadow p-5 bg-[#ffffffb3] rounded-2xl flex flex-col w-[22rem] relative">

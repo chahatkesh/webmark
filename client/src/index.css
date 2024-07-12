@@ -23,7 +23,13 @@ body {
   min-height: 100vh;
   background-color: #f9fafb;
 }
-
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 a {
   text-decoration: inherit;
   color: inherit;
