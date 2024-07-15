@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assests";
 import axios from "axios";
@@ -94,7 +94,12 @@ const Auth = () => {
       alert(response.data.message);
     }
   };
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
   return (
     <div className="w-[100vw] h-[100vh] grid lg:grid-cols-2 justify-center items-center">
       <div className="hidden lg:flex w-[50vw] h-full bg-blue-500  flex-col justify-center items-center">
@@ -107,9 +112,10 @@ const Auth = () => {
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 items-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
+            onClick={() => navigate("/")}
             alt="Your Company"
             src={assets.logo_color}
-            className="mx-auto h-14 w-auto"
+            className="mx-auto h-14 w-auto cursor-pointer"
           />
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             {currState === "Sign Up"

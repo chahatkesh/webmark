@@ -75,14 +75,14 @@ const Navbar = () => {
             <li>
               <a
                 className="inline-flex cursor-pointer shadow text-[#1f2937] bg-white pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500] hover:bg-gray-50"
-                href="#">
+                href="/auth">
                 Login
               </a>
             </li>
             <li>
               <a
                 className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
-                href="#">
+                href="/auth">
                 Signup
               </a>
             </li>

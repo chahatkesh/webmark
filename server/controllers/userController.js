@@ -91,7 +91,7 @@ const userData = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: "Error" });
+    res.json({ success: false, message: "Error fetching user data" });
   }
 };
 

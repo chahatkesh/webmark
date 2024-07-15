@@ -24,7 +24,7 @@ const Cta = () => {
           <div className="ml-auto mr-auto max-w-80 sm:max-w-none sm:flex sm:justify-center">
             <a
               className="w-full sm:w-auto sm:mb-0 mb-4 shadow text-white bg-blue-500 hover:bg-blue-600 pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem]"
-              href="">
+              href="/auth">
               <span className="inline-flex items-center relative ">
                 Get Started
                 <span className="tracking-[0rem] ml-1 text-[#93c5fd]">

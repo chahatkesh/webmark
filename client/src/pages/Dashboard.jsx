@@ -21,15 +21,20 @@ const Dashboard = () => {
   const fetchUserData = async () => {
     try {
       const response = await axios.post(
-        url + "/api/user/userdata",
-        { userId: "someUserId" }, // Adjust this line to pass the correct userId
+        `${url}/api/user/userdata`,
+        {},
         { headers: { token } }
       );
       const fetchedUsername = response.data.username;
-      setUsername(fetchedUsername);
-      localStorage.setItem("username", fetchedUsername);
+
+      if (fetchedUsername) {
+        setUsername(fetchedUsername);
+        localStorage.setItem("username", fetchedUsername);
+      } else {
+        console.error("Username is undefined in response data");
+      }
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      alert("Error fetching user data:" + error);
     }
   };
 
@@ -43,7 +48,7 @@ const Dashboard = () => {
     <div>
       <p>Dashboard</p>
       <button onClick={logout}>Logout</button>
-      <p>Hi {username}</p>
+      <p>Hi {username || "User"}</p>
     </div>
   );
 };
