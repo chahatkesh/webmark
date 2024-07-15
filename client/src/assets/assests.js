@@ -11,6 +11,8 @@ import icon04 from './icon04.png'
 import icon05 from './icon05.png'
 import icon06 from './icon06.png'
 
+// login page
+import small_logo_white from './small_logo_white.svg'
 
 // hero image
 import hero_image from './hero_image.png'
@@ -41,4 +43,5 @@ export const assets = {
   stripes_dark,
   feature_product,
   features_card,
+  small_logo_white,
 }

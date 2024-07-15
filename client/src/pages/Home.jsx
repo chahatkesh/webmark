@@ -1,16 +1,16 @@
 import React from "react";
-import HeroContent from "../components/HeroContent";
-import Background from "../components/Background/Background";
-import Circle1 from "../components/Background/Circle1";
-import Circle2 from "../components/Background/Circle2";
-import Circle3 from "../components/Background/Circle3";
-import Navbar from "../components/Navbar";
-import Message from "../components/Message";
-import Footer from "../components/Footer";
-import Cta from "../components/Cta";
-import Testimonial from "../components/Testimonial";
-import Features1 from "../components/Features1";
-import Features2 from "../components/Features2";
+import HeroContent from "../components/HomeComponents/HeroContent";
+import Background from "../components/HomeComponents/Background/Background";
+import Circle1 from "../components/HomeComponents/Background/Circle1";
+import Circle2 from "../components/HomeComponents/Background/Circle2";
+import Circle3 from "../components/HomeComponents/Background/Circle3";
+import Navbar from "../components/HomeComponents/Navbar";
+import Message from "../components/HomeComponents/Message";
+import Footer from "../components/HomeComponents/Footer";
+import Cta from "../components/HomeComponents/Cta";
+import Testimonial from "../components/HomeComponents/Testimonial";
+import Features1 from "../components/HomeComponents/Features1";
+import Features2 from "../components/HomeComponents/Features2";
 
 const Home = () => {
   return (

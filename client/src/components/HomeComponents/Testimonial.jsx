@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { assets } from "../assets/assests";
+import { assets } from "../../assets/assests";
 
 const Testimonial = () => {
   useEffect(() => {
