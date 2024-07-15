@@ -7,7 +7,7 @@ const Navbar = () => {
       <div className="pl-4 pr-4 md:pl-6 md:pr-6 max-w-[72rem] ml-auto mr-auto">
         <div className="bg-white pl-3 opacity-90 pr-3 rounded-[1rem] h-[3.5rem] flex justify-between items-center relative gap-3 shadow">
           <div className="flex items-center flex-1">
-            <a className="inline-flex" href="#">
+            <a className="inline-flex" href="/">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="110"

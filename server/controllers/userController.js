@@ -48,6 +48,11 @@ const registerUser = async (req, res) => {
       return res.json({ success: false, message: "Email already in use" });
     }
 
+    // validating username
+    if (!(username.length == 6)) {
+      return res.json({ success: false, message: "Username must be of 6 Characters" });
+    }
+
     const existUsername = await userModel.findOne({ username });
     if (existUsername) {
       return res.json({ success: false, message: "Username already in use" });
@@ -85,8 +90,9 @@ const userData = async (req, res) => {
   try {
     const userdata = await userModel.findById(req.body.userId);
     if (userdata) {
-      res.json({ success: true, username: userdata.username });
-    } else {
+      res.json({ success: true, username: userdata.username, useremail: userdata.email });
+    }
+    else {
       res.json({ success: false, message: "User not found" });
     }
   } catch (error) {

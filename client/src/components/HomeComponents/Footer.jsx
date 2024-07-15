@@ -7,7 +7,7 @@ const Footer = () => {
         <div className="pt-8 pb-8 md:pt-12 md:pb-12 grid gap-10 sm:grid-cols-12">
           <div className="sm:col-span-12 lg:col-span-4">
             <div>
-              <a className="inline-flex pl-1" href="">
+              <a className="inline-flex pl-1" href="/">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="26"
