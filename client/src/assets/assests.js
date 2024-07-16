@@ -15,6 +15,7 @@ import icon06 from './icon06.png'
 
 // login page
 import small_logo_white from './small_logo_white.svg'
+import small_logo_color from './small_logo_color.svg'
 
 // hero image
 import hero_image from './hero_image.png'
@@ -47,4 +48,5 @@ export const assets = {
   features_card,
   small_logo_white,
   user_icon,
+  small_logo_color,
 }
