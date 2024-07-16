@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { StoreContext } from "../context/StoreContext";
 import axios from "axios";
+import Loader from "../components/Loader";
 
 const Dashboard = () => {
   const { url, token, setToken } = useContext(StoreContext);
@@ -52,7 +53,17 @@ const Dashboard = () => {
     }
   }, [username, useremail, fetchUserData]);
 
-  return (
+  // loader start
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+  // loder ends
+
+  return loading ? (
+    <Loader />
+  ) : (
     <div>
       <p>Dashboard</p>
       <button onClick={logout}>Logout</button>

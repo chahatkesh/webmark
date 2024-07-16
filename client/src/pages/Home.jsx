@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import HeroContent from "../components/HomeComponents/HeroContent";
 import Background from "../components/HomeComponents/Background/Background";
 import Circle1 from "../components/HomeComponents/Background/Circle1";
@@ -11,9 +11,20 @@ import Cta from "../components/HomeComponents/Cta";
 import Testimonial from "../components/HomeComponents/Testimonial";
 import Features1 from "../components/HomeComponents/Features1";
 import Features2 from "../components/HomeComponents/Features2";
+import Loader from "../components/Loader";
 
 const Home = () => {
-  return (
+  // loader start
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1500);
+  }, []);
+  // loder ends
+
+  return loading ? (
+    <Loader />
+  ) : (
     <>
       <Navbar />
       <main className="flex-grow">

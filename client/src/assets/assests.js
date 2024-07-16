@@ -2,6 +2,8 @@ import logo_black from './logo_black.png'
 import logo_color from './logo_color.png'
 import logo_white from './logo_white.png'
 
+// dashboard
+import user_icon from './user_icon.png'
 
 // header logos 
 import icon01 from './icon01.png'
@@ -44,4 +46,5 @@ export const assets = {
   feature_product,
   features_card,
   small_logo_white,
+  user_icon,
 }
