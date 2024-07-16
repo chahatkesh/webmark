@@ -136,7 +136,12 @@ const Dashboard = () => {
 
       {/* Main Body */}
       <div>
-        <button onClick={logout}>Logout</button>
+        <aside></aside>
+        <button
+          onClick={logout}
+          className="pl-3 pr-3 pt-1 pb-1 bg-blue-100 text-black mt-4 ml-16 shadow font-[500]">
+          Logout
+        </button>
       </div>
     </div>
   );
