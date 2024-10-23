@@ -10,6 +10,7 @@ import { StoreContext } from "../context/StoreContext";
 import axios from "axios";
 import Loader from "../components/Loader";
 import { assets } from "../assets/assests";
+import BookmarkList from "../components/DashboardComponents/BookmarkList";
 
 const Dashboard = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -417,8 +418,8 @@ const Dashboard = () => {
       </div>
 
       {/* Main Body */}
-      <div>
-        <aside></aside>
+      <div className="w-[95vw] h-[95vh] m-auto bg-white rounded-md px-6 py-8 overflow-scroll">
+        <BookmarkList />
       </div>
     </div>
   );
