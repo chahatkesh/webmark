@@ -7,7 +7,7 @@ import Auth from "./pages/Auth";
 const App = () => {
   const token = localStorage.getItem("token");
   return (
-    <div className="app overflow-hidden flex flex-col min-h-[100vh]">
+    <div className="app bg-white overflow-hidden flex flex-col min-h-[100vh]">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />

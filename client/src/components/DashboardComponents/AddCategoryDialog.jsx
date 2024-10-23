@@ -8,8 +8,8 @@ const AddCategoryDialog = ({ open, onClose }) => {
   const createCategory = useCreateCategory();
   const [formData, setFormData] = React.useState({
     category: "",
-    bgcolor: "#f7fee7",
-    hcolor: "#4d7c0f",
+    bgcolor: "#ecfeff",
+    hcolor: "#0e7490",
     emoji: "📑",
   });
 
@@ -42,7 +42,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium">Background Color</label>
+              <label className="text-sm font-medium">Bg Color</label>
               <Input
                 type="color"
                 value={formData.bgcolor}
