@@ -4,6 +4,27 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useCreateCategory } from "../../hooks/useBookmarks";
 
+const defaultBgColors = [
+  "#fdf2f8",
+  "#f0fdf4",
+  "#faf5ff",
+  "#fffbeb",
+  "#f7fee7",
+  "#fff1f2",
+  "#ecfeff",
+  "#fff7ed",
+];
+const defaultHColors = [
+  "#be185d",
+  "#15803d",
+  "#7e22ce",
+  "#b45309",
+  "#4d7c0f",
+  "#be123c",
+  "#0e7490",
+  "#c2410c",
+];
+
 const AddCategoryDialog = ({ open, onClose }) => {
   const createCategory = useCreateCategory();
   const [formData, setFormData] = React.useState({
@@ -23,6 +44,14 @@ const AddCategoryDialog = ({ open, onClose }) => {
     }
   };
 
+  const handleBgColorClick = (color) => {
+    setFormData({ ...formData, bgcolor: color });
+  };
+
+  const handleHColorClick = (color) => {
+    setFormData({ ...formData, hcolor: color });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
@@ -40,26 +69,46 @@ const AddCategoryDialog = ({ open, onClose }) => {
               required
             />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="flex flex-col">
             <div>
               <label className="text-sm font-medium">Bg Color</label>
-              <Input
-                type="color"
-                value={formData.bgcolor}
-                onChange={(e) =>
-                  setFormData({ ...formData, bgcolor: e.target.value })
-                }
-              />
+              <div className="flex items-center space-x-2">
+                {defaultBgColors.map((color) => (
+                  <div
+                    key={color}
+                    className="w-12 h-6 cursor-pointer rounded-sm shadow-sm"
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleBgColorClick(color)}
+                  />
+                ))}
+                <Input
+                  type="color"
+                  value={formData.bgcolor}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bgcolor: e.target.value })
+                  }
+                />
+              </div>
             </div>
             <div>
-              <label className="text-sm font-medium">Header Color</label>
-              <Input
-                type="color"
-                value={formData.hcolor}
-                onChange={(e) =>
-                  setFormData({ ...formData, hcolor: e.target.value })
-                }
-              />
+              <label className="text-sm font-medium">Heading Color</label>
+              <div className="flex items-center space-x-2">
+                {defaultHColors.map((color) => (
+                  <div
+                    key={color}
+                    className="w-12 h-6 cursor-pointer rounded-sm shadow-sm"
+                    style={{ backgroundColor: color }}
+                    onClick={() => handleHColorClick(color)}
+                  />
+                ))}
+                <Input
+                  type="color"
+                  value={formData.hcolor}
+                  onChange={(e) =>
+                    setFormData({ ...formData, hcolor: e.target.value })
+                  }
+                />
+              </div>
             </div>
             <div>
               <label className="text-sm font-medium">Emoji</label>
