@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { connectDB } from './config/db.js'
 import userRouter from './routes/userRoute.js'
-import bookmarkRouter from './routes/bookmarkRoutes.js'
+import router from './routes/bookmarkRoutes.js'
 import 'dotenv/config'
 
 
@@ -21,7 +21,7 @@ connectDB();
 
 // api endpoints
 app.use("/api/user", userRouter)
-app.use("/api/bookmarks", bookmarkRouter)
+app.use("/api/bookmarks", router)
 
 app.get('/', (req, res) => {
   res.send("API Working")
