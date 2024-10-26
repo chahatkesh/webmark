@@ -35,7 +35,7 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
           <DialogTitle>Add New Bookmark</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <label className="text-sm font-medium">Name</label>
             <Input
               value={formData.name}
@@ -45,7 +45,7 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
               required
             />
           </div>
-          <div>
+          <div className="space-y-2">
             <label className="text-sm font-medium">Link</label>
             <Input
               type="url"
@@ -56,7 +56,7 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
               required
             />
           </div>
-          <div>
+          <div className="space-y-2">
             <label className="text-sm font-medium">Logo URL</label>
             <Input
               type="url"

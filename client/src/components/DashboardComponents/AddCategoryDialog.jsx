@@ -29,9 +29,9 @@ const AddCategoryDialog = ({ open, onClose }) => {
   const createCategory = useCreateCategory();
   const [formData, setFormData] = React.useState({
     category: "",
-    bgcolor: "#ecfeff",
-    hcolor: "#0e7490",
-    emoji: "📑",
+    bgcolor: "#fdf2f8",
+    hcolor: "#be185d",
+    emoji: "📌",
   });
 
   const handleSubmit = async (e) => {
@@ -59,7 +59,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
           <DialogTitle>Add New Category</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <label className="text-sm font-medium">Category Name</label>
             <Input
               value={formData.category}
@@ -71,7 +71,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
           </div>
           <div className="flex flex-col">
             <div>
-              <label className="text-sm font-medium">Bg Color</label>
+              <label className="text-sm font-medium">Background Color</label>
               <div className="flex items-center space-x-2">
                 {defaultBgColors.map((color) => (
                   <div
