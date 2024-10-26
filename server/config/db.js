@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 
 export const connectDB = async () => {
-  await mongoose.connect('mongodb+srv://webmark:aXKOFEyaPwQE8Tmv@cluster0.oa5edgb.mongodb.net/webmark').then(() => console.log('DB Connected'))
+  const dbUri = process.env.MONGO_URI;
+  if (!dbUri) {
+    throw new Error("MONGO_URI is not defined in the environment variables");
+  }
+  await mongoose.connect(dbUri).then(() => console.log('DB Connected'));
 }
