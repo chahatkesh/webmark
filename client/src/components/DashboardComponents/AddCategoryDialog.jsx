@@ -117,7 +117,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
                 onChange={(e) =>
                   setFormData({ ...formData, emoji: e.target.value })
                 }
-                placeholder="📑"
+                placeholder="Add emoji/icon"
               />
             </div>
           </div>
