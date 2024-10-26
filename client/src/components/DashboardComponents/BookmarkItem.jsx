@@ -22,15 +22,18 @@ const BookmarkItem = ({ category, categoryId, color, hcolor, emoji }) => {
             {emoji} {category}
           </h1>
           <div className="flex items-center justify-center">
+            {/* buuton to add bookmark */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsAddingBookmark(true)}>
               <PlusCircle size={20} />
             </Button>
+            {/* button to edit bookmark */}
             <Button variant="ghost" size="sm">
               <Pencil size={18} />
             </Button>
+            {/* button to delete complete category */}
             <Button
               variant="ghost"
               size="sm"

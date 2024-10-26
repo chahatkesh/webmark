@@ -32,11 +32,16 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="rounded-xl p-8 shadow-lg bg-white w-[95vw] max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add New Bookmark</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold text-gray-800">
+            Add New Bookmark
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* form item */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Name</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Name
+            </label>
             <Input
               value={formData.name}
               onChange={(e) =>
@@ -46,7 +51,9 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Link</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Link
+            </label>
             <Input
               type="url"
               value={formData.link}
@@ -57,7 +64,9 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Logo URL</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Logo URL
+            </label>
             <Input
               type="url"
               value={formData.logo}
