@@ -190,7 +190,7 @@ const Dashboard = () => {
                 ref={dropdown}
                 onFocus={() => setDropdownOpen(true)}
                 onBlur={() => setDropdownOpen(false)}
-                className={`absolute right-0 top-full w-[240px] divide-y divide-stroke overflow-hidden rounded-lg bg-white ${
+                className={`absolute z-50 right-0 top-full w-[240px] divide-y divide-stroke overflow-hidden rounded-lg bg-white ${
                   dropdownOpen ? "block" : "hidden"
                 }`}>
                 <div className="flex items-center gap-3 px-4 py-3">

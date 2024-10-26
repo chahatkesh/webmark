@@ -30,7 +30,7 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="rounded-xl p-8 shadow-lg bg-white w-[95vw] max-w-lg">
         <DialogHeader>
           <DialogTitle>Add New Bookmark</DialogTitle>
         </DialogHeader>

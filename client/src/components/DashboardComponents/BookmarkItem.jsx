@@ -21,12 +21,23 @@ const BookmarkItem = ({ category, categoryId, color, hcolor, emoji }) => {
             className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2">
             {emoji} {category}
           </h1>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsAddingBookmark(true)}>
-            <PlusCircle size={20} />
-          </Button>
+          <div className="flex items-center justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAddingBookmark(true)}>
+              <PlusCircle size={20} />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <Pencil size={18} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAddingBookmark(true)}>
+              <Trash size={18} />
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 mt-2 md:mt-4 gap-x-2 gap-y-2 md:gap-x-3 md:gap-y-3">
@@ -46,7 +57,6 @@ const BookmarkItem = ({ category, categoryId, color, hcolor, emoji }) => {
           ))}
         </div>
       </div>
-
       <AddBookmarkDialog
         open={isAddingBookmark}
         onClose={() => setIsAddingBookmark(false)}
