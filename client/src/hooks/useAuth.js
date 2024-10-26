@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { StoreContext } from "../context/StoreContext";
 
 export const useAuth = () => {
+  const { url } = useContext(StoreContext);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState(null);
@@ -17,7 +19,7 @@ export const useAuth = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/api/user/userdata', {
+      const response = await fetch(`${url}/api/user/userdata`, {
         method: 'POST',
         headers: {
           token: token

@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { StoreContext } from "../context/StoreContext";
+import { useContext } from 'react';
 
-const API_URL = 'http://localhost:4000/api';
-
+const { url } = useContext(StoreContext);
 export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const res = await fetch(`${API_URL}/bookmarks/categories`, {
+      const res = await fetch(`${url}/bookmarks/categories`, {
         headers: {
           token: localStorage.getItem('token')
         }
@@ -22,7 +23,7 @@ export const useBookmarks = (categoryId) => {
   return useQuery({
     queryKey: ['bookmarks', categoryId],
     queryFn: async () => {
-      const res = await fetch(`${API_URL}/bookmarks/bookmarks/${categoryId}`, {
+      const res = await fetch(`${url}/bookmarks/bookmarks/${categoryId}`, {
         headers: {
           token: localStorage.getItem('token')
         }
@@ -40,7 +41,7 @@ export const useCreateCategory = () => {
 
   return useMutation({
     mutationFn: async (categoryData) => {
-      const res = await fetch(`${API_URL}/bookmarks/category`, {
+      const res = await fetch(`${url}/bookmarks/category`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ export const useCreateBookmark = () => {
 
   return useMutation({
     mutationFn: async (bookmarkData) => {
-      const res = await fetch(`${API_URL}/bookmarks/bookmark`, {
+      const res = await fetch(`${url}/bookmarks/bookmark`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
