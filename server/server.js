@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { connectDB } from './config/db.js'
 import userRouter from './routes/userRoute.js'
-import bookmarkRouter from './routes/bookmarkRoute' // Ensure this path is correct
+import bookmarkRouter from './routes/bookmarkRoute.js' // Ensure this path is correct
 import 'dotenv/config'
 
 // app config
