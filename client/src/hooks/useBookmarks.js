@@ -2,8 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { StoreContext } from "../context/StoreContext";
 import { useContext } from 'react';
 
-const { url } = useContext(StoreContext);
 export const useCategories = () => {
+  const { url } = useContext(StoreContext);
   return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
@@ -20,6 +20,7 @@ export const useCategories = () => {
 };
 
 export const useBookmarks = (categoryId) => {
+  const { url } = useContext(StoreContext);
   return useQuery({
     queryKey: ['bookmarks', categoryId],
     queryFn: async () => {
@@ -38,6 +39,7 @@ export const useBookmarks = (categoryId) => {
 
 export const useCreateCategory = () => {
   const queryClient = useQueryClient();
+  const { url } = useContext(StoreContext);
 
   return useMutation({
     mutationFn: async (categoryData) => {
@@ -61,6 +63,7 @@ export const useCreateCategory = () => {
 
 export const useCreateBookmark = () => {
   const queryClient = useQueryClient();
+  const { url } = useContext(StoreContext);
 
   return useMutation({
     mutationFn: async (bookmarkData) => {
