@@ -12,6 +12,8 @@ import Testimonial from "../components/HomeComponents/Testimonial";
 import Features1 from "../components/HomeComponents/Features1";
 import Features2 from "../components/HomeComponents/Features2";
 import Loader from "../components/Loader";
+import HowtoUse from "../components/HomeComponents/HowtoUse";
+import About from "../components/HomeComponents/About";
 
 const Home = () => {
   // loader start
@@ -38,7 +40,9 @@ const Home = () => {
         <Message />
         <Features1 />
         <Features2 />
+        <HowtoUse />
         <Testimonial />
+        <About />
         <Cta />
       </main>
       <Footer />

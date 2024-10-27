@@ -2,6 +2,13 @@ import React from "react";
 
 const Navbar = () => {
   let logoColour = "#1361F5";
+
+  const scrollToSection = (sectionId) => {
+    document.getElementById(sectionId).scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section className="z-30 w-full top-4 md:top-6 fixed">
       <div className="pl-4 pr-4 md:pl-6 md:pr-6 max-w-[72rem] ml-auto mr-auto">
@@ -54,19 +61,29 @@ const Navbar = () => {
           </div>
           <nav className="hidden md:flex md:flex-grow text-[#374252]">
             <ul className="flex flex-grow flex-wrap justify-center items-center gap-4 lg:gap-8 text-sm">
-              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+              <li
+                onClick={() => scrollToSection("home")}
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
                 home
               </li>
-              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
-                featues
+              <li
+                onClick={() => scrollToSection("features")}
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+                features
               </li>
-              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+              <li
+                onClick={() => scrollToSection("how-to-use")}
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
                 how to use
               </li>
-              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+              <li
+                onClick={() => scrollToSection("about-us")}
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
                 about us
               </li>
-              <li className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+              <li
+                onClick={() => scrollToSection("contact")}
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
                 contact
               </li>
             </ul>

@@ -3,7 +3,9 @@ import { assets } from "../../assets/assests";
 
 const Hero = () => {
   return (
-    <section className="max-w-[72rem] ml-auto mr-auto pl-4 pr-4 md:pl-6 md:pr-6">
+    <section
+      id="home"
+      className="max-w-[72rem] ml-auto mr-auto pl-4 pr-4 md:pl-6 md:pr-6">
       <div className="w-full pt-32 md:pt-40 pb-12 md:pb-20">
         <div className="pb-12 md:pb-16 text-center">
           <div className="mb-6 border-in-header">
