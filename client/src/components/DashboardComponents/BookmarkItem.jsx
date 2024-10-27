@@ -1,14 +1,22 @@
 import React from "react";
-import { useBookmarks, useCreateBookmark } from "../../hooks/useBookmarks";
+import { useBookmarks, useDeleteCategory } from "../../hooks/useBookmarks";
 import { Button } from "../ui/button";
 import { PlusCircle, Pencil, Trash } from "lucide-react";
 import AddBookmarkDialog from "./AddBookmarkDialog";
+import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
 
 const BookmarkItem = ({ category, categoryId, color, hcolor, emoji }) => {
   const { data: bookmarks, isLoading } = useBookmarks(categoryId);
+  const deleteCategory = useDeleteCategory();
   const [isAddingBookmark, setIsAddingBookmark] = React.useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = React.useState(false);
 
   if (isLoading) return <div>Loading...</div>;
+
+  const handleDeleteCategory = () => {
+    deleteCategory.mutate(categoryId);
+    setIsConfirmDeleteOpen(false);
+  };
 
   return (
     <>
@@ -22,22 +30,19 @@ const BookmarkItem = ({ category, categoryId, color, hcolor, emoji }) => {
             {emoji} {category}
           </h1>
           <div className="flex items-center justify-center">
-            {/* buuton to add bookmark */}
             <Button
-              variant="ghost"
+              variant="ghost2"
               size="sm"
               onClick={() => setIsAddingBookmark(true)}>
               <PlusCircle size={20} />
             </Button>
-            {/* button to edit bookmark */}
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost2" size="sm">
               <Pencil size={18} />
             </Button>
-            {/* button to delete complete category */}
             <Button
-              variant="ghost"
+              variant="ghost2"
               size="sm"
-              onClick={() => setIsAddingBookmark(true)}>
+              onClick={() => setIsConfirmDeleteOpen(true)}>
               <Trash size={18} />
             </Button>
           </div>
@@ -64,6 +69,11 @@ const BookmarkItem = ({ category, categoryId, color, hcolor, emoji }) => {
         open={isAddingBookmark}
         onClose={() => setIsAddingBookmark(false)}
         categoryId={categoryId}
+      />
+      <ConfirmDeleteDialog
+        open={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={handleDeleteCategory}
       />
     </>
   );

@@ -4,9 +4,9 @@ export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
   //local host
-  // const url = "http://localhost:4000";
+  const url = "http://localhost:4000";
   // deployed
-  const url = "https://webmark-server.onrender.com";
+  // const url = "https://webmark-server.onrender.com";
   const [token, setToken] = useState("");
   const contextValue = {
     url,

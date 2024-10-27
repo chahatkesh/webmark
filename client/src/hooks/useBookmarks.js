@@ -84,3 +84,28 @@ export const useCreateBookmark = () => {
     }
   });
 };
+
+// delete category
+export const useDeleteCategory = () => {
+  const queryClient = useQueryClient();
+  const { url } = useContext(StoreContext);
+
+  return useMutation({
+    mutationFn: async (categoryId) => {
+      const res = await fetch(`${url}/api/bookmarks/category`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          token: localStorage.getItem('token')
+        },
+        body: JSON.stringify({ categoryId })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['categories']);
+    }
+  });
+};

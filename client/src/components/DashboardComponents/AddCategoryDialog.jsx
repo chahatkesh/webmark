@@ -109,7 +109,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
                 <button
                   key={color}
                   type="button"
-                  className={`w-6 h-6 md:w-10 md:h-10 rounded-full cursor-pointer ${
+                  className={`w-6 h-6 md:w-10 md:h-10 shadow-md rounded-full cursor-pointer ${
                     formData.bgcolor === color
                       ? "ring-2 ring-offset-2 ring-blue-500"
                       : ""
@@ -130,7 +130,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
                 <button
                   key={color}
                   type="button"
-                  className={`w-6 h-6 md:w-10 md:h-10 rounded-full cursor-pointer ${
+                  className={`w-6 h-6 md:w-10 md:h-10 shadow-md rounded-full cursor-pointer ${
                     formData.hcolor === color
                       ? "ring-2 ring-offset-2 ring-blue-500"
                       : ""
