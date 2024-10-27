@@ -69,7 +69,7 @@ const Auth = () => {
     if (response.data.success) {
       setToken(response.data.token);
       localStorage.setItem("token", response.data.token);
-      navigate("../dashboard");
+      navigate("../user/dashboard");
     } else {
       alert(response.data.message);
     }
@@ -78,7 +78,7 @@ const Auth = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      navigate("/dashboard");
+      navigate("/user/dashboard");
     }
   }, [navigate]);
 
