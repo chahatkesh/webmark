@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }) => {
 
 const App = () => {
   return (
-    <div className="app bg-white overflow-hidden flex flex-col min-h-[100vh]">
+    <div className="app bg-white overflow-hidden flex flex-col max-h-[100vh]">
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />

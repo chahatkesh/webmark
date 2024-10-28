@@ -117,15 +117,16 @@ const Header = () => {
               ref={trigger}
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="inline-flex items-center justify-center gap-2 rounded bg-white px-3 py-2 hover:bg-gray-50">
-              <h3 className="text-[12px] md:text-[14px]">{username}</h3>
-              <img className="w-5" src={assets.user_icon} alt="" />
+              <div className="relative aspect-square w-6 rounded-full flex items-center justify-center bg-blue-600 text-white font-semibold text-md">
+                {username.charAt(0).toUpperCase()}
+              </div>
               <span
                 className={`duration-100 ${
                   dropdownOpen ? "-scale-y-100" : ""
                 }`}>
                 <svg
-                  width="20"
-                  height="20"
+                  width="18"
+                  height="18"
                   viewBox="0 0 20 20"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg">
@@ -145,15 +146,13 @@ const Header = () => {
               }`}>
               <div className="flex items-center gap-3 px-4 py-3">
                 <div className="relative aspect-square w-10 rounded-full">
-                  <img
-                    src={assets.user_icon}
-                    alt="account"
-                    className="w-full rounded-full object-cover object-center"
-                  />
+                  <div className="relative aspect-square w-10 rounded-full flex items-center justify-center bg-blue-500 text-white font-semibold text-lg">
+                    {username.charAt(0).toUpperCase()}
+                  </div>
                 </div>
                 <div>
                   <p className="text-sm font-semibold ">{username}</p>
-                  <p className="text-sm text-body-color ">{useremail}</p>
+                  <p className="text-sm text-gray-600 ">{useremail}</p>
                 </div>
               </div>
               <div>
