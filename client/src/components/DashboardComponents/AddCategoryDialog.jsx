@@ -114,7 +114,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="rounded-xl p-8 shadow-lg bg-white w-[95vw] max-w-lg">
+      <DialogContent className="rounded-xl p-8 shadow-lg bg-white w-full max-w-[95vw] sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold text-gray-800">
             Add New Category
@@ -137,14 +137,14 @@ const AddCategoryDialog = ({ open, onClose }) => {
                   {formData.emoji}
                 </button>
                 {showEmojiPicker && (
-                  <div className="absolute left-[6%] top-[29%] z-50">
+                  <div className="absolute left-[6%] sm:left-[6%] top-[32%] sm:top-[34%] z-50">
                     <EmojiPicker onEmojiClick={handleEmojiClick} />
                   </div>
                 )}
               </div>
             </div>
             {/* category */}
-            <div className="w-full">
+            <div className="w-full sm:w-auto flex-grow">
               <label className="block text-sm font-medium text-gray-600">
                 Category Name
               </label>
@@ -164,7 +164,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
             <label className="block text-sm font-medium text-gray-600 mb-4">
               Color Theme
             </label>
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-4">
               {Object.entries(colorThemes).map(([category, themes]) => (
                 <div key={category} className="flex items-center space-x-3">
                   {themes.map((theme) => (
@@ -172,31 +172,29 @@ const AddCategoryDialog = ({ open, onClose }) => {
                       key={theme.name}
                       onClick={() => handleThemeChange(theme)}
                       className={`relative w-8 h-8 shadow-lg rounded-full cursor-pointer transition-all
-              ${
-                formData.themeName === theme.name
-                  ? "ring-2 ring-blue-500"
-                  : "ring-2 ring-white"
-              }
-            `}
+                ${
+                  formData.themeName === theme.name
+                    ? "ring-2 ring-blue-500"
+                    : "ring-2 ring-white"
+                }
+              `}
                       style={{ backgroundColor: theme.h }}
-                      title={theme.name} // Tooltip with theme name on hover
-                    ></div>
+                      title={theme.name}></div>
                   ))}
                 </div>
               ))}
             </div>
           </div>
-
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Adding..." : "Add Category"}
           </Button>
         </form>
         {/* PREVIEW */}
         <div className="mb-6 rounded-lg border border-gray-200 overflow-hidden">
-          <div className="hidden md:block bg-gray-50 p-3 border-b border-gray-200">
+          <div className="bg-gray-50 p-3 border-b border-gray-200">
             <div className="text-sm font-medium text-gray-600">Preview</div>
             {currentTheme && (
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="hidden md:block text-xs text-gray-500 mt-1">
                 {currentTheme.preview} - {currentTheme.category} collection
               </div>
             )}
