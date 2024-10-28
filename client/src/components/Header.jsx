@@ -55,7 +55,7 @@ const Header = () => {
   return loading ? (
     <Loader />
   ) : (
-    <div className="bg-white md:pl-10 md:pr-10 pl-6 h-[4rem] flex justify-between items-center">
+    <div className="bg-white md:pl-10 md:pr-10 pl-6 h-[4rem] flex justify-between items-center w-full fixed z-50">
       <div className="flex items-center">
         <a className="inline-flex" href="">
           <img width={28} src={assets.small_logo_color} alt="" />
