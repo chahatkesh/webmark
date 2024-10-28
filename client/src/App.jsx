@@ -1,6 +1,6 @@
-// src/App.jsx
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./hooks/useAuth";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Tools from "./pages/Tools";
@@ -8,9 +8,19 @@ import Steps from "./pages/Steps";
 import ReportProblem from "./pages/ReportProblem";
 import Auth from "./pages/Auth";
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
+import Loader from "./components/Loader";
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  return isAuthenticated ? children : <Navigate to="/auth" />;
+};
 
 const App = () => {
-  const token = localStorage.getItem("token");
   return (
     <div className="app bg-white overflow-hidden flex flex-col min-h-[100vh]">
       <Routes>
@@ -19,52 +29,46 @@ const App = () => {
         <Route path="/auth" element={<Auth />} />
 
         {/* Protected Routes */}
-        {token && (
-          <>
-            <Route
-              path="/user/dashboard"
-              element={
-                <AuthenticatedLayout>
-                  <Dashboard />
-                </AuthenticatedLayout>
-              }
-            />
-            <Route
-              path="/user/more-tools"
-              element={
-                <AuthenticatedLayout>
-                  <Tools />
-                </AuthenticatedLayout>
-              }
-            />
-            <Route
-              path="/user/how-to-use"
-              element={
-                <AuthenticatedLayout>
-                  <Steps />
-                </AuthenticatedLayout>
-              }
-            />
-            <Route
-              path="/user/report-problem"
-              element={
-                <AuthenticatedLayout>
-                  <ReportProblem />
-                </AuthenticatedLayout>
-              }
-            />
-          </>
-        )}
-
-        {/* Redirect to Auth if not logged in */}
-        {!token && (
-          <>
-            <Route path="/user/dashboard" element={<Auth />} />
-            <Route path="/user/more-tools" element={<Auth />} />
-            <Route path="/user/how-to-use" element={<Auth />} />
-            <Route path="/user/report-problem" element={<Auth />} />
-          </>
-        )}
+        <Route
+          path="/user/dashboard"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout>
+                <Dashboard />
+              </AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/more-tools"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout>
+                <Tools />
+              </AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/how-to-use"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout>
+                <Steps />
+              </AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/report-problem"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout>
+                <ReportProblem />
+              </AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );

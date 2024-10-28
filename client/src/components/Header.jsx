@@ -1,19 +1,12 @@
-import React, {
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { StoreContext } from "../context/StoreContext";
-import axios from "axios";
+import { useAuth } from "../hooks/useAuth";
 import Loader from "../components/Loader";
 import { assets } from "../assets/assests";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
@@ -42,54 +35,14 @@ const Header = () => {
     document.addEventListener("keydown", keyHandler);
     return () => document.removeEventListener("keydown", keyHandler);
   });
-  const { url, token, setToken } = useContext(StoreContext);
-  const [username, setUsername] = useState(
-    localStorage.getItem("username") || ""
-  );
-  const [useremail, setUseremail] = useState(
-    localStorage.getItem("useremail") || ""
-  );
+  const { user } = useContext(StoreContext);
+  const { logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation(); // Hook to get current route path
+  const location = useLocation();
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    localStorage.removeItem("useremail");
-    setToken("");
-    setUsername("");
-    setUseremail("");
-    navigate("/auth");
-  }, [navigate, setToken]);
-
-  const fetchUserData = useCallback(async () => {
-    try {
-      const response = await axios.post(
-        `${url}/api/user/userdata`,
-        {},
-        { headers: { token } }
-      );
-      const { username: fetchedUsername, useremail: fetchedUseremail } =
-        response.data;
-
-      if (fetchedUsername) {
-        setUsername(fetchedUsername);
-        localStorage.setItem("username", fetchedUsername);
-      }
-      if (fetchedUseremail) {
-        setUseremail(fetchedUseremail);
-        localStorage.setItem("useremail", fetchedUseremail);
-      }
-    } catch (error) {
-      alert("Error fetching user data: " + error);
-    }
-  }, [url, token]);
-
-  useEffect(() => {
-    if (!username || !useremail) {
-      fetchUserData();
-    }
-  }, [username, useremail, fetchUserData]);
+  // No need for separate username/email states since we're using the user object from context
+  const username = user?.username || "";
+  const useremail = user?.useremail || "";
 
   // loading state
   const [loading, setLoading] = useState(true);

@@ -1,14 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assests";
-import axios from "axios";
-import { StoreContext } from "../context/StoreContext";
+import { useAuth } from "../hooks/useAuth";
 import Loader from "../components/Loader";
 
 const Auth = () => {
-  const { url, setToken } = useContext(StoreContext);
   const navigate = useNavigate();
+  const { login, signup, isAuthenticated } = useAuth();
   const [currState, setCurrState] = useState("Sign Up");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -22,13 +23,24 @@ const Auth = () => {
     emailError: "",
   });
 
-  const { username, password, email, login } = formData;
+  const { username, password, email, login: loginField } = formData;
   const { usernameError, passwordError, passwordStrong, emailError } = errors;
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/user/dashboard");
+    }
+    // Initial loading timeout
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
+    // Validation logic
     if (name === "username") {
       const usernameRegex = /^[a-z0-9]*$/;
       setErrors({
@@ -60,52 +72,55 @@ const Auth = () => {
     }
   };
 
-  const onLogin = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const newUrl = `${url}/api/user/${
-      currState === "Login" ? "login" : "register"
-    }`;
-    const response = await axios.post(newUrl, formData);
-    if (response.data.success) {
-      setToken(response.data.token);
-      localStorage.setItem("token", response.data.token);
-      navigate("../user/dashboard");
-    } else {
-      alert(response.data.message);
+
+    // Validate form before submission
+    if (currState === "Sign Up") {
+      if (usernameError || emailError || passwordError) {
+        alert("Please fix the form errors before submitting.");
+        return;
+      }
+    }
+
+    setSubmitting(true);
+    try {
+      const result =
+        currState === "Login"
+          ? await login({ login: loginField, password })
+          : await signup({ username, email, password });
+
+      if (!result.success) {
+        alert(result.message || "An error occurred during authentication");
+      }
+    } catch (error) {
+      console.error("Authentication error:", error);
+      alert("An unexpected error occurred. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/user/dashboard");
-    }
-  }, [navigate]);
+  if (loading) {
+    return <Loader />;
+  }
 
-  // loader start
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
-  // loder ends
-
-  return loading ? (
-    <Loader />
-  ) : (
+  return (
     <div className="w-[100vw] h-[100vh] grid lg:grid-cols-2 justify-center items-center">
+      {/* Left side - visible only on large screens */}
       <div className="hidden lg:flex w-[50vw] h-full bg-blue-500 flex-col justify-center items-center">
-        <img src={assets.small_logo_white} width={210} alt="" />
+        <img src={assets.small_logo_white} width={210} alt="Webmark Logo" />
         <h1 className="mt-8 text-5xl font-[500] text-center text-white max-w-[440px] leading-[1.15]">
           Welcome back to Webmark!
         </h1>
       </div>
 
+      {/* Right side - Auth form */}
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 items-center">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             onClick={() => navigate("/")}
-            alt="Your Company"
+            alt="Webmark Logo"
             src={assets.logo_color}
             className="mx-auto h-14 w-auto cursor-pointer"
           />
@@ -117,7 +132,7 @@ const Auth = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={onLogin} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {currState === "Sign Up" && (
               <>
                 <InputField
@@ -127,6 +142,7 @@ const Auth = () => {
                   value={username}
                   onChange={handleChange}
                   error={usernameError}
+                  disabled={submitting}
                 />
                 <InputField
                   id="email"
@@ -135,6 +151,7 @@ const Auth = () => {
                   value={email}
                   onChange={handleChange}
                   error={emailError}
+                  disabled={submitting}
                 />
               </>
             )}
@@ -143,9 +160,9 @@ const Auth = () => {
                 id="login"
                 label="Email/Username"
                 type="text"
-                value={login}
+                value={loginField}
                 onChange={handleChange}
-                error={emailError}
+                disabled={submitting}
               />
             )}
 
@@ -172,46 +189,55 @@ const Auth = () => {
                   value={password}
                   onChange={handleChange}
                   required
+                  disabled={submitting}
                   autoComplete="current-password"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 pl-4 pr-4"
                 />
-                <p className="text-[12px] max-w-[220px] lg:max-w-full pl-1 lg:pl-2 text-red-600">
-                  {passwordError}
-                </p>
-                <p className="text-[12px] mt-[2px] pl-2 text-green-500">
-                  {passwordStrong}
-                </p>
+                {passwordError && (
+                  <p className="text-[12px] max-w-[220px] lg:max-w-full pl-1 lg:pl-2 text-red-600">
+                    {passwordError}
+                  </p>
+                )}
+                {passwordStrong && (
+                  <p className="text-[12px] mt-[2px] pl-2 text-green-500">
+                    {passwordStrong}
+                  </p>
+                )}
               </div>
             </div>
 
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-blue-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500">
-                {currState}
+                disabled={submitting}
+                className={`flex w-full justify-center rounded-md bg-blue-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 ${
+                  submitting ? "opacity-50 cursor-not-allowed" : ""
+                }`}>
+                {submitting ? "Processing..." : currState}
               </button>
             </div>
           </form>
+
           <p className="mt-10 text-center text-sm text-gray-500">
             {currState === "Sign Up" ? (
               <>
                 Already have Account?{" "}
-                <a
+                <button
                   onClick={() => setCurrState("Login")}
-                  href="#"
+                  disabled={submitting}
                   className="font-semibold leading-6 text-blue-500 hover:text-blue-600">
                   Login Here
-                </a>
+                </button>
               </>
             ) : (
               <>
                 Create a New Account?{" "}
-                <a
+                <button
                   onClick={() => setCurrState("Sign Up")}
-                  href="#"
+                  disabled={submitting}
                   className="font-semibold leading-6 text-blue-500 hover:text-blue-600">
                   Click Here
-                </a>
+                </button>
               </>
             )}
           </p>
@@ -221,7 +247,7 @@ const Auth = () => {
   );
 };
 
-const InputField = ({ id, label, type, value, onChange, error }) => (
+const InputField = ({ id, label, type, value, onChange, error, disabled }) => (
   <div>
     <label
       htmlFor={id}
@@ -236,9 +262,10 @@ const InputField = ({ id, label, type, value, onChange, error }) => (
         value={value}
         onChange={onChange}
         required
+        disabled={disabled}
         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 pl-4 pr-4"
       />
-      <p className="text-[12px] pl-2 text-red-600">{error}</p>
+      {error && <p className="text-[12px] pl-2 text-red-600">{error}</p>}
     </div>
   </div>
 );

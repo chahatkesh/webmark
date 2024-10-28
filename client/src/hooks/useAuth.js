@@ -1,44 +1,113 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { StoreContext } from "../context/StoreContext";
 
 export const useAuth = () => {
-  const { url } = useContext(StoreContext);
+  const { url, setUser } = useContext(StoreContext);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [userData, setUserData] = useState(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const fetchUserData = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       setIsLoading(false);
-      return;
+      setIsAuthenticated(false);
+      setUser(null);
+      return false;
     }
 
     try {
-      const response = await fetch(`${url}/api/user/userdata`, {
-        method: 'POST',
-        headers: {
-          token: token
-        }
-      });
-      const data = await response.json();
+      const response = await axios.post(
+        `${url}/api/user/userdata`,
+        {},
+        { headers: { token } }
+      );
 
-      if (data.success) {
+      if (response.data.success) {
+        const userData = {
+          username: response.data.username,
+          useremail: response.data.useremail,
+          // Add any other user data you need
+        };
+
+        setUser(userData);
         setIsAuthenticated(true);
-        setUserData(data);
+        return true;
       } else {
-        localStorage.removeItem('token');
+        throw new Error('Failed to fetch user data');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching user data:', error);
       localStorage.removeItem('token');
+      setUser(null);
+      setIsAuthenticated(false);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
+  }, [url, setUser]);
+
+  const login = async (formData) => {
+    try {
+      const response = await axios.post(`${url}/api/user/login`, formData);
+
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        await fetchUserData(); // This will set the user data in context
+        navigate('/user/dashboard');
+        return { success: true };
+      }
+      return { success: false, message: response.data.message };
+    } catch (error) {
+      console.error('Login error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'An error occurred during login'
+      };
+    }
   };
 
-  return { isAuthenticated, isLoading, userData };
+  const signup = async (formData) => {
+    try {
+      const response = await axios.post(`${url}/api/user/register`, formData);
+
+      if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        await fetchUserData(); // This will set the user data in context
+        navigate('/user/dashboard');
+        return { success: true };
+      }
+      return { success: false, message: response.data.message };
+    } catch (error) {
+      console.error('Signup error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'An error occurred during registration'
+      };
+    }
+  };
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setIsAuthenticated(false);
+    navigate('/auth');
+  }, [navigate, setUser]);
+
+  // Check auth status when the hook is initialized
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  return {
+    isAuthenticated,
+    isLoading,
+    login,
+    signup,
+    logout,
+    fetchUserData,
+    user: useContext(StoreContext).user
+  };
 };
