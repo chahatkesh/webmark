@@ -1,26 +1,85 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 const ConfirmDeleteDialog = ({ open, onClose, onConfirm }) => {
-  if (!open) return null;
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Reset deleting state when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setIsDeleting(false);
+    }
+  }, [open]);
+
+  const handleConfirm = async () => {
+    try {
+      setIsDeleting(true);
+      await onConfirm();
+    } catch (error) {
+      console.error("Delete failed:", error);
+    } finally {
+      setIsDeleting(false);
+      onClose();
+    }
+  };
+
+  // Handle escape key press
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape" && !isDeleting) {
+        onClose();
+      }
+    };
+
+    if (open) {
+      window.addEventListener("keydown", handleEscape);
+      return () => window.removeEventListener("keydown", handleEscape);
+    }
+  }, [open, isDeleting, onClose]);
+
+  const DeleteButton = () => (
+    <Button
+      variant="destructive"
+      onClick={handleConfirm}
+      disabled={isDeleting}
+      className="min-w-[80px] flex items-center gap-2">
+      {isDeleting && <Loader2 className="h-4 w-4 animate-spin" />}
+      <span>{isDeleting ? "Deleting..." : "Delete"}</span>
+    </Button>
+  );
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-4 rounded-md shadow-lg max-w-sm w-[95vw] z-60">
-        <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
-        <p className="mb-6">
-          Are you sure you want to delete this category and all its bookmarks?
-        </p>
-        <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => !isDeleting && !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-md max-w-[94vw] rounded-lg shadow-lg">
+        <DialogHeader>
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogDescription className="text-base">
+            Are you sure you want to delete this category and all its bookmarks?
+            This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex justify-end gap-3 mt-4">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isDeleting}
+            className="min-w-[80px]">
             Cancel
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Delete
-          </Button>
+          <DeleteButton />
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

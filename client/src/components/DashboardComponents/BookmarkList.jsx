@@ -16,11 +16,9 @@ const BookmarkList = () => {
     <>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl md:text-2xl font-bold">My Bookmarks</h1>
-        <Button
-          onClick={() => setIsAddingCategory(true)}
-          className="flex items-center gap-2">
-          <PlusCircle size={20} />
-          Add Category
+        <Button onClick={() => setIsAddingCategory(true)}>
+          <PlusCircle size={18} />
+          <span className="hidden sm:block ml-2">Add Category</span>
         </Button>
       </div>
 
