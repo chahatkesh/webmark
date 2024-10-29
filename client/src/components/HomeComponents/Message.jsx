@@ -27,16 +27,14 @@ const Message = () => {
             />
           </div>
           <p className="text-[#111827] font-[700] text-[1.5rem] leading-[1.415] tracking-[-0.037em] mt-3">
-            “Simple has simplified my life in more ways than one. From managing
-            my sites to{" "}
-            <em className="text-[#6b7280] italic">keeping track of tasks</em>,
-            it&apos;s become my go-to tool for everything.”
+            “Dream boldly, question deeply, and never settle -- our greatest
+            journeys begin where comfort ends.”
           </p>
           <div className="text-[#374151] mt-3 font-[500] text-[0.875rem] leading-[1.5715]">
             <span>Chahat Kesharwani</span>
             <span className="text-[#9ca3af]">/</span>
             <a className="text-blue-500 hover:text-blue-600" href="#">
-              Founder Webmark
+              Developer Webmark
             </a>
           </div>
         </div>
