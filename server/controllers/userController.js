@@ -30,12 +30,10 @@ const loginUser = async (req, res) => {
     const token = createToken(user._id);
     res.json({ success: true, token });
   }
-
   catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error" });
   }
-
 };
 
 // register user
@@ -90,7 +88,12 @@ const userData = async (req, res) => {
   try {
     const userdata = await userModel.findById(req.body.userId);
     if (userdata) {
-      res.json({ success: true, username: userdata.username, useremail: userdata.email });
+      res.json({
+        success: true,
+        username: userdata.username,
+        email: userdata.email,
+        joinedAt: userdata.joinedAt
+      });
     }
     else {
       res.json({ success: false, message: "User not found" });
@@ -100,7 +103,5 @@ const userData = async (req, res) => {
     res.json({ success: false, message: "Error fetching user data" });
   }
 };
-
-
 
 export { loginUser, registerUser, userData };

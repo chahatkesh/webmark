@@ -13,7 +13,7 @@ import Features1 from "../components/HomeComponents/Features1";
 import Features2 from "../components/HomeComponents/Features2";
 import Loader from "../components/Loader";
 import HowtoUse from "../components/HomeComponents/HowtoUse";
-import About from "../components/HomeComponents/About";
+import StatsSection from "../components/HomeComponents/StatsSection";
 
 const Home = () => {
   // loader start
@@ -41,8 +41,8 @@ const Home = () => {
         <Features1 />
         <Features2 />
         <HowtoUse />
+        <StatsSection />
         <Testimonial />
-        <About />
         <Cta />
       </main>
       <Footer />

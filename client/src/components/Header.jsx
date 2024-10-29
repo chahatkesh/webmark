@@ -117,7 +117,7 @@ const Header = () => {
               ref={trigger}
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="inline-flex items-center justify-center gap-2 rounded bg-white px-3 py-2 hover:bg-gray-50">
-              <div className="relative aspect-square w-6 rounded-full flex items-center justify-center bg-blue-600 text-white font-semibold text-md">
+              <div className="relative aspect-square w-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold">
                 {username.charAt(0).toUpperCase()}
               </div>
               <span
@@ -146,7 +146,7 @@ const Header = () => {
               }`}>
               <div className="flex items-center gap-3 px-4 py-3">
                 <div className="relative aspect-square w-10 rounded-full">
-                  <div className="relative aspect-square w-10 rounded-full flex items-center justify-center bg-blue-500 text-white font-semibold text-lg">
+                  <div className="relative aspect-square w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-[24px]">
                     {username.charAt(0).toUpperCase()}
                   </div>
                 </div>

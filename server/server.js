@@ -2,7 +2,9 @@ import express from 'express'
 import cors from 'cors'
 import { connectDB } from './config/db.js'
 import userRouter from './routes/userRoute.js'
-import bookmarkRouter from './routes/bookmarkRoute.js' // Ensure this path is correct
+import bookmarkRouter from './routes/bookmarkRoute.js'
+import statsRoute from './routes/statsRoute.js';
+import { initializeCronJobs } from './utils/cronJobs.js';
 import 'dotenv/config'
 
 // app config
@@ -16,9 +18,13 @@ app.use(cors())
 // DB Connection
 connectDB();
 
+// Initialize cron jobs
+initializeCronJobs();
+
 // api endpoints
 app.use("/api/user", userRouter)
-app.use("/api/bookmarks", bookmarkRouter) // Ensure this path is correct
+app.use("/api/bookmarks", bookmarkRouter)
+app.use('/api/stats', statsRoute);
 
 app.get('/', (req, res) => {
   res.send("API Working")
