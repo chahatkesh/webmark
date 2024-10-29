@@ -90,7 +90,9 @@ const Footer = () => {
             <h3 className="font-[500] text-[#111827]">Social Media</h3>
             <ul className="flex gap-3 mt-2">
               <li className="cursor-pointer">
-                <a href="">
+                <a
+                  href="https://www.instagram.com/webmark.site?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                  target="_blank">
                   <FaInstagram className="text-blue-600" size={24} />
                 </a>
               </li>
