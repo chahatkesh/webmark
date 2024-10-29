@@ -42,7 +42,7 @@ const Header = () => {
 
   // No need for separate username/email states since we're using the user object from context
   const username = user?.username || "";
-  const useremail = user?.useremail || "";
+  const useremail = user?.email || "";
 
   // loading state
   const [loading, setLoading] = useState(true);
@@ -105,8 +105,12 @@ const Header = () => {
             }>
             report a problem
           </li>
-          <li className="cursor-pointer font-[500] text-white bg-blue-500 hover:bg-blue-600 rounded pt-1 pb-1 pl-3 pr-3">
+          <li className="relative group cursor-pointer font-[500] text-white bg-blue-500 hover:bg-blue-600 rounded pt-1 pb-1 pl-3 pr-3">
             PUBLISH
+            {/* Tooltip below button */}
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-800 text-white text-sm py-1 px-3 rounded whitespace-nowrap">
+              Coming soon
+            </span>
           </li>
         </ul>
       </nav>
