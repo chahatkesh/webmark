@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/private/
+Disallow: /api/
+Sitemap: https://webmark.site/sitemap.xml
