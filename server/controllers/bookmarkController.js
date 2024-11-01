@@ -117,3 +117,30 @@ export const deleteBookmark = async (req, res) => {
     res.json({ success: false, message: "Error deleting bookmark" });
   }
 };
+
+export const reorderBookmarks = async (req, res) => {
+  try {
+    const { categoryId, bookmarks } = req.body;
+
+    // Verify category belongs to user
+    const category = await Category.findOne({
+      _id: categoryId,
+      userId: req.body.userId
+    });
+
+    if (!category) {
+      return res.json({ success: false, message: "Category not found" });
+    }
+
+    // Update each bookmark's order
+    const updatePromises = bookmarks.map(({ id, order }) =>
+      Bookmark.findByIdAndUpdate(id, { order })
+    );
+
+    await Promise.all(updatePromises);
+
+    res.json({ success: true, message: "Bookmark order updated successfully" });
+  } catch (error) {
+    res.json({ success: false, message: "Error updating bookmark order" });
+  }
+};

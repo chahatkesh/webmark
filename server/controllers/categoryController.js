@@ -1,14 +1,38 @@
 import Category from "../models/categoryModel.js";
 import Bookmark from "../models/bookmarkModel.js";
 
-// Get all categories for a user
+// Get all categories for a user with their bookmarks
 export const getCategories = async (req, res) => {
   try {
-    const categories = await Category.find({ userId: req.body.userId }).sort(
-      "order"
-    );
-    res.json({ success: true, categories });
+    // Find all categories for the user
+    const categories = await Category.find({ userId: req.body.userId })
+      .sort("order")
+      .lean(); // Using lean() for better performance
+
+    // Get all bookmarks for these categories in one query
+    const categoryIds = categories.map(cat => cat._id);
+    const allBookmarks = await Bookmark.find({ categoryId: { $in: categoryIds } })
+      .sort('order')
+      .lean();
+
+    // Group bookmarks by category
+    const bookmarksByCategory = allBookmarks.reduce((acc, bookmark) => {
+      if (!acc[bookmark.categoryId]) {
+        acc[bookmark.categoryId] = [];
+      }
+      acc[bookmark.categoryId].push(bookmark);
+      return acc;
+    }, {});
+
+    // Combine categories with their bookmarks
+    const categoriesWithBookmarks = categories.map(category => ({
+      ...category,
+      bookmarks: bookmarksByCategory[category._id] || []
+    }));
+
+    res.json({ success: true, categories: categoriesWithBookmarks });
   } catch (error) {
+    console.error("Error in getCategories:", error);
     res.json({ success: false, message: "Error fetching categories" });
   }
 };

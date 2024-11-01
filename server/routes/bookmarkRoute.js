@@ -3,13 +3,14 @@ import {
   getCategories,
   createCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
 } from "../controllers/categoryController.js";
 import {
   getBookmarks,
   createBookmark,
   updateBookmark,
-  deleteBookmark
+  deleteBookmark,
+  reorderBookmarks,
 } from "../controllers/bookmarkController.js";
 import authMiddleware from "../middleware/authmiddleware.js";
 
@@ -26,5 +27,6 @@ router.get("/bookmarks/:categoryId", authMiddleware, getBookmarks);
 router.post("/bookmark", authMiddleware, createBookmark);
 router.put("/bookmark", authMiddleware, updateBookmark);
 router.delete("/bookmark", authMiddleware, deleteBookmark);
+router.put("/reorder", authMiddleware, reorderBookmarks);
 
 export default router;
