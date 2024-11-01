@@ -6,6 +6,7 @@ import {
   FolderOpen,
   RefreshCw,
   ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import {
   LineChart,
