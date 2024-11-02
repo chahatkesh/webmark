@@ -31,11 +31,14 @@ const Message = () => {
             journeys begin where comfort ends.”
           </p>
           <div className="text-[#374151] mt-3 font-[500] text-[0.875rem] leading-[1.5715]">
-            <span>Chahat Kesharwani</span>
-            <span className="text-[#9ca3af]">/</span>
-            <a className="text-blue-500 hover:text-blue-600" href="#">
-              Developer Webmark
+            <a
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-500 hover:text-blue-600"
+              href="https://chahat-website.onrender.com/">
+              Designed by
             </a>
+            <span> Chahat Kesharwani</span>
           </div>
         </div>
       </div>
