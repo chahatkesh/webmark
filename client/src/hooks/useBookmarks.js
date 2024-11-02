@@ -5,13 +5,17 @@ import { useContext } from 'react';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-export const useCategories = () => {
+export const useCategories = (includeBookmarks = false) => {
   const { url } = useContext(StoreContext);
   return useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories', { includeBookmarks }],
     queryFn: async () => {
       try {
-        const res = await fetch(`${url}/api/bookmarks/categories`, {
+        const endpoint = includeBookmarks
+          ? '/api/bookmarks/categories-with-bookmarks'
+          : '/api/bookmarks/categories';
+
+        const res = await fetch(`${url}${endpoint}`, {
           headers: {
             token: localStorage.getItem('token')
           }
@@ -270,29 +274,5 @@ export const useUpdateBookmarkOrder = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries(['bookmarks', variables.categoryId]);
     }
-  });
-};
-
-export const useCategories = () => {
-  const { url } = useContext(StoreContext);
-  return useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      try {
-        const res = await fetch(`${url}/api/bookmarks/categories-with-bookmarks`, {
-          headers: {
-            token: localStorage.getItem('token')
-          }
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.message);
-        return data.categories;
-      } catch (error) {
-        toast.error('Failed to fetch categories');
-        throw error;
-      }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 30 * 60 * 1000, // 30 minutes
   });
 };
