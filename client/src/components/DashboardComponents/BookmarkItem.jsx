@@ -5,7 +5,7 @@ import {
   useDeleteBookmark,
 } from "../../hooks/useBookmarks";
 import { Button } from "../ui/button";
-import { PlusCircle, Pencil, Trash, MoreVertical } from "lucide-react";
+import { PlusCircle, Pencil, Trash2, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -85,7 +85,7 @@ const BookmarkItem = ({
               size="sm"
               onClick={() => setIsConfirmDeleteOpen(true)}
               aria-label="Delete category">
-              <Trash size={18} />
+              <Trash2 size={18} />
             </Button>
           </div>
         </div>
@@ -145,7 +145,7 @@ const BookmarkItem = ({
                     <DropdownMenuItem
                       onClick={() => setBookmarkToDelete(item)}
                       className="cursor-pointer text-red-600">
-                      <Trash className="h-4 w-4 mr-2" />
+                      <Trash2 className="h-4 w-4 mr-2" />
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -195,6 +195,7 @@ const BookmarkItem = ({
         onClose={() => setBookmarkToDelete(null)}
         onConfirm={handleDeleteBookmark}
         title="Delete Bookmark"
+        itemName={`${bookmarkToDelete?.name}`}
         message={`Are you sure you want to delete "${bookmarkToDelete?.name}"? This action cannot be undone.`}
       />
     </>

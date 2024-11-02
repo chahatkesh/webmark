@@ -116,7 +116,7 @@ const BookmarkList = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4 md:gap-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 md:gap-y-6">
         {filteredCategories.map((categoryItem) => (
           <BookmarkItem
             key={categoryItem._id}
