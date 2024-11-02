@@ -1,7 +1,9 @@
 import React from "react";
+import { useAuth } from "../../hooks/useAuth";
 
 const Navbar = () => {
   let logoColour = "#1361F5";
+  const { isAuthenticated, user } = useAuth();
 
   const scrollToSection = (sectionId) => {
     document.getElementById(sectionId).scrollIntoView({
@@ -89,20 +91,32 @@ const Navbar = () => {
             </ul>
           </nav>
           <ul className="flex flex-1 justify-end items-center gap-3">
-            <li>
-              <a
-                className="inline-flex cursor-pointer shadow text-[#1f2937] bg-white pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500] hover:bg-gray-50"
-                href="/auth">
-                Login
-              </a>
-            </li>
-            <li>
-              <a
-                className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
-                href="/auth">
-                Signup
-              </a>
-            </li>
+            {isAuthenticated ? (
+              <li>
+                <a
+                  className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
+                  href="/user/dashboard">
+                  Dashboard
+                </a>
+              </li>
+            ) : (
+              <>
+                <li>
+                  <a
+                    className="inline-flex cursor-pointer shadow text-[#1f2937] bg-white pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500] hover:bg-gray-50"
+                    href="/auth">
+                    Login
+                  </a>
+                </li>
+                <li>
+                  <a
+                    className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
+                    href="/auth">
+                    Signup
+                  </a>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>
