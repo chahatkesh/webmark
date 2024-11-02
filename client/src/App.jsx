@@ -4,7 +4,7 @@ import { useAuth } from "./hooks/useAuth";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Tools from "./pages/Tools";
-import Steps from "./pages/Steps";
+import Help from "./pages/Help";
 import ReportProblem from "./pages/ReportProblem";
 import Auth from "./pages/Auth";
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
@@ -58,7 +58,7 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <AuthenticatedLayout>
-                  <Steps />
+                  <Help />
                 </AuthenticatedLayout>
               </ProtectedRoute>
             }
