@@ -68,43 +68,57 @@ const BookmarkList = () => {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-        <h1 className="text-xl md:text-2xl font-bold">My Bookmarks</h1>
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div className="flex items-center">
+          <h1 className="text-2xl font-bold text-gray-900">My Bookmarks</h1>
+          {searchTerm && (
+            <div className="ml-4 hidden sm:block text-sm text-gray-600">
+              {totalBookmarks === 0 ? (
+                <span>No bookmarks found</span>
+              ) : (
+                <span>
+                  {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3">
           {/* Search Input */}
-          <div className="relative flex items-center flex-1 md:flex-none">
-            <SearchIcon className="absolute left-2.5 h-4 w-4 text-gray-500" />
+          <div className="relative w-full sm:w-[300px]">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <SearchIcon className="h-4 w-4 text-gray-400" />
+            </div>
             <Input
-              type="text"
+              type="search"
               placeholder="Search bookmarks..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 pr-8 h-9 w-full md:w-[300px]"
+              className="w-full pl-10 pr-10 h-10 bg-white"
             />
             {searchTerm && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 h-7 w-7 p-0 hover:bg-transparent"
-                onClick={() => setSearchTerm("")}>
-                <X className="h-4 w-4 text-gray-500" />
-              </Button>
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+              </button>
             )}
           </div>
 
           {/* Add Category Button */}
           <Button
             onClick={() => setIsAddingCategory(true)}
-            className="shrink-0">
-            <PlusCircle size={18} />
-            <span className="hidden sm:block ml-2">Add Category</span>
+            className="h-10 px-4 bg-blue-500 hover:bg-blue-600 text-white gap-2 whitespace-nowrap">
+            <PlusCircle className="h-5 w-5" />
+            <span>Add Category</span>
           </Button>
         </div>
       </div>
 
-      {/* Search Results Summary */}
+      {/* Search Results Summary - Mobile Only */}
       {searchTerm && (
-        <div className="mb-4 text-sm text-gray-600">
+        <div className="sm:hidden mb-4 text-sm text-gray-600">
           {totalBookmarks === 0 ? (
             <p>No bookmarks found for "{searchTerm}"</p>
           ) : (
