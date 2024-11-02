@@ -1,33 +1,156 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { assets } from "../../assets/assests";
 
 const Features1 = () => {
+  const featureCards = [
+    {
+      id: 1,
+      title: "Collections",
+      description: "Organize bookmarks into meaningful collections with tags",
+      icon: (
+        <svg
+          className="w-6 h-6 md:w-8 md:h-8 text-blue-500"
+          fill="currentColor"
+          viewBox="0 0 24 24">
+          <path d="M19 5v14H5V5h14zm0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 6H7v-2h4v2zm6 0h-4v-2h4v2zm-6 4H7v-2h4v2zm6 0h-4v-2h4v2zm-6 4H7v-2h4v2zm6 0h-4v-2h4v2z" />
+        </svg>
+      ),
+      bgColor: "from-blue-500/20 to-purple-500/20",
+    },
+    {
+      id: 2,
+      title: "Quick Search",
+      description: "Find any bookmark instantly with powerful search",
+      icon: (
+        <svg
+          className="w-6 h-6 md:w-8 md:h-8 text-indigo-500"
+          fill="currentColor"
+          viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+        </svg>
+      ),
+      bgColor: "from-indigo-500/20 to-sky-500/20",
+    },
+    {
+      id: 3,
+      title: "Dark Mode",
+      description: "Easy on your eyes with beautiful dark theme",
+      icon: (
+        <svg
+          className="w-6 h-6 md:w-8 md:h-8 text-violet-500"
+          fill="currentColor"
+          viewBox="0 0 24 24">
+          <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" />
+        </svg>
+      ),
+      bgColor: "from-violet-500/20 to-fuchsia-500/20",
+    },
+    {
+      id: 4,
+      title: "Multi-Device",
+      description: "Access your bookmarks from any device",
+      icon: (
+        <svg
+          className="w-6 h-6 md:w-8 md:h-8 text-rose-500"
+          fill="currentColor"
+          viewBox="0 0 24 24">
+          <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 10h6v6H9z" />
+        </svg>
+      ),
+      bgColor: "from-rose-500/20 to-orange-500/20",
+    },
+    {
+      id: 5,
+      title: "Custom Tags",
+      description: "Create and manage custom tags for better organization",
+      icon: (
+        <svg
+          className="w-6 h-6 md:w-8 md:h-8 text-emerald-500"
+          fill="currentColor"
+          viewBox="0 0 24 24">
+          <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />
+        </svg>
+      ),
+      bgColor: "from-emerald-500/20 to-teal-500/20",
+    },
+  ];
+
+  const [activeCardLeft, setActiveCardLeft] = useState(0);
+  const [activeCardRight, setActiveCardRight] = useState(1);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveCardLeft((prev) => (prev + 2) % featureCards.length);
+      setActiveCardRight((prev) => (prev + 2) % featureCards.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const FeatureCard = ({ feature, className }) => (
+    <div
+      className={`
+        relative overflow-hidden rounded-lg
+        bg-gradient-to-br ${feature.bgColor}
+        backdrop-blur-xl border border-white/10
+        p-2 md:p-6 transition-all duration-500 
+        transform hover:scale-105 shadow-lg
+        ${className}
+      `}>
+      <div className="relative z-10">
+        <div className="flex items-center gap-1.5 md:gap-4">
+          <div className="p-1 md:p-2 rounded-lg bg-white/10 backdrop-blur-lg">
+            {feature.icon}
+          </div>
+          <h3 className="text-[11px] md:text-lg font-semibold text-white line-clamp-1">
+            {feature.title}
+          </h3>
+        </div>
+        <p className="mt-2 md:mt-4 text-xs md:text-sm text-white/80 hidden md:block">
+          {feature.description}
+        </p>
+      </div>
+      <div className="absolute -bottom-4 -right-4 w-12 md:w-24 h-12 md:h-24 bg-white/5 rounded-full blur-2xl" />
+    </div>
+  );
+
   return (
     <section id="features" className="relative bg-[#111827]">
       <div className="pl-4 pr-4 sm:pl-6 sm:pr-6 max-w-[72rem] ml-auto mr-auto">
         <div className="pt-12 pb-12 md:pt-20 md:pb-20">
-          <div className="max-w-[48rem] pb-16 md:pb-20 text-center ml-auto mr-auto">
+          <div className="max-w-[48rem] pb-8 md:pb-20 text-center ml-auto mr-auto">
             <h2 className="md:leading-[1.2777] leading-[1.3333] text-[1.875rem] tracking-[-0.037em] md:text-[2.25rem] text-[#e5e7eb] font-[700]">
               Organize, Manage, and Personalize Your Bookmarks with Webmark!
             </h2>
           </div>
-          <div className="pb-16 md:pb-20 pointer-events-none flex justify-center items-center">
-            <div className="flex relative w-[75vw] md:w-[55vw] ">
+          <div className="pb-8 md:pb-20 pointer-events-none flex justify-center items-center">
+            <div className="flex relative w-[85vw] md:w-[55vw]">
               <img
-                className="w-[75vw] md:w-[55vw] rounded-lg opacity-85"
+                className="w-full rounded-lg opacity-85"
                 src={assets.feature_product}
-                alt=""
+                alt="Feature product"
               />
-              <img
-                className="absolute w-[24vw] md:w-[17vw] top-[8vw] md:top-[110px] left-[-8vw] md:left-[-9vw] opacity-75 rounded-xl shadow-[2px_2px_2px_#000000] animate-bounce"
-                src={assets.features_card}
-                alt=""
-              />
-              <img
-                className="absolute w-[24vw] md:w-[17vw] bottom-[16vw] md:bottom-[110px] right-[-8vw] md:right-[-9vw] opacity-75 rounded-xl shadow-[2px_2px_2px_#000000] animate-bounce"
-                src={assets.features_card}
-                alt=""
-              />
+              {/* Left Feature Card */}
+              <div className="absolute w-[28vw] md:w-[17vw] top-[5vw] md:top-[110px] left-[-6vw] md:left-[-9vw]">
+                <div
+                  className="animate-bounce"
+                  style={{ animationDuration: "3s" }}>
+                  <FeatureCard
+                    feature={featureCards[activeCardLeft]}
+                    className="transition-opacity duration-500"
+                  />
+                </div>
+              </div>
+              {/* Right Feature Card */}
+              <div className="absolute w-[28vw] md:w-[17vw] bottom-[12vw] md:bottom-[110px] right-[-6vw] md:right-[-9vw]">
+                <div
+                  className="animate-bounce"
+                  style={{ animationDuration: "3s", animationDelay: "1.5s" }}>
+                  <FeatureCard
+                    feature={featureCards[activeCardRight]}
+                    className="transition-opacity duration-500"
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <div className="grid overflow-hidden sm:grid-cols-2 lg:grid-cols-3">
