@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { assets } from "../../assets/assests";
 
 const Features1 = () => {
+  // array of feature cards
   const featureCards = [
     {
       id: 1,
@@ -9,7 +10,7 @@ const Features1 = () => {
       description: "Organize bookmarks into meaningful collections with tags",
       icon: (
         <svg
-          className="w-6 h-6 md:w-8 md:h-8 text-blue-500"
+          className="w-4 h-4 md:w-8 md:h-8 text-blue-500"
           fill="currentColor"
           viewBox="0 0 24 24">
           <path d="M19 5v14H5V5h14zm0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 6H7v-2h4v2zm6 0h-4v-2h4v2zm-6 4H7v-2h4v2zm6 0h-4v-2h4v2zm-6 4H7v-2h4v2zm6 0h-4v-2h4v2z" />
@@ -23,7 +24,7 @@ const Features1 = () => {
       description: "Find any bookmark instantly with powerful search",
       icon: (
         <svg
-          className="w-6 h-6 md:w-8 md:h-8 text-indigo-500"
+          className="w-4 h-4 md:w-8 md:h-8 text-indigo-500"
           fill="currentColor"
           viewBox="0 0 24 24">
           <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
@@ -37,7 +38,7 @@ const Features1 = () => {
       description: "Easy on your eyes with beautiful dark theme",
       icon: (
         <svg
-          className="w-6 h-6 md:w-8 md:h-8 text-violet-500"
+          className="w-4 h-4 md:w-8 md:h-8 text-violet-500"
           fill="currentColor"
           viewBox="0 0 24 24">
           <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" />
@@ -51,7 +52,7 @@ const Features1 = () => {
       description: "Access your bookmarks from any device",
       icon: (
         <svg
-          className="w-6 h-6 md:w-8 md:h-8 text-rose-500"
+          className="w-4 h-4 md:w-8 md:h-8 text-rose-500"
           fill="currentColor"
           viewBox="0 0 24 24">
           <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 10h6v6H9z" />
@@ -65,7 +66,7 @@ const Features1 = () => {
       description: "Create and manage custom tags for better organization",
       icon: (
         <svg
-          className="w-6 h-6 md:w-8 md:h-8 text-emerald-500"
+          className="w-4 h-4 md:w-8 md:h-8 text-emerald-500"
           fill="currentColor"
           viewBox="0 0 24 24">
           <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />
@@ -92,7 +93,7 @@ const Features1 = () => {
         relative overflow-hidden rounded-lg
         bg-gradient-to-br ${feature.bgColor}
         backdrop-blur-xl border border-white/10
-        p-2 md:p-6 transition-all duration-500 
+        p-1 md:p-6 transition-all duration-500 
         transform hover:scale-105 shadow-lg
         ${className}
       `}>
