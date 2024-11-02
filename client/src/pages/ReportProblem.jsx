@@ -48,7 +48,8 @@ const ReportProblem = () => {
 
         {/* Footer Text */}
         <div className="pt-4 text-sm text-gray-500">
-          For urgent issues, please contact support@webmark.com
+          Stay tuned for these exciting features that will make your bookmarking
+          smarter and more efficient
         </div>
       </div>
     </div>

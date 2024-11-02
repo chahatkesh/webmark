@@ -39,9 +39,7 @@ const Tools = () => {
             <Brain className="w-6 h-6 text-blue-500 flex-shrink-0" />
             <div className="text-left">
               <h3 className="font-semibold">Smart Tags</h3>
-              <p className="text-sm text-gray-600">
-                Automated tag recommendations
-              </p>
+              <p className="text-sm text-gray-600">Automated tags</p>
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-sm flex items-center gap-3">
@@ -57,9 +55,7 @@ const Tools = () => {
             <Sparkles className="w-6 h-6 text-blue-500 flex-shrink-0" />
             <div className="text-left">
               <h3 className="font-semibold">Custom Insights</h3>
-              <p className="text-sm text-gray-600">
-                Personalized bookmark analytics
-              </p>
+              <p className="text-sm text-gray-600">Personalized analytics</p>
             </div>
           </div>
         </div>
