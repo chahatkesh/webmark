@@ -28,8 +28,8 @@ export const useAuth = () => {
       if (response.data.success) {
         const userData = {
           username: response.data.username,
-          useremail: response.data.useremail,
-          // Add any other user data you need
+          email: response.data.email,    // Changed from useremail to email
+          joinedAt: response.data.joinedAt
         };
 
         setUser(userData);
