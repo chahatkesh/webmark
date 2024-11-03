@@ -6,13 +6,16 @@ import Dashboard from "./pages/Dashboard";
 import Tools from "./pages/Tools";
 import Help from "./pages/Help";
 import ReportProblem from "./pages/ReportProblem";
-import Auth from "./pages/Auth";
+import Auth, {
+  EmailVerification,
+  ForgotPassword,
+  ResetPassword,
+} from "./pages/Auth";
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
 import Loader from "./components/Loader";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ErrorBoundary } from "./components/ErrorComponents";
-import { ForgotPassword, ResetPassword } from "./pages/Auth";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -34,6 +37,7 @@ const App = () => {
           <Route path="/auth" element={<Auth />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/verify-email/:token" element={<EmailVerification />} />
 
           {/* Protected Routes */}
           <Route

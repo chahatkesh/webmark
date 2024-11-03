@@ -28,7 +28,7 @@ export const useAuth = () => {
       if (response.data.success) {
         const userData = {
           username: response.data.username,
-          email: response.data.email,    // Changed from useremail to email
+          email: response.data.email,
           joinedAt: response.data.joinedAt
         };
 
@@ -36,6 +36,19 @@ export const useAuth = () => {
         setIsAuthenticated(true);
         return true;
       } else {
+        // Handle verification required
+        if (response.data.requiresVerification) {
+          localStorage.removeItem('token');
+          setUser(null);
+          setIsAuthenticated(false);
+          navigate('/auth', {
+            state: {
+              requiresVerification: true,
+              email: response.data.email
+            }
+          });
+          return false;
+        }
         throw new Error('Failed to fetch user data');
       }
     } catch (error) {
@@ -47,7 +60,7 @@ export const useAuth = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [url, setUser]);
+  }, [url, setUser, navigate]);
 
   const login = async (formData) => {
     try {
@@ -55,10 +68,20 @@ export const useAuth = () => {
 
       if (response.data.success) {
         localStorage.setItem('token', response.data.token);
-        await fetchUserData(); // This will set the user data in context
-        navigate('/user/dashboard');
+        await fetchUserData();
         return { success: true };
       }
+
+      // Handle verification required
+      if (response.data.requiresVerification) {
+        return {
+          success: false,
+          requiresVerification: true,
+          email: response.data.email,
+          message: response.data.message
+        };
+      }
+
       return { success: false, message: response.data.message };
     } catch (error) {
       console.error('Login error:', error);
@@ -73,12 +96,21 @@ export const useAuth = () => {
     try {
       const response = await axios.post(`${url}/api/user/register`, formData);
 
+      if (response.data.requiresVerification) {
+        return {
+          success: false,
+          requiresVerification: true,
+          email: formData.email,
+          message: "Please verify your email to continue"
+        };
+      }
+
       if (response.data.success) {
         localStorage.setItem('token', response.data.token);
-        await fetchUserData(); // This will set the user data in context
-        navigate('/user/dashboard');
+        await fetchUserData();
         return { success: true };
       }
+
       return { success: false, message: response.data.message };
     } catch (error) {
       console.error('Signup error:', error);

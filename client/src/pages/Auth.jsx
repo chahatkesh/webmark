@@ -1,10 +1,182 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { assets } from "../assets/assests";
 import { useAuth } from "../hooks/useAuth";
 import Loader from "../components/Loader";
 import axios from "axios";
 import { StoreContext } from "../context/StoreContext";
+
+const EmailVerification = () => {
+  const { token } = useParams();
+  const navigate = useNavigate();
+  const { url } = React.useContext(StoreContext);
+  const [verificationStatus, setVerificationStatus] = useState("verifying");
+  const [message, setMessage] = useState("");
+  const [countdown, setCountdown] = useState(3);
+
+  useEffect(() => {
+    const verifyEmail = async () => {
+      try {
+        const response = await axios.get(
+          `${url}/api/user/verify-email/${token}`
+        );
+        if (response.data.success) {
+          setVerificationStatus("success");
+          setMessage("Email verified successfully! Redirecting to login...");
+
+          // Start countdown
+          let count = 3;
+          const timer = setInterval(() => {
+            count--;
+            setCountdown(count);
+            if (count === 0) {
+              clearInterval(timer);
+              navigate("/auth", { state: { verified: true } });
+            }
+          }, 1000);
+
+          return () => clearInterval(timer);
+        } else {
+          setVerificationStatus("error");
+          setMessage(response.data.message || "Verification failed");
+        }
+      } catch (error) {
+        setVerificationStatus("error");
+        setMessage("An error occurred during verification");
+      }
+    };
+
+    verifyEmail();
+  }, [token, url, navigate]);
+
+  return (
+    <div className="flex min-h-screen flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+        <img
+          src={assets.logo_color}
+          alt="Webmark Logo"
+          className="mx-auto h-14 w-auto"
+        />
+        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+          Email Verification
+        </h2>
+      </div>
+
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div
+          className={`p-4 rounded-md ${
+            verificationStatus === "verifying"
+              ? "bg-blue-50 text-blue-700"
+              : verificationStatus === "success"
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
+          }`}>
+          {verificationStatus === "verifying" && (
+            <div className="flex items-center justify-center">
+              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Verifying your email...
+            </div>
+          )}
+
+          <div className="text-center">
+            <p>{message}</p>
+            {verificationStatus === "success" && (
+              <p className="mt-2 font-medium">
+                Redirecting in {countdown} seconds...
+              </p>
+            )}
+            {verificationStatus === "error" && (
+              <button
+                onClick={() => navigate("/auth")}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
+                Back to Login
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ResendVerification = ({ email, onClose }) => {
+  const { url } = React.useContext(StoreContext);
+  const [status, setStatus] = useState("idle");
+  const [message, setMessage] = useState("");
+
+  const handleResend = async () => {
+    setStatus("sending");
+    setMessage("");
+
+    try {
+      const response = await axios.post(`${url}/api/user/resend-verification`, {
+        email,
+      });
+      if (response.data.success) {
+        setStatus("success");
+        setMessage(
+          "Verification email sent successfully. Please check your inbox."
+        );
+      } else {
+        setStatus("error");
+        setMessage(
+          response.data.message || "Failed to send verification email"
+        );
+      }
+    } catch (error) {
+      setStatus("error");
+      setMessage("An error occurred. Please try again.");
+    }
+  };
+
+  return (
+    <div className="text-center p-4">
+      <h3 className="text-lg font-medium text-gray-900 mb-4">
+        Email Verification Required
+      </h3>
+      <p className="text-sm text-gray-500 mb-4">
+        Please verify your email address to continue. Check your inbox for the
+        verification link.
+      </p>
+      {message && (
+        <div
+          className={`mb-4 p-3 rounded-md ${
+            status === "success"
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
+          }`}>
+          {message}
+        </div>
+      )}
+      <button
+        onClick={handleResend}
+        disabled={status === "sending"}
+        className="w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50">
+        {status === "sending" ? "Sending..." : "Resend Verification Email"}
+      </button>
+      <button
+        onClick={onClose}
+        className="mt-2 text-sm text-gray-500 hover:text-gray-700">
+        Back to Login
+      </button>
+    </div>
+  );
+};
 
 const ForgotPassword = () => {
   const { url } = React.useContext(StoreContext);
@@ -210,7 +382,7 @@ const ResetPassword = () => {
   );
 };
 
-export { ForgotPassword, ResetPassword };
+export { ForgotPassword, ResetPassword, EmailVerification, ResendVerification };
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -220,6 +392,9 @@ const Auth = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -248,6 +423,16 @@ const Auth = () => {
     const timer = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(timer);
   }, [isAuthenticated, navigate]);
+  useEffect(() => {
+    if (location.state?.verified) {
+      setVerificationSuccess(true);
+      // Clear the state after showing the message
+      setTimeout(() => {
+        setVerificationSuccess(false);
+        navigate("/auth", { replace: true, state: {} });
+      }, 5000);
+    }
+  }, [location.state, navigate]);
 
   // Password strength checker
   const checkPasswordStrength = (password) => {
@@ -378,10 +563,15 @@ const Auth = () => {
           : await signup({ username, email, password });
 
       if (!result.success) {
-        // Enhanced error handling with specific messages
-        const errorMessage =
-          result.message || "Authentication failed. Please try again.";
-        throw new Error(errorMessage);
+        // Check if verification is required
+        if (result.requiresVerification) {
+          setVerificationEmail(result.email || email);
+          setShowVerification(true);
+        } else {
+          const errorMessage =
+            result.message || "Authentication failed. Please try again.";
+          throw new Error(errorMessage);
+        }
       }
     } catch (error) {
       console.error("Authentication error:", error);
@@ -504,10 +694,34 @@ const Auth = () => {
                     Important Note
                   </h3>
                   <p className="mt-1 text-sm text-blue-700">
-                    Enter your correct email to change your password in future.
+                    Enter your correct email for verification.
                   </p>
                 </div>
               </div>
+              {verificationSuccess && (
+                <div className="mb-6 p-4 rounded-md bg-green-50 text-green-700 animate-fade-in">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg
+                        className="h-5 w-5 text-green-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium">
+                        Email verified successfully! You can now log in with
+                        your credentials.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -515,6 +729,19 @@ const Auth = () => {
           {errorMessage && (
             <div className="mb-6 p-4 rounded-md bg-red-50 text-red-700">
               {errorMessage}
+            </div>
+          )}
+          {showVerification && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+              <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <ResendVerification
+                  email={verificationEmail}
+                  onClose={() => {
+                    setShowVerification(false);
+                    setCurrState("Login");
+                  }}
+                />
+              </div>
             </div>
           )}
           <form
