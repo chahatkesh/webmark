@@ -117,7 +117,7 @@ const Features1 = () => {
   return (
     <section id="features" className="relative bg-[#111827]">
       <div className="pl-4 pr-4 sm:pl-6 sm:pr-6 max-w-[72rem] ml-auto mr-auto">
-        <div className="pt-12 pb-12 md:pt-20 md:pb-20">
+        <div className="pt-12 pb-12 md:pt-28 md:pb-20">
           <div className="max-w-[48rem] pb-8 md:pb-20 text-center ml-auto mr-auto">
             <h2 className="md:leading-[1.2777] leading-[1.3333] text-[1.875rem] tracking-[-0.037em] md:text-[2.25rem] text-[#e5e7eb] font-[700]">
               Organize, Manage, and Personalize Your Bookmarks with Webmark!
