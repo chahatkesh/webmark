@@ -66,21 +66,76 @@ const registerUser = async (req, res) => {
     try {
       await sendEmail({
         to: email,
-        subject: 'Verify Your Email',
+        subject: 'Welcome to Webmark - Verify Your Email',
         html: `
-          <h1>Welcome to Webmark!</h1>
-          <p>Please click the link below to verify your email address:</p>
-          <a href="${verificationUrl}">Verify Email</a>
-          <p>This link will expire in 24 hours.</p>
-          <p>If you didn't create this account, please ignore this email.</p>
-        `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body style="background-color: #f6f9fc; padding: 40px 0;">
+      <div style="max-width: 560px; margin: 0 auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 30px;">
+          <img src="${process.env.FRONTEND_URL}/assets/logo_color.png" alt="Webmark Logo" style="height: 40px; margin-bottom: 20px;">
+          <h1 style="color: #1a2b4b; font-size: 24px; font-weight: 700; margin: 0;">
+            Verify your email address
+          </h1>
+        </div>
+
+        <!-- Content -->
+        <div style="margin-bottom: 30px; color: #4a5568;">
+          <p style="font-size: 16px; line-height: 24px; margin-bottom: 24px;">
+            Hi ${username},
+          </p>
+          <p style="font-size: 16px; line-height: 24px; margin-bottom: 24px;">
+            Welcome to Webmark! To start organizing your bookmarks smarter and accessing them from anywhere, please verify your email address.
+          </p>
+        </div>
+
+        <!-- Button -->
+        <div style="text-align: center; margin-bottom: 30px;">
+          <a href="${verificationUrl}" 
+             style="display: inline-block; 
+                    padding: 12px 32px; 
+                    background-color: #2563eb; 
+                    color: white; 
+                    text-decoration: none; 
+                    border-radius: 6px; 
+                    font-weight: 600;
+                    font-size: 16px;
+                    transition: background-color 0.2s;">
+            Verify Email Address
+          </a>
+        </div>
+
+        <!-- Additional Info -->
+        <div style="margin-bottom: 30px; padding: 20px; background-color: #f8fafc; border-radius: 6px;">
+          <p style="font-size: 14px; color: #64748b; line-height: 20px; margin: 0;">
+            This verification link will expire in 24 hours. If you didn't create an account with Webmark, you can safely ignore this email.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+          <p style="font-size: 14px; color: #94a3b8; margin: 0;">
+            © ${new Date().getFullYear()} Webmark. All rights reserved.
+          </p>
+        </div>
+
+      </div>
+    </body>
+    </html>
+  `
       });
 
       // Return success response with requiresVerification flag
       return res.json({
         success: false,
         requiresVerification: true,
-        message: "Please verify your email to continue",
+        message: "Please verify your email to continue. Remember to check your spam folder if you don't see the email.",
         email: email
       });
     } catch (error) {
@@ -236,14 +291,66 @@ const resendVerification = async (req, res) => {
     // Send verification email
     await sendEmail({
       to: email,
-      subject: 'Verify Your Email',
+      subject: 'Webmark - Email Verification',
       html: `
-        <h1>Welcome to Webmark!</h1>
-        <p>Please click the link below to verify your email address:</p>
-        <a href="${verificationUrl}">Verify Email</a>
-        <p>This link will expire in 24 hours.</p>
-        <p>If you didn't create this account, please ignore this email.</p>
-      `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body style="background-color: #f6f9fc; padding: 40px 0;">
+      <div style="max-width: 560px; margin: 0 auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 30px;">
+          <img src="${process.env.FRONTEND_URL}/favicon.png" alt="Webmark Logo" style="height: 40px; margin-bottom: 20px;">
+          <h1 style="color: #1a2b4b; font-size: 24px; font-weight: 700; margin: 0;">
+            Verify your email address
+          </h1>
+        </div>
+
+        <!-- Content -->
+        <div style="margin-bottom: 30px; color: #4a5568;">
+          <p style="font-size: 16px; line-height: 24px; margin-bottom: 24px;">
+            You requested a new verification link for your Webmark account. Click the button below to verify your email address.
+          </p>
+        </div>
+
+        <!-- Button -->
+        <div style="text-align: center; margin-bottom: 30px;">
+          <a href="${verificationUrl}" 
+             style="display: inline-block; 
+                    padding: 12px 32px; 
+                    background-color: #2563eb; 
+                    color: white; 
+                    text-decoration: none; 
+                    border-radius: 6px; 
+                    font-weight: 600;
+                    font-size: 16px;
+                    transition: background-color 0.2s;">
+            Verify Email Address
+          </a>
+        </div>
+
+        <!-- Additional Info -->
+        <div style="margin-bottom: 30px; padding: 20px; background-color: #f8fafc; border-radius: 6px;">
+          <p style="font-size: 14px; color: #64748b; line-height: 20px; margin: 0;">
+            This verification link will expire in 24 hours. If you didn't request this verification email, you can safely ignore it.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+          <p style="font-size: 14px; color: #94a3b8; margin: 0;">
+            © ${new Date().getFullYear()} Webmark. All rights reserved.
+          </p>
+        </div>
+
+      </div>
+    </body>
+    </html>
+  `
     });
 
     res.json({
@@ -289,13 +396,66 @@ const forgotPassword = async (req, res) => {
       await sendEmail({
         from: process.env.EMAIL_USERNAME,
         to: user.email,
-        subject: 'Password Reset Request',
+        subject: 'Webmark - Password Reset Request',
         html: `
-          <h1>You requested a password reset</h1>
-          <p>Click this <a href="${resetUrl}">link</a> to reset your password.</p>
-          <p>This link will expire in 1 hour.</p>
-          <p>If you didn't request this, please ignore this email.</p>
-        `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </head>
+    <body style="background-color: #f6f9fc; padding: 40px 0;">
+      <div style="max-width: 560px; margin: 0 auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 30px;">
+          <img src="${process.env.FRONTEND_URL}/favicon.png" alt="Webmark Logo" style="height: 40px; margin-bottom: 20px;">
+          <h1 style="color: #1a2b4b; font-size: 24px; font-weight: 700; margin: 0;">
+            Reset Your Password
+          </h1>
+        </div>
+
+        <!-- Content -->
+        <div style="margin-bottom: 30px; color: #4a5568;">
+          <p style="font-size: 16px; line-height: 24px; margin-bottom: 24px;">
+            We received a request to reset the password for your Webmark account. Click the button below to create a new password.
+          </p>
+        </div>
+
+        <!-- Button -->
+        <div style="text-align: center; margin-bottom: 30px;">
+          <a href="${resetUrl}" 
+             style="display: inline-block; 
+                    padding: 12px 32px; 
+                    background-color: #2563eb; 
+                    color: white; 
+                    text-decoration: none; 
+                    border-radius: 6px; 
+                    font-weight: 600;
+                    font-size: 16px;
+                    transition: background-color 0.2s;">
+            Reset Password
+          </a>
+        </div>
+
+        <!-- Security Notice -->
+        <div style="margin-bottom: 30px; padding: 20px; background-color: #f8fafc; border-radius: 6px;">
+          <p style="font-size: 14px; color: #64748b; line-height: 20px; margin: 0;">
+            This password reset link will expire in 1 hour for security reasons. If you didn't request a password reset, please ignore this email or contact support if you're concerned about your account's security.
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+          <p style="font-size: 14px; color: #94a3b8; margin: 0;">
+            © ${new Date().getFullYear()} Webmark. All rights reserved.
+          </p>
+        </div>
+
+      </div>
+    </body>
+    </html>
+  `
       });
 
       res.json({

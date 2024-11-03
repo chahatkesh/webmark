@@ -149,31 +149,61 @@ const ResendVerification = ({ email, onClose }) => {
       <h3 className="text-lg font-medium text-gray-900 mb-4">
         Email Verification Required
       </h3>
-      <p className="text-sm text-gray-500 mb-4">
-        Please verify your email address to continue. Check your inbox for the
-        verification link.
-      </p>
-      {message && (
-        <div
-          className={`mb-4 p-3 rounded-md ${
-            status === "success"
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
-          }`}>
-          {message}
+      <div className="space-y-4">
+        <p className="text-sm text-gray-500">
+          Please verify your email address to continue. Check your inbox for the
+          verification link.
+        </p>
+
+        {/* Add spam notice */}
+        <div className="text-sm bg-yellow-50 p-3 rounded-md">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-yellow-400"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <p className="ml-2 text-yellow-700">
+              If you don't see the email in your inbox, please check your
+              spam/junk folder.
+            </p>
+          </div>
         </div>
-      )}
-      <button
-        onClick={handleResend}
-        disabled={status === "sending"}
-        className="w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50">
-        {status === "sending" ? "Sending..." : "Resend Verification Email"}
-      </button>
-      <button
-        onClick={onClose}
-        className="mt-2 text-sm text-gray-500 hover:text-gray-700">
-        Back to Login
-      </button>
+
+        {message && (
+          <div
+            className={`p-3 rounded-md ${
+              status === "success"
+                ? "bg-green-50 text-green-700"
+                : "bg-red-50 text-red-700"
+            }`}>
+            {message}
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <button
+            onClick={handleResend}
+            disabled={status === "sending"}
+            className="w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50">
+            {status === "sending" ? "Sending..." : "Resend Verification Email"}
+          </button>
+
+          <button
+            onClick={onClose}
+            className="w-full text-sm text-gray-500 hover:text-gray-700 underline">
+            Back to Login
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
