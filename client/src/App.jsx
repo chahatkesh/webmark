@@ -12,6 +12,7 @@ import Loader from "./components/Loader";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ErrorBoundary } from "./components/ErrorComponents";
+import { ForgotPassword, ResetPassword } from "./pages/Auth";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -31,6 +32,8 @@ const App = () => {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* Protected Routes */}
           <Route
