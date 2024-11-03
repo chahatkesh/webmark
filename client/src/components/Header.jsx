@@ -11,12 +11,11 @@ import {
   LogOut,
   User,
   Keyboard,
-  Building2,
+  FileDown,
   UserPlus,
   Menu,
   X,
   ChevronDown,
-  Upload,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,9 +29,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Loader from "../components/Loader";
 import { assets } from "../assets/assests";
+import ShareModal from "./DashboardComponents/ShareModel";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { user } = useContext(StoreContext);
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -58,8 +59,12 @@ const Header = () => {
     { label: "Settings", icon: Settings },
     { label: "Shortcuts", icon: Keyboard, shortcut: "⌘K" },
     null, // Separator
-    { label: "Company Profile", icon: Building2 },
-    { label: "Invite Team", icon: UserPlus },
+    { label: "Export", icon: FileDown },
+    {
+      label: "Invite Friend",
+      icon: UserPlus,
+      onClick: () => setIsShareModalOpen(true),
+    },
     null, // Separator
     { label: "Logout", icon: LogOut, onClick: logout, danger: true },
   ];
@@ -214,6 +219,10 @@ const Header = () => {
           </nav>
         )}
       </div>
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+      />
     </header>
   );
 };
