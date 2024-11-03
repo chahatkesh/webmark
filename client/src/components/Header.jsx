@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  Lock,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -55,18 +56,44 @@ const Header = () => {
   ];
 
   const userMenuItems = [
-    { label: "Profile", icon: User },
-    { label: "Settings", icon: Settings },
-    { label: "Shortcuts", icon: Keyboard, shortcut: "⌘K" },
+    {
+      label: "Profile",
+      icon: User,
+      comingSoon: true,
+      onClick: () => {}, // Placeholder for future functionality
+    },
+    {
+      label: "Settings",
+      icon: Settings,
+      comingSoon: true,
+      onClick: () => {}, // Placeholder for future functionality
+    },
+    {
+      label: "Shortcuts",
+      icon: Keyboard,
+      shortcut: "⌘K",
+      comingSoon: true,
+      onClick: () => {}, // Placeholder for future functionality
+    },
     null, // Separator
-    { label: "Export", icon: FileDown },
+    {
+      label: "Export",
+      icon: FileDown,
+      comingSoon: true,
+      onClick: () => {}, // Placeholder for future functionality
+    },
     {
       label: "Invite Friend",
       icon: UserPlus,
       onClick: () => setIsShareModalOpen(true),
     },
     null, // Separator
-    { label: "Logout", icon: LogOut, onClick: logout, danger: true },
+    {
+      label: "Logout",
+      icon: LogOut,
+      onClick: logout,
+      danger: true,
+    },
   ];
 
   if (loading) return <Loader />;
@@ -163,15 +190,23 @@ const Header = () => {
                     <DropdownMenuItem
                       key={index}
                       onClick={item.onClick}
+                      disabled={item.comingSoon}
                       className={cn(
-                        "flex items-center gap-2 cursor-pointer p-2",
-                        item.danger && "text-red-600"
+                        "flex items-center gap-2 cursor-pointer p-2 relative group",
+                        item.danger && "text-red-600",
+                        item.comingSoon && "opacity-60 hover:opacity-70"
                       )}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.label}</span>
                       {item.shortcut && (
                         <span className="ml-auto text-xs text-gray-400">
                           {item.shortcut}
+                        </span>
+                      )}
+                      {item.comingSoon && (
+                        <span className="ml-auto text-[10px] font-medium text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                          <Lock className="h-3 w-3" />
+                          Soon
                         </span>
                       )}
                     </DropdownMenuItem>
