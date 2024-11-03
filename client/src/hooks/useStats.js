@@ -11,6 +11,9 @@ export const useStats = () => {
   const fetchStats = async () => {
     try {
       const response = await fetch(`${url}/api/stats/public?range=${timeRange}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
 
       if (!data.success) {
@@ -19,6 +22,7 @@ export const useStats = () => {
 
       return data;
     } catch (error) {
+      console.error('Stats fetch error:', error);
       setError(error.message);
       throw error;
     }
@@ -32,7 +36,10 @@ export const useStats = () => {
     retry: 2,
     onError: (error) => {
       setError(error.message);
-    }
+    },
+    cacheTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
   const prefetchOtherRanges = useCallback(() => {
@@ -41,7 +48,13 @@ export const useStats = () => {
       if (range !== timeRange) {
         queryClient.prefetchQuery({
           queryKey: ['public-stats', range],
-          queryFn: () => fetch(`${url}/api/stats/public?range=${range}`).then(res => res.json())
+          queryFn: () =>
+            fetch(`${url}/api/stats/public?range=${range}`)
+              .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+              }),
+          staleTime: 25000
         });
       }
     });
@@ -58,9 +71,31 @@ export const useStats = () => {
     return stats.growth[type];
   }, [stats]);
 
+  // Debug effect
+  useEffect(() => {
+    if (stats) {
+      console.log('Stats updated:', {
+        timeRange,
+        totalUsers: stats.totalUsers,
+        totalBookmarks: stats.totalBookmarks,
+        totalCategories: stats.totalCategories,
+        growth: stats.growth
+      });
+    }
+  }, [stats, timeRange]);
+
+  // Prefetch other ranges when timeRange changes
   useEffect(() => {
     prefetchOtherRanges();
-  }, [prefetchOtherRanges]);
+  }, [prefetchOtherRanges, timeRange]);
+
+  // Add cleanup on unmount
+  useEffect(() => {
+    return () => {
+      queryClient.cancelQueries(['public-stats']);
+      setError(null);
+    };
+  }, [queryClient]);
 
   return {
     stats,

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useContext } from "react";
+import React, { useMemo, useContext, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Users,
@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StoreContext } from "../../context/StoreContext";
 import { useStats } from "../../hooks/useStats";
@@ -56,11 +55,11 @@ const formatDate = (dateString) => {
   }
 };
 
-const RecentUsers = ({ users = [] }) => (
+const RecentUsers = ({ users = [], timeRange }) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 pb-4">
     {users?.map((user, index) => (
       <div
-        key={index}
+        key={`${timeRange}-${user.username}-${index}`}
         className="flex items-center space-x-4 p-3 rounded-lg hover:cursor-pointer hover:bg-gray-50">
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-lg shadow-md">
           {user.username?.charAt(0).toUpperCase()}
@@ -80,6 +79,8 @@ const RecentUsers = ({ users = [] }) => (
 
 const StatCard = ({ icon: Icon, value, label, type, growth, periodLabel }) => {
   const isPositive = parseFloat(growth) >= 0;
+  const displayValue = value?.toLocaleString() || "0";
+  const displayGrowth = Math.abs(growth);
 
   return (
     <div className="flex flex-col items-center p-4 md:p-6 bg-none rounded-lg">
@@ -87,9 +88,7 @@ const StatCard = ({ icon: Icon, value, label, type, growth, periodLabel }) => {
         <Icon className="w-6 h-6 text-blue-600" />
       </div>
 
-      <h3 className="text-3xl font-bold text-gray-900 mb-2">
-        {value?.toLocaleString() || "0"}
-      </h3>
+      <h3 className="text-3xl font-bold text-gray-900 mb-2">{displayValue}</h3>
 
       <p className="text-sm text-gray-600">{label}</p>
       <div className="flex items-center space-x-2 mt-1">
@@ -102,7 +101,7 @@ const StatCard = ({ icon: Icon, value, label, type, growth, periodLabel }) => {
           ) : (
             <ChevronDown className="w-4 h-4" />
           )}
-          {Math.abs(growth)}%
+          {displayGrowth}%
         </span>
         <span className="text-xs text-gray-500">{periodLabel}</span>
       </div>
@@ -111,7 +110,7 @@ const StatCard = ({ icon: Icon, value, label, type, growth, periodLabel }) => {
 };
 
 const HistoricalChart = ({ type, period }) => {
-  const { url } = React.useContext(StoreContext);
+  const { url } = useContext(StoreContext);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["historical-stats", type, period],
@@ -119,24 +118,32 @@ const HistoricalChart = ({ type, period }) => {
       const response = await fetch(
         `${url}/api/stats/historical/${type}?period=${period}`
       );
+      if (!response.ok) {
+        throw new Error("Failed to fetch historical data");
+      }
       const data = await response.json();
       return data.data;
     },
+    refetchInterval: 30000,
+    staleTime: 25000,
+    retry: 2,
   });
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="h-[400px] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     );
+  }
 
-  if (isError)
+  if (isError) {
     return (
       <Alert variant="destructive">
         <AlertDescription>Failed to load historical data</AlertDescription>
       </Alert>
     );
+  }
 
   return (
     <div className="h-[400px] mt-4">
@@ -150,21 +157,35 @@ const HistoricalChart = ({ type, period }) => {
           <YAxis />
           <Tooltip
             labelFormatter={(date) => new Date(date).toLocaleDateString()}
-            formatter={(value) => [value.toLocaleString(), ""]}
+            formatter={(value, name) => [value.toLocaleString(), name]}
           />
           <Legend />
-          <Line type="monotone" dataKey="users" stroke="#3b82f6" name="Users" />
+          <Line
+            type="monotone"
+            dataKey="users"
+            stroke="#3b82f6"
+            name="Users"
+            strokeWidth={2}
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
+          />
           <Line
             type="monotone"
             dataKey="bookmarks"
             stroke="#10b981"
             name="Bookmarks"
+            strokeWidth={2}
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
           />
           <Line
             type="monotone"
             dataKey="categories"
             stroke="#f59e0b"
             name="Categories"
+            strokeWidth={2}
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -173,12 +194,18 @@ const HistoricalChart = ({ type, period }) => {
 };
 
 const StatsSection = () => {
-  const [timeRange, setTimeRange] = useState("month");
   const [chartType, setChartType] = useState("daily");
   const [chartPeriod, setChartPeriod] = useState(30);
-
-  const { stats, isLoading, isError, error, refreshStats, calculateGrowth } =
-    useStats();
+  const {
+    stats,
+    isLoading,
+    isError,
+    error,
+    timeRange,
+    setTimeRange,
+    refreshStats,
+    calculateGrowth,
+  } = useStats();
 
   const periodLabel = useMemo(() => {
     switch (timeRange) {
@@ -222,7 +249,7 @@ const StatsSection = () => {
       className="relative bg-gradient-to-b from-white to-blue-50 py-16 md:py-24">
       <div className="px-4 sm:px-6 max-w-[72rem] ml-auto mr-auto">
         <div className="py-12 md:py-16 flex flex-col gap-6">
-          {/* header */}
+          {/* Header */}
           <div className="pb-12 text-center max-w-[48rem] ml-auto mr-auto">
             <h2 className="mb-4 md:leading-[1.2777] leading-[1.3333] text-[1.875rem] tracking-[-0.037em] md:text-[2.25rem] text-[#111827] font-[700]">
               Our Growing Community
@@ -234,17 +261,14 @@ const StatsSection = () => {
             </p>
           </div>
 
-          {/* stats card section */}
+          {/* Stats card section */}
           <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <CardTitle>Real time Analytics</CardTitle>
                 <div className="flex gap-4">
-                  <Select
-                    value={timeRange}
-                    onValueChange={setTimeRange}
-                    className="w-28">
-                    <SelectTrigger>
+                  <Select value={timeRange} onValueChange={setTimeRange}>
+                    <SelectTrigger className="w-28">
                       <SelectValue placeholder="Select range" />
                     </SelectTrigger>
                     <SelectContent>
@@ -300,21 +324,14 @@ const StatsSection = () => {
               <CardTitle>Recently Joined Members</CardTitle>
             </CardHeader>
 
-            <RecentUsers users={stats?.recentUsers} />
-          </Card>
-
-          {/* chart section */}
-          <div className="hidden">
-            <Card>
+            <RecentUsers users={stats?.recentUsers} timeRange={timeRange} />
+            <div className="hidden lg:block">
               <CardHeader>
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                   <CardTitle>Growth Trends</CardTitle>
                   <div className="flex gap-4">
-                    <Select
-                      value={chartType}
-                      onValueChange={setChartType}
-                      className="w-28">
-                      <SelectTrigger>
+                    <Select value={chartType} onValueChange={setChartType}>
+                      <SelectTrigger className="w-28">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -325,27 +342,26 @@ const StatsSection = () => {
                     </Select>
 
                     <Select
-                      value={chartPeriod}
-                      onValueChange={setChartPeriod}
-                      className="w-28">
-                      <SelectTrigger>
+                      value={chartPeriod.toString()}
+                      onValueChange={(value) => setChartPeriod(Number(value))}>
+                      <SelectTrigger className="w-28">
                         <SelectValue placeholder="Select period" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={7}>7 days</SelectItem>
-                        <SelectItem value={30}>30 days</SelectItem>
-                        <SelectItem value={90}>90 days</SelectItem>
-                        <SelectItem value={180}>180 days</SelectItem>
+                        <SelectItem value="7">7 days</SelectItem>
+                        <SelectItem value="30">30 days</SelectItem>
+                        <SelectItem value="90">90 days</SelectItem>
+                        <SelectItem value="180">180 days</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-6 md:p-8">
+              <CardContent>
                 <HistoricalChart type={chartType} period={chartPeriod} />
               </CardContent>
-            </Card>
-          </div>
+            </div>
+          </Card>
         </div>
       </div>
     </section>
