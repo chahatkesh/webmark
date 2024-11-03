@@ -167,7 +167,7 @@ const Header = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2 font-normal">
-                  <div className="relative h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium">
+                  <div className="relative h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium">
                     {user?.username?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <ChevronDown className="h-4 w-4" />
@@ -175,12 +175,16 @@ const Header = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="flex items-center gap-3 p-3">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium text-lg">
+                  <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium text-lg">
                     {user?.username?.charAt(0).toUpperCase() || "U"}
                   </div>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{user?.username}</span>
-                    <span className="text-xs text-gray-500">{user?.email}</span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-medium truncate">
+                      {user?.username}
+                    </span>
+                    <span className="text-xs text-gray-500 truncate">
+                      {user?.email}
+                    </span>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
