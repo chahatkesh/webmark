@@ -79,7 +79,7 @@ const registerUser = async (req, res) => {
         
         <!-- Header -->
         <div style="text-align: center; margin-bottom: 30px;">
-          <img src="${process.env.FRONTEND_URL}/assets/logo_color.png" alt="Webmark Logo" style="height: 40px; margin-bottom: 20px;">
+          <img src="${process.env.FRONTEND_URL}/favicon.png" alt="Webmark Logo" style="height: 40px; margin-bottom: 20px;">
           <h1 style="color: #1a2b4b; font-size: 24px; font-weight: 700; margin: 0;">
             Verify your email address
           </h1>
