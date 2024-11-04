@@ -187,7 +187,7 @@ const BookmarkItem = ({
         onClose={() => setIsConfirmDeleteOpen(false)}
         onConfirm={handleDeleteCategory}
         title="Delete Category"
-        message="Are you sure you want to delete this category? All bookmarks in this category will be deleted. This action cannot be undone."
+        message="Are you sure you want to delete this category? All bookmarks in this category will be deleted permanently."
       />
 
       <ConfirmDeleteDialog
