@@ -1,24 +1,20 @@
 import React, { useState } from "react";
 import {
-  X,
-  Copy,
-  Share2,
-  Facebook,
-  Instagram,
-  MessageCircle,
-  Twitter,
-  LinkedinIcon,
-  ChevronRight,
-  CheckCircle2,
-} from "lucide-react";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Copy,
+  Share2,
+  MessageSquare,
+  Facebook,
+  Twitter,
+  Linkedin,
+  CheckCircle2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ShareModal = ({ isOpen, onClose }) => {
@@ -28,66 +24,49 @@ const ShareModal = ({ isOpen, onClose }) => {
 
   const shareMessages = [
     {
-      text: "🚀 Just discovered Webmark - it's revolutionizing how I organize my browser tabs! Try it out:",
-      emoji: "🚀",
+      text: "Check out Webmark - a beautifully simple way to organize your bookmarks.",
+      icon: "✨",
     },
     {
-      text: "✨ Tired of losing your favorite websites? Webmark is the game-changer you need! Check it out:",
-      emoji: "✨",
+      text: "I'm using Webmark to keep my online resources organized. It's quite impressive!",
+      icon: "📚",
     },
     {
-      text: "🎯 Finally found the perfect bookmark manager! Webmark makes digital organization a breeze. Join me here:",
-      emoji: "🎯",
+      text: "Discovered Webmark for bookmark management. Clean, simple, and efficient.",
+      icon: "💫",
     },
   ];
 
   const socialLinks = [
     {
       name: "WhatsApp",
-      icon: MessageCircle,
-      color: "bg-green-500 hover:bg-green-600",
-      hoverText: "Share via WhatsApp",
+      icon: MessageSquare,
+      color: "bg-[#25D366] hover:bg-[#1ea952]",
       url: `https://wa.me/?text=${encodeURIComponent(
         `${shareMessages[activeMessage].text}\n${shareUrl}`
       )}`,
     },
     {
-      name: "Facebook",
-      icon: Facebook,
-      color: "bg-blue-600 hover:bg-blue-700",
-      hoverText: "Share on Facebook",
-      url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-        shareUrl
-      )}`,
-    },
-    {
-      name: "Instagram",
-      icon: Instagram,
-      color:
-        "bg-gradient-to-r from-purple-500 via-pink-600 to-orange-500 hover:opacity-90",
-      hoverText: "Share on Instagram",
-      onClick: () => {
-        navigator.clipboard.writeText(
-          `${shareMessages[activeMessage].text}\n${shareUrl}`
-        );
-        alert("Message copied! Ready to share on Instagram.");
-      },
-    },
-    {
       name: "Twitter",
       icon: Twitter,
-      color: "bg-sky-500 hover:bg-sky-600",
-      hoverText: "Share on Twitter",
+      color: "bg-[#1DA1F2] hover:bg-[#1a8cd8]",
       url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
         `${shareMessages[activeMessage].text}\n${shareUrl}`
       )}`,
     },
     {
       name: "LinkedIn",
-      icon: LinkedinIcon,
-      color: "bg-blue-700 hover:bg-blue-800",
-      hoverText: "Share on LinkedIn",
+      icon: Linkedin,
+      color: "bg-[#0A66C2] hover:bg-[#084d93]",
       url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+        shareUrl
+      )}`,
+    },
+    {
+      name: "Facebook",
+      icon: Facebook,
+      color: "bg-[#1877F2] hover:bg-[#0c5dc9]",
+      url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
         shareUrl
       )}`,
     },
@@ -105,127 +84,109 @@ const ShareModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleShare = (url, customAction) => {
-    if (customAction) {
-      customAction();
-    } else {
-      window.open(url, "_blank", "noopener,noreferrer");
-    }
+  const handleShare = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg p-0 overflow-hidden rounded-xl mx-auto w-[calc(100%-2rem)] sm:w-full [&>button]:text-white [&>button]:hover:text-white/80 [&>button]:transition-colors">
-        {/* Gradient Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-800 px-4 py-5 sm:p-6 text-white">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white">
               <Share2 className="h-5 w-5 sm:h-6 sm:w-6" />
               Invite Friends to Webmark
             </DialogTitle>
-            <DialogDescription className="hidden sm:block text-blue-100 mt-2">
+            <p className="text-center text-gray-100 text-sm">
               Share the magic of organized bookmarking with your network
-            </DialogDescription>
+            </p>
           </DialogHeader>
         </div>
 
-        <div className="px-4 py-5 sm:p-6">
-          {/* Message Selector */}
-          <div className="mb-5 sm:mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Choose your sharing message:
+        <div className="mt-6 px-6 pb-8 space-y-6">
+          {/* Message Selection */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Choose a message
             </label>
             <div className="space-y-2">
               {shareMessages.map((message, index) => (
-                <div
+                <button
                   key={index}
                   onClick={() => setActiveMessage(index)}
                   className={cn(
-                    "p-2.5 sm:p-3 rounded-lg border-2 cursor-pointer transition-all",
+                    "w-full text-left p-3 rounded-lg border-2 transition-all",
+                    "flex items-center gap-3",
                     activeMessage === index
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-blue-200"
+                      ? "border-blue-500 bg-blue-50/50"
+                      : "border-gray-200 hover:border-blue-200 hover:bg-gray-50"
                   )}>
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm text-gray-600 flex-1">
-                      {message.text}
-                    </p>
-                    {activeMessage === index && (
-                      <CheckCircle2 className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                    )}
-                  </div>
-                </div>
+                  <span className="text-xl">{message.icon}</span>
+                  <p className="text-sm text-gray-700 flex-1">{message.text}</p>
+                  {activeMessage === index && (
+                    <CheckCircle2 className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  )}
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Social Share Grid */}
-          <div className="grid grid-cols-5 gap-2 sm:gap-3 mb-5 sm:mb-6">
-            {socialLinks.map((platform) => (
-              <button
-                key={platform.name}
-                onClick={() => handleShare(platform.url, platform.onClick)}
-                className={cn(
-                  "group relative flex flex-col items-center justify-center p-2 sm:p-4 rounded-lg sm:rounded-xl text-white transition-all",
-                  "transform hover:scale-105 hover:shadow-lg",
-                  platform.color
-                )}>
-                <platform.icon className="h-6 w-6" />
-                <span className="hidden sm:block text-xs font-medium mt-2">
-                  {platform.name}
-                </span>
-
-                {/* Desktop Hover Tooltip */}
-                <span
-                  className="hidden sm:block absolute -top-10 left-1/2 transform -translate-x-1/2 
-                             px-3 py-1 bg-gray-900 text-white text-xs rounded-md 
-                             opacity-0 group-hover:opacity-100 transition-opacity
-                             whitespace-nowrap pointer-events-none">
-                  {platform.hoverText}
-                </span>
-              </button>
-            ))}
+          {/* Social Share */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Share via
+            </label>
+            <div className="grid grid-cols-4 gap-3">
+              {socialLinks.map((platform) => (
+                <button
+                  key={platform.name}
+                  onClick={() => handleShare(platform.url)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-xl",
+                    "text-white transition-all hover:shadow-md hover:scale-105",
+                    platform.color
+                  )}>
+                  <platform.icon className="h-5 w-5" />
+                  <span className="hidden md:block text-xs font-medium">
+                    {platform.name}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Copy Link Section */}
-          <div className="relative">
-            <div className="flex items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex-1 min-w-0 mr-2 sm:mr-3">
-                <p className="text-sm font-medium text-gray-900 mb-0.5 sm:mb-1">
-                  Quick Share Link
-                </p>
-                <p className="text-xs text-gray-500 truncate">{shareUrl}</p>
+          {/* Quick Share Link */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Or copy link
+            </label>
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-gray-900 truncate">{shareUrl}</p>
               </div>
               <Button
                 size="sm"
-                variant={copied ? "success" : "default"}
                 onClick={handleCopyLink}
                 className={cn(
-                  "transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap",
+                  "transition-colors h-9 px-4",
                   copied
-                    ? "bg-green-500 text-white hover:bg-green-600"
+                    ? "bg-green-500 hover:bg-green-600"
                     : "bg-blue-500 hover:bg-blue-600"
                 )}>
                 {copied ? (
-                  <>
+                  <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4" />
-                    <span className="text-sm">Copied!</span>
-                  </>
+                    Copied
+                  </span>
                 ) : (
-                  <>
+                  <span className="flex items-center gap-2">
                     <Copy className="h-4 w-4" />
-                    <span className="text-sm">Copy Link</span>
-                  </>
+                    Copy
+                  </span>
                 )}
               </Button>
             </div>
           </div>
-
-          {/* Footer Message */}
-          <p className="text-center text-xs sm:text-sm text-gray-500 mt-5 sm:mt-6">
-            Help your friends discover a better way to manage their bookmarks!
-            🌟
-          </p>
         </div>
       </DialogContent>
     </Dialog>
