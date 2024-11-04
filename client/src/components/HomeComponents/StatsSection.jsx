@@ -56,19 +56,22 @@ const formatDate = (dateString) => {
 };
 
 const RecentUsers = ({ users = [], timeRange }) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 pb-4">
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 px-4 pb-4">
     {users?.map((user, index) => (
       <div
         key={`${timeRange}-${user.username}-${index}`}
-        className="flex items-center space-x-4 p-3 rounded-lg hover:cursor-pointer hover:bg-gray-50">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-lg shadow-md">
-          {user.username?.charAt(0).toUpperCase()}
+        className="group flex items-center space-x-3 p-3 rounded-xl transition-all duration-300 hover:bg-blue-50 hover:shadow-md">
+        <div className="relative">
+          <div className="w-10 md:w-12 h-10 md:h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-base md:text-lg shadow-md transform transition-transform group-hover:scale-110">
+            {user.username?.charAt(0).toUpperCase()}
+          </div>
+          <div className="absolute -bottom-1 -right-1 w-3 md:w-4 h-3 md:h-4 bg-green-400 rounded-full border-2 border-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
+          <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600">
             {user.username}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="hidden md:block text-sm text-gray-500">
             Joined {formatDate(user.joinedAt)}
           </p>
         </div>
@@ -83,14 +86,16 @@ const StatCard = ({ icon: Icon, value, label, type, growth, periodLabel }) => {
   const displayGrowth = Math.abs(growth);
 
   return (
-    <div className="flex flex-col items-center p-4 md:p-6 bg-none rounded-lg">
-      <div className="p-3 bg-blue-50 rounded-full mb-4">
-        <Icon className="w-6 h-6 text-blue-600" />
+    <div className="group flex flex-col items-center p-4 md:p-6 bg-none rounded-lg transition-all duration-300 hover:bg-blue-50/50">
+      <div className="p-3 bg-blue-50/50 rounded-full mb-4 transform transition-all duration-300 group-hover:scale-105 group-hover:bg-blue-100/50">
+        <Icon className="w-6 h-6 text-blue-500" />
       </div>
 
-      <h3 className="text-3xl font-bold text-gray-900 mb-2">{displayValue}</h3>
+      <h3 className="text-3xl font-bold text-gray-800 mb-2 transition-colors group-hover:text-blue-600">
+        {displayValue}
+      </h3>
 
-      <p className="text-sm text-gray-600">{label}</p>
+      <p className="text-sm text-gray-500">{label}</p>
       <div className="flex items-center space-x-2 mt-1">
         <span
           className={`flex items-center text-sm ${
@@ -103,10 +108,34 @@ const StatCard = ({ icon: Icon, value, label, type, growth, periodLabel }) => {
           )}
           {displayGrowth}%
         </span>
-        <span className="text-xs text-gray-500">{periodLabel}</span>
+        <span className="text-xs text-gray-400">{periodLabel}</span>
       </div>
     </div>
   );
+};
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <p className="text-sm font-medium text-gray-900 mb-2">
+          {new Date(label).toLocaleDateString()}
+        </p>
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center space-x-2 mb-1">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm text-gray-600">
+              {entry.name}: {entry.value.toLocaleString()}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
 };
 
 const HistoricalChart = ({ type, period }) => {
@@ -149,43 +178,47 @@ const HistoricalChart = ({ type, period }) => {
     <div className="h-[400px] mt-4">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
           <XAxis
             dataKey="date"
             tickFormatter={(date) => new Date(date).toLocaleDateString()}
+            stroke="#6B7280"
+            tick={{ fontSize: 12 }}
           />
-          <YAxis />
-          <Tooltip
-            labelFormatter={(date) => new Date(date).toLocaleDateString()}
-            formatter={(value, name) => [value.toLocaleString(), name]}
+          <YAxis stroke="#6B7280" tick={{ fontSize: 12 }} />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend
+            wrapperStyle={{
+              paddingTop: "20px",
+              fontSize: "14px",
+            }}
           />
-          <Legend />
           <Line
             type="monotone"
             dataKey="users"
             stroke="#3b82f6"
             name="Users"
-            strokeWidth={2}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
+            strokeWidth={3}
+            dot={{ r: 4, strokeWidth: 2 }}
+            activeDot={{ r: 6, strokeWidth: 2 }}
           />
           <Line
             type="monotone"
             dataKey="bookmarks"
             stroke="#10b981"
             name="Bookmarks"
-            strokeWidth={2}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
+            strokeWidth={3}
+            dot={{ r: 4, strokeWidth: 2 }}
+            activeDot={{ r: 6, strokeWidth: 2 }}
           />
           <Line
             type="monotone"
             dataKey="categories"
             stroke="#f59e0b"
             name="Categories"
-            strokeWidth={2}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
+            strokeWidth={3}
+            dot={{ r: 4, strokeWidth: 2 }}
+            activeDot={{ r: 6, strokeWidth: 2 }}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -256,19 +289,22 @@ const StatsSection = () => {
             </h2>
             <p className="text-[#374151] leading-[1.5] text-[1.125rem] tracking-[-0.017em]">
               Join thousands of professionals who are organizing their digital
-              resources with <span className="font-bold">Webmark</span>. Start
+              resources with{" "}
+              <span className="font-bold text-blue-500">Webmark</span>. Start
               your journey today!
             </p>
           </div>
 
           {/* Stats card section */}
-          <Card>
+          <Card className="shadow-sm hover:shadow-md transition-shadow duration-300 bg-white/80 backdrop-blur-sm">
             <CardHeader>
               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <CardTitle>Real time Analytics</CardTitle>
+                <CardTitle className="text-xl text-gray-800">
+                  Real time Analytics
+                </CardTitle>
                 <div className="flex gap-4">
                   <Select value={timeRange} onValueChange={setTimeRange}>
-                    <SelectTrigger className="w-28">
+                    <SelectTrigger className="w-28 border-gray-200 hover:border-blue-300 transition-colors">
                       <SelectValue placeholder="Select range" />
                     </SelectTrigger>
                     <SelectContent>
@@ -282,7 +318,7 @@ const StatsSection = () => {
                     variant="outline"
                     size="icon"
                     onClick={refreshStats}
-                    className="h-9 w-9 hover:bg-blue-50">
+                    className="h-9 w-9 hover:bg-blue-50/50 hover:text-blue-500 transition-colors">
                     <RefreshCw className="h-4 w-4 mx-2" />
                   </Button>
                 </div>
@@ -321,17 +357,21 @@ const StatsSection = () => {
               </article>
             </div>
             <CardHeader>
-              <CardTitle>Recently Joined Members</CardTitle>
+              <CardTitle className="text-xl text-gray-900">
+                Recently Joined Members
+              </CardTitle>
             </CardHeader>
 
             <RecentUsers users={stats?.recentUsers} timeRange={timeRange} />
             <div className="hidden lg:block">
               <CardHeader>
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                  <CardTitle>Growth Trends</CardTitle>
+                  <CardTitle className="text-xl text-gray-900">
+                    Growth Trends
+                  </CardTitle>
                   <div className="flex gap-4">
                     <Select value={chartType} onValueChange={setChartType}>
-                      <SelectTrigger className="w-28">
+                      <SelectTrigger className="w-28 border-gray-200 hover:border-blue-400 transition-colors">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -344,7 +384,7 @@ const StatsSection = () => {
                     <Select
                       value={chartPeriod.toString()}
                       onValueChange={(value) => setChartPeriod(Number(value))}>
-                      <SelectTrigger className="w-28">
+                      <SelectTrigger className="w-28 border-gray-200 hover:border-blue-400 transition-colors">
                         <SelectValue placeholder="Select period" />
                       </SelectTrigger>
                       <SelectContent>
@@ -357,8 +397,10 @@ const StatsSection = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <HistoricalChart type={chartType} period={chartPeriod} />
+              <CardContent className="p-6">
+                <div className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+                  <HistoricalChart type={chartType} period={chartPeriod} />
+                </div>
               </CardContent>
             </div>
           </Card>
