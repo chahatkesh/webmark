@@ -4,6 +4,8 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useCreateCategory } from "../../hooks/useBookmarks";
 import EmojiPicker from "emoji-picker-react";
+import { Loader2 } from "lucide-react";
+import { cn } from "../../lib/utils";
 
 const colorThemes = {
   "Essential Colors": {
@@ -327,13 +329,23 @@ const AddCategoryDialog = ({ open, onClose }) => {
               </div>
             </div>
           </div>
-
-          <Button
-            type="submit"
-            className="w-full h-12 text-base font-medium bg-blue-500 hover:bg-blue-600 text-white transition-colors"
-            disabled={isSubmitting || !formData.category.trim() || !!error}>
-            Add Category
-          </Button>
+          <div className="w-full flex justify-center items-center">
+            <Button
+              type="submit"
+              className={cn(
+                "h-12 w-full px-5 text-base font-medium",
+                "bg-blue-500 hover:bg-blue-600 text-white",
+                "transition-colors",
+                "relative",
+                isSubmitting && "pl-9"
+              )}
+              disabled={isSubmitting || !formData.category.trim() || !!error}>
+              {isSubmitting && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
+              {isSubmitting ? "Adding..." : "Add Category"}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

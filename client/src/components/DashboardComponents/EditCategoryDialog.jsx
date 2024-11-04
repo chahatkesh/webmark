@@ -4,6 +4,8 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useUpdateCategory } from "../../hooks/useBookmarks";
 import EmojiPicker from "emoji-picker-react";
+import { cn } from "../../lib/utils";
+import { Loader2 } from "lucide-react";
 
 const colorThemes = {
   "Essential Colors": {
@@ -352,8 +354,17 @@ const EditCategoryDialog = ({ open, onClose, category }) => {
             </Button>
             <Button
               type="submit"
-              className="h-12 text-base font-medium bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+              className={cn(
+                "h-12 px-5 text-base font-medium",
+                "bg-blue-500 hover:bg-blue-600 text-white",
+                "transition-colors",
+                "relative",
+                isSubmitting && "pl-9"
+              )}
               disabled={isSubmitting || !formData.category.trim() || !!error}>
+              {isSubmitting && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
               {isSubmitting ? "Updating..." : "Update Category"}
             </Button>
           </div>
