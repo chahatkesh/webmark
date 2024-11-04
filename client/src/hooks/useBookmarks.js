@@ -271,8 +271,47 @@ export const useUpdateBookmarkOrder = () => {
         throw error;
       }
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries(['bookmarks', variables.categoryId]);
-    }
+    // Add optimistic update
+    onMutate: async ({ categoryId, bookmarks }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries(['bookmarks', categoryId]);
+
+      // Snapshot the previous value
+      const previousBookmarks = queryClient.getQueryData(['bookmarks', categoryId]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['bookmarks', categoryId], (old) => {
+        if (!old) return [];
+
+        // Create a map of id to bookmark to preserve all properties
+        const bookmarkMap = old.reduce((acc, bookmark) => {
+          acc[bookmark._id] = bookmark;
+          return acc;
+        }, {});
+
+        // Create new array with updated orders
+        return bookmarks.map(({ id, order }) => ({
+          ...bookmarkMap[id],
+          order
+        })).sort((a, b) => a.order - b.order);
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousBookmarks };
+    },
+    // If the mutation fails, use the context returned from onMutate to roll back
+    onError: (err, newBookmarks, context) => {
+      if (context?.previousBookmarks) {
+        queryClient.setQueryData(
+          ['bookmarks', newBookmarks.categoryId],
+          context.previousBookmarks
+        );
+      }
+      toast.error('Failed to update bookmark order');
+    },
+    // Always refetch after error or success to make sure our optimistic update is correct
+    onSettled: (data, error, { categoryId }) => {
+      queryClient.invalidateQueries(['bookmarks', categoryId]);
+    },
   });
 };

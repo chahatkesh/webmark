@@ -77,7 +77,8 @@ const BookmarkList = () => {
                 <span>No bookmarks found</span>
               ) : (
                 <span>
-                  {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""}
+                  {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""}{" "}
+                  found
                 </span>
               )}
             </div>

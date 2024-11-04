@@ -3,15 +3,23 @@ import {
   useBookmarks,
   useDeleteCategory,
   useDeleteBookmark,
+  useUpdateBookmarkOrder,
 } from "../../hooks/useBookmarks";
 import { Button } from "../ui/button";
-import { PlusCircle, Pencil, Trash2, MoreVertical } from "lucide-react";
+import {
+  PlusCircle,
+  Pencil,
+  Trash2,
+  MoreVertical,
+  GripVertical,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import AddBookmarkDialog from "./AddBookmarkDialog";
 import EditBookmarkDialog from "./EditBookmarkDialog";
 import EditCategoryDialog from "./EditCategoryDialog";
@@ -30,6 +38,7 @@ const BookmarkItem = ({
   const { data: bookmarks, isLoading } = useBookmarks(categoryId);
   const deleteCategory = useDeleteCategory();
   const deleteBookmark = useDeleteBookmark();
+  const updateBookmarkOrder = useUpdateBookmarkOrder();
   const [isAddingBookmark, setIsAddingBookmark] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [selectedBookmark, setSelectedBookmark] = useState(null);
@@ -52,6 +61,35 @@ const BookmarkItem = ({
       });
       setBookmarkToDelete(null);
     }
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const items = Array.from(displayBookmarks);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Create the updated bookmarks array with new orders
+    const updatedBookmarks = items.map((item, index) => ({
+      id: item._id,
+      order: index,
+    }));
+
+    // Update the order in the backend with optimistic updates
+    updateBookmarkOrder.mutate(
+      {
+        categoryId,
+        bookmarks: updatedBookmarks,
+      },
+      {
+        // The mutation will now handle optimistic updates automatically
+        onError: (error) => {
+          // If there's an error, the mutation will automatically revert the changes
+          console.error("Error updating bookmark order:", error);
+        },
+      }
+    );
   };
 
   return (
@@ -90,70 +128,97 @@ const BookmarkItem = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 mt-2 md:mt-4 gap-x-2 gap-y-2 md:gap-x-3 md:gap-y-3">
-          {displayBookmarks?.map((item) => (
-            <div
-              key={item._id}
-              className="flex justify-between items-center p-2 md:p-2.5 bg-white rounded hover:bg-blue-100 cursor-pointer gap-3">
-              {/* Left side with name */}
-              <div className="min-w-0 flex-1">
-                <a
-                  target="_blank"
-                  href={item.link}
-                  className="block"
-                  onClick={(e) => {
-                    if (
-                      e.target.closest("button") ||
-                      e.target.closest("[role='menuitem']")
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}>
-                  <h2 className="text-[13px] md:text-[16px] font-[400] truncate">
-                    {item.name}
-                  </h2>
-                </a>
-              </div>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId={categoryId}>
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="grid grid-cols-2 mt-2 md:mt-4 gap-x-2 gap-y-2 md:gap-x-3 md:gap-y-3">
+                {displayBookmarks?.map((item, index) => (
+                  <Draggable
+                    key={item._id}
+                    draggableId={item._id}
+                    index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={`flex justify-between items-center p-2 md:p-2.5 bg-white rounded hover:bg-blue-100 cursor-pointer gap-3 ${
+                          snapshot.isDragging ? "shadow-lg" : ""
+                        }`}>
+                        {/* Drag Handle */}
+                        <div
+                          {...provided.dragHandleProps}
+                          className="cursor-grab active:cursor-grabbing">
+                          <GripVertical className="h-4 w-4 text-gray-400" />
+                        </div>
 
-              {/* Right side with logo and menu */}
-              <div className="flex items-center gap-2 shrink-0">
-                <img
-                  className="h-4 md:h-6 rounded"
-                  src={item.logo}
-                  alt=""
-                  onError={(e) => {
-                    e.target.src = "/api/placeholder/24/24";
-                    e.target.onerror = null;
-                  }}
-                />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="menu"
-                      className="hover:bg-blue-100">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-32">
-                    <DropdownMenuItem
-                      onClick={() => setSelectedBookmark(item)}
-                      className="cursor-pointer">
-                      <Pencil className="h-4 w-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => setBookmarkToDelete(item)}
-                      className="cursor-pointer text-red-600">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                        {/* Content */}
+                        <div className="min-w-0 flex-1">
+                          <a
+                            target="_blank"
+                            href={item.link}
+                            className="block"
+                            onClick={(e) => {
+                              if (
+                                e.target.closest("button") ||
+                                e.target.closest("[role='menuitem']")
+                              ) {
+                                e.preventDefault();
+                              }
+                            }}>
+                            <h2 className="text-[13px] md:text-[16px] font-[400] truncate">
+                              {item.name}
+                            </h2>
+                          </a>
+                        </div>
+
+                        {/* Right side with logo and menu */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          <img
+                            className="h-4 md:h-6 rounded"
+                            src={item.logo}
+                            alt=""
+                            onError={(e) => {
+                              e.target.src = "/api/placeholder/24/24";
+                              e.target.onerror = null;
+                            }}
+                          />
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="menu"
+                                className="hover:bg-blue-200 py-1">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-32">
+                              <DropdownMenuItem
+                                onClick={() => setSelectedBookmark(item)}
+                                className="cursor-pointer">
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => setBookmarkToDelete(item)}
+                                className="cursor-pointer text-red-600">
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
               </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </div>
 
       <AddBookmarkDialog
