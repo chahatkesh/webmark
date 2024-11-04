@@ -43,18 +43,17 @@ const ConfirmDeleteDialog = ({
       <DialogContent
         className="rounded-xl p-6 bg-white w-full max-w-[95vw] sm:max-w-md"
         onKeyDown={handleKeyDown}>
-        <DialogHeader className="space-y-4 text-center">
-          <div className="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-            <AlertTriangle className="h-6 w-6 text-red-600" />
-          </div>
-
-          <div className="space-y-2 px-4">
-            <DialogTitle className="text-xl font-semibold text-gray-900">
-              {title}
-            </DialogTitle>
-            <p className="text-sm text-gray-600">{message}</p>
-          </div>
+        <DialogHeader className="space-y-4">
+          {/* Title with warning icon */}
+          <DialogTitle className="flex gap-3 items-center text-red-600">
+            <div className="p-2 bg-red-100 rounded-full">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <span className="text-xl">{title}</span>
+          </DialogTitle>
         </DialogHeader>
+
+        <p className="text-sm text-gray-600">{message}</p>
 
         <div className="flex gap-3 justify-end mt-6">
           <Button
