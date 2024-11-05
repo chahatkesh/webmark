@@ -20,18 +20,22 @@ const EmailVerification = () => {
         const response = await axios.get(
           `${url}/api/user/verify-email/${token}`
         );
+
         if (response.data.success) {
           setVerificationStatus("success");
-          setMessage("Email verified successfully! Redirecting to login...");
+          setMessage("Email verified successfully! Logging you in...");
+
+          // Save token and redirect to dashboard
+          localStorage.setItem("token", response.data.token);
 
           // Start countdown
-          let count = 3;
+          let count = 2;
           const timer = setInterval(() => {
             count--;
             setCountdown(count);
             if (count === 0) {
               clearInterval(timer);
-              navigate("/auth", { state: { verified: true } });
+              navigate("/user/dashboard");
             }
           }, 1000);
 

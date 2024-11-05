@@ -245,9 +245,18 @@ const verifyEmail = async (req, res) => {
     user.emailVerificationExpires = undefined;
     await user.save();
 
+    // Generate authentication token
+    const authToken = createToken(user._id);
+
     res.json({
       success: true,
-      message: "Email verified successfully."
+      message: "Email verified successfully.",
+      token: authToken,
+      userData: {
+        username: user.username,
+        email: user.email,
+        joinedAt: user.joinedAt
+      }
     });
   } catch (error) {
     console.error('Email verification error:', error);
