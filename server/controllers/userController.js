@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 import crypto from "crypto";
 import { sendEmail } from '../config/emailConfig.js';
+import createDefaultBookmarks from '../utils/defaultBookmarks.js';
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
@@ -19,9 +20,13 @@ const registerUser = async (req, res) => {
       return res.json({ success: false, message: "Email already in use" });
     }
 
-    // validating username
-    if (!(username.length == 6)) {
-      return res.json({ success: false, message: "Username must be of 6 Characters" });
+    // Improved username validation
+    const usernameRegex = /^[a-z0-9][a-z0-9_-]{2,29}$/;
+    if (!usernameRegex.test(username)) {
+      return res.json({
+        success: false,
+        message: "Username must be 3-30 characters long, start with a letter or number, and can contain lowercase letters, numbers, underscore, or hyphen"
+      });
     }
 
     const existUsername = await userModel.findOne({ username });
@@ -58,6 +63,18 @@ const registerUser = async (req, res) => {
 
     // Save the user
     const user = await newUser.save();
+
+    // Create default bookmarks - NEW ADDITION
+    try {
+      await createDefaultBookmarks(user._id);
+    } catch (error) {
+      // If bookmark creation fails, delete the user and return error
+      await userModel.findByIdAndDelete(user._id);
+      return res.json({
+        success: false,
+        message: "Error setting up user account. Please try again."
+      });
+    }
 
     // Create verification URL
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${emailVerificationToken}`;
@@ -140,8 +157,11 @@ const registerUser = async (req, res) => {
       });
     } catch (error) {
       console.error('Email sending error:', error);
-      // If email sending fails, delete the user and return error
+      // If email sending fails, delete the user and all created bookmarks/categories - MODIFIED THIS PART
+      await categoryModel.deleteMany({ userId: user._id });
+      await bookmarkModel.deleteMany({ categoryId: { $in: await categoryModel.find({ userId: user._id }).select('_id') } });
       await userModel.findByIdAndDelete(user._id);
+
       return res.json({
         success: false,
         message: "Failed to send verification email. Please try again."

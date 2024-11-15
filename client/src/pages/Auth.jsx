@@ -535,16 +535,34 @@ const Auth = () => {
     // Enhanced validation logic
     switch (name) {
       case "username":
-        const usernameRegex = /^[a-z0-9][a-z0-9_-]*$/;
-        setErrors({
-          ...errors,
-          usernameError:
-            value.length != 6
-              ? "Username must be of 6 characters"
-              : !usernameRegex.test(value)
-              ? "Use lowercase letters, numbers, underscore or hyphen"
-              : "",
-        });
+        const usernameRegex = /^[a-z0-9][a-z0-9_-]{2,29}$/;
+        if (value.length === 0) {
+          setErrors({
+            ...errors,
+            usernameError: "",
+          });
+        } else if (value.length < 3) {
+          setErrors({
+            ...errors,
+            usernameError: "Username must be at least 3 characters",
+          });
+        } else if (value.length > 30) {
+          setErrors({
+            ...errors,
+            usernameError: "Username must be less than 30 characters",
+          });
+        } else if (!usernameRegex.test(value)) {
+          setErrors({
+            ...errors,
+            usernameError:
+              "Username must start with a letter or number and can only contain lowercase letters, numbers, underscore, or hyphen",
+          });
+        } else {
+          setErrors({
+            ...errors,
+            usernameError: "",
+          });
+        }
         break;
 
       case "password":
@@ -799,7 +817,7 @@ const Auth = () => {
                       required
                       disabled={submitting}
                       autoComplete="username"
-                      placeholder="johndoe"
+                      placeholder="e.g., john_doe123"
                       className={`
               block w-full rounded-md border-0 py-1.5 px-4
               text-gray-900 shadow-sm ring-1 ring-inset 
