@@ -4,62 +4,68 @@ import React, { useEffect } from "react";
 const testimonials = [
   {
     id: 1,
-    name: "Sarah Chen",
-    handle: "@sarahchen_dev",
-    image: "https://api.uifaces.co/our-content/donated/xZ4wg2Xj.jpg",
+    name: "Bhavesh Singh",
+    handle: "@BhaveshSingh__",
+    image:
+      "https://media.licdn.com/dms/image/D5603AQEBO8CqMpa_CA/profile-displayphoto-shrink_200_200/0/1707073254865?e=2147483647&v=beta&t=LpXcGOheCaNAKyu3ntIr4j-ogKsRVIgReb68FhnOR6U",
     content:
       "Webmark has completely transformed how I organize my dev resources. The ability to categorize and tag bookmarks makes finding documentation and tutorials so much faster. The search functionality is incredibly powerful!",
-    date: "Apr 15, 2024",
+    date: "Nov 22, 2024",
     rotation: -1,
   },
   {
     id: 2,
-    name: "Alex Thompson",
-    handle: "@alexdev",
-    image: "https://randomuser.me/api/portraits/men/32.jpg",
+    name: "Shreyansh",
+    handle: "@shreyansh121",
+    image:
+      "https://media.licdn.com/dms/image/v2/D4E03AQGrCjkMfhLyrg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1686543439342?e=2147483647&v=beta&t=wFw57Ki7LeA8XC2fZvMsfNizRHXtKdK1p7gcPJMLEP0",
     content:
       "As a full-stack developer, I juggle countless resources daily. Webmark's collections feature helps me keep everything organized by project, and the dark mode is perfect for late-night coding sessions.",
-    date: "Apr 13, 2024",
+    date: "Dec 4, 2024",
     rotation: 1,
   },
   {
     id: 3,
-    name: "Maria García",
-    handle: "@maria_ux",
-    image: "https://randomuser.me/api/portraits/women/44.jpg",
+    name: "Vansh",
+    handle: "@gilhotravansh7",
+    image:
+      "https://media.licdn.com/dms/image/v2/D5603AQE8An1ZkqVLdg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1718966097347?e=1738195200&v=beta&t=qz4Qy22xWisj4eEL3EukBn_Lqe9jKra-cVVtQMOk16U",
     content:
       "The custom tagging system in Webmark is a game-changer for UX research. I can easily sort and find inspiration from different sources. The quick search feature saves me hours every week!",
-    date: "Apr 10, 2024",
+    date: "Nov 17, 2024",
     rotation: -1,
   },
   {
     id: 4,
-    name: "James Wilson",
-    handle: "@jwilson_tech",
-    image: "https://randomuser.me/api/portraits/men/86.jpg",
+    name: "Chahat Kesharwani",
+    handle: "@chahatkesh",
+    image:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlfTZ5us199K6vayRfGfrtHydVyfNE0o0p9w&s",
     content:
       "Love how Webmark syncs across all my devices. The smart collections and drag-and-drop interface make organizing bookmarks actually enjoyable. It's become an essential part of my daily workflow.",
-    date: "Apr 8, 2024",
+    date: "Oct 28, 2024",
     rotation: 1,
   },
   {
     id: 5,
-    name: "Emily Zhang",
-    handle: "@em_codes",
-    image: "https://randomuser.me/api/portraits/women/2.jpg",
+    name: "Harsh",
+    handle: "@Harshva42964351",
+    image:
+      "https://pbs.twimg.com/profile_images/1719700935306252288/RrIeBRSy_400x400.jpg",
     content:
       "The Chrome extension is fantastic! One-click saving with automatic tag suggestions has made my research workflow so much more efficient. Webmark is my digital library organizer!",
-    date: "Apr 5, 2024",
+    date: "Nov 5, 2024",
     rotation: -1,
   },
   {
     id: 6,
-    name: "David Kumar",
-    handle: "@david_k",
-    image: "https://randomuser.me/api/portraits/men/46.jpg",
+    name: "Anay Kesharwani",
+    handle: "@A_anay_",
+    image:
+      "https://pbs.twimg.com/profile_images/1519930124434505729/zIrIx_En_400x400.jpg",
     content:
       "Finally found the perfect bookmark manager! The ability to add notes to bookmarks helps me remember why I saved something. The search feature is lightning fast!",
-    date: "Apr 3, 2024",
+    date: "Nov 13, 2024",
     rotation: 1,
   },
 ];
