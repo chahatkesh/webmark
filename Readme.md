@@ -246,12 +246,17 @@ git push origin feature/amazing-feature
 
 ## Acknowledgments 🙏
 
-- **Author**: Chahat Kesharwani
-- **Special Thanks**: Open Source Community
-- **Inspiration**: Personal productivity challenges
+**Created with gratitude by**  
+[![Chahat Kesharwani](https://img.shields.io/badge/Author-@chahatkesh-%2300ACEE?style=flat&logo=github)](https://github.com/chahatkesh)  
 
-## Contributors
-![Contributors](https://contrib.rocks/image?repo=chahatkesh/webmark)
+**Special Thanks**  
+• [Mehtab Sir](https://www.linkedin.com/in/mehtab-singh-00945b250/) - Mentor & Guide  
+• Open Source Community - For endless inspiration
+
+**Inspiration**  
+Personal productivity challenges that sparked this solution  
+
+[![Say Thanks](https://img.shields.io/badge/Say%20Thanks-!-%231DA1F2?style=for-the-badge&logo=twitter)](https://twitter.com/intent/tweet?text=Thanks%20@chahatkesh%20for%20Webmark!)
 
 
 ## Contact & Support 📬
