@@ -202,6 +202,77 @@ webmark/
     └── models/           # MongoDB schemas
 ```
 
+```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#242F40', 'primaryTextColor': '#FAFAFA', 'primaryBorderColor': '#556E8A', 'lineColor': '#85A3C2', 'secondaryColor': '#334F6C', 'tertiaryColor': '#1A2639' }}}%%
+
+graph TD;
+    subgraph "Frontend"
+        FE["Frontend Client (React Application)"]:::frontendNode
+        FE_Pages["UI Pages & Routing"]:::frontendNode
+        FE_Components["Reusable UI Components"]:::frontendNode
+        FE_Hooks["Custom Hooks"]:::frontendNode
+        FE_Context["Global State Management"]:::frontendNode
+    end
+    subgraph "Backend"
+        BE["Backend Server (Node.js/Express)"]:::backendNode
+        BE_Config["Server Configuration (Database & Email)"]:::backendNode
+        BE_Controllers["API Controllers"]:::backendNode
+        BE_Middleware["Authentication Middleware"]:::backendNode
+        BE_Models["Data Models (Mongoose Schemas)"]:::backendNode
+        BE_Tasks["Scheduled Tasks (node-cron)"]:::backendNode
+    end
+    DB["Database (MongoDB)"]:::databaseNode
+    
+    %% Frontend internal relationships
+    FE -->|"contains"|FE_Pages
+    FE -->|"contains"|FE_Components
+    FE -->|"contains"|FE_Hooks
+    FE -->|"contains"|FE_Context
+    FE_Pages -->|"renders"|FE_Components
+    FE_Components -->|"uses"|FE_Hooks
+    FE_Hooks -->|"updates"|FE_Context
+    
+    %% Interaction from Frontend to Backend
+    FE_Components -->|"triggers API call"|BE_Controllers
+    FE_Context -->|"supplies state"|BE_Controllers
+    
+    %% Backend internal flow
+    BE -->|"routes request to"|BE_Controllers
+    BE_Controllers -->|"invokes"|BE_Middleware
+    BE_Controllers -->|"queries"|BE_Models
+    BE_Models -->|"persists to"|DB
+    BE_Controllers -->|"utilizes"|BE_Config
+    BE_Config -->|"configures"|BE_Controllers
+    BE_Tasks -->|"executes jobs on"|BE_Controllers
+    
+    %% Click Events for Frontend Components
+    click FE "https://github.com/chahatkesh/webmark/tree/main/client" "Browse Frontend Code"
+    click FE_Pages "https://github.com/chahatkesh/webmark/tree/main/client/src/pages" "Browse Pages"
+    click FE_Components "https://github.com/chahatkesh/webmark/tree/main/client/src/components" "Browse Components"
+    click FE_Hooks "https://github.com/chahatkesh/webmark/tree/main/client/src/hooks" "Browse Hooks"
+    click FE_Context "https://github.com/chahatkesh/webmark/blob/main/client/src/context/StoreContext.jsx" "View Context Code"
+    
+    %% Click Events for Backend Components
+    click BE "https://github.com/chahatkesh/webmark/tree/main/server" "Browse Backend Code"
+    click BE_Config "https://github.com/chahatkesh/webmark/tree/main/server/config" "Browse Config"
+    click BE_Controllers "https://github.com/chahatkesh/webmark/tree/main/server/controllers" "Browse Controllers"
+    click BE_Middleware "https://github.com/chahatkesh/webmark/blob/main/server/middleware/authmiddleware.js" "View Middleware"
+    click BE_Models "https://github.com/chahatkesh/webmark/tree/main/server/models" "Browse Models"
+    click BE_Tasks "https://github.com/chahatkesh/webmark/blob/main/server/utils/cronJobs.js" "View Cron Jobs"
+    
+    %% Styling classes with better dark mode colors
+    classDef frontendNode fill:#6366F1,color:#F8FAFC,stroke:#818CF8,stroke-width:2px,rx:5,ry:5;
+    classDef backendNode fill:#10B981,color:#F8FAFC,stroke:#34D399,stroke-width:2px,rx:5,ry:5;
+    classDef databaseNode fill:#F59E0B,color:#F8FAFC,stroke:#FBBF24,stroke-width:2px,rx:5,ry:5;
+    
+    %% Style the subgraphs
+    style Frontend fill:#1F2937,color:#E5E7EB,stroke:#374151,stroke-width:2px;
+    style Backend fill:#1F2937,color:#E5E7EB,stroke:#374151,stroke-width:2px;
+```
+
+
+    
+
 ## Development Journey 🛠️
 
 ### Milestones
