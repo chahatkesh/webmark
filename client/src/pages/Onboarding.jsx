@@ -64,7 +64,7 @@ const Onboarding = () => {
     const usernameRegex = /^[a-z0-9][a-z0-9_-]{2,29}$/;
     if (!usernameRegex.test(username)) {
       setError(
-        "Username must be 3-30 characters long, start with a letter or number, and can contain lowercase letters, numbers, underscore, or hyphen"
+        "Username must start with a lowercase letter or number, followed by 29(max) lowercase letters, numbers, underscores, or hyphens"
       );
       setIsLoading(false);
       return;

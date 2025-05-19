@@ -54,7 +54,7 @@ const completeOnboarding = async (req, res) => {
     if (!usernameRegex.test(username)) {
       return res.json({
         success: false,
-        message: "Username must be 3-30 characters long, start with a letter or number, and can contain lowercase letters, numbers, underscore, or hyphen"
+        message: "Username must start with a lowercase letter or number, followed by 29(max) lowercase letters, numbers, underscores, or hyphens"
       });
     }
 
