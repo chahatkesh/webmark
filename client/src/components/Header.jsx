@@ -7,7 +7,6 @@ import {
   X,
   Bookmark,
   Search as SearchIcon,
-  Share,
   BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -58,27 +57,24 @@ const Header = () => {
   return (
     <header className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
       <div className="max-w-[1600px] mx-auto">
-        <div className="flex items-center justify-between h-16 px-4 md:px-16">
+        <div className="flex items-center justify-between h-16 px-8 md:px-16">
           {/* Logo and Welcome Message */}
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 hover:bg-gray-100 rounded-lg">
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </button>
-
             <a href="/" className="flex items-center gap-2">
+              {/* Logo for small screens */}
+              <img
+                src={assets.logo_color}
+                alt="Logo"
+                className="h-10 w-auto block sm:hidden"
+              />
+
+              {/* Logo for medium and up screens */}
               <img
                 src={assets.small_logo_color}
                 alt="Logo"
-                className="h-7 w-auto"
+                className="h-7 w-auto hidden sm:block"
               />
             </a>
-
             <div className="hidden md:block">
               <p className="text-sm text-gray-600">
                 Welcome back,{" "}
@@ -112,7 +108,15 @@ const Header = () => {
               </button>
             )}
           </div>
-
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 hover:bg-gray-100 rounded-lg">
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navigationItems.map((item) => {
@@ -179,16 +183,6 @@ const Header = () => {
                 </Button>
               );
             })}
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 rounded-none"
-              onClick={() => {
-                handleShareClick();
-                setIsMobileMenuOpen(false);
-              }}>
-              <Share className="h-4 w-4" />
-              <span>Share</span>
-            </Button>
           </nav>
         )}
       </div>
