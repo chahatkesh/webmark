@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import HeroContent from "../components/HomeComponents/HeroContent";
 import Background from "../components/HomeComponents/Background/Background";
 import Circle1 from "../components/HomeComponents/Background/Circle1";
@@ -24,7 +24,7 @@ const Home = () => {
   // loder ends
 
   return loading ? (
-    <Loader />
+    <Loader type="text" size="lg" fullScreen={true} text="Webmark" />
   ) : (
     <>
       <Navbar />
