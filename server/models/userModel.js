@@ -9,7 +9,16 @@ const userSchema = new mongoose.Schema({
   joinedAt: { type: Date, default: Date.now },
   hasCompletedOnboarding: { type: Boolean, default: false },
   refreshToken: { type: String },
-  tokenExpiresAt: { type: Date }
+  tokenExpiresAt: { type: Date },
+  lastLogin: { type: Date },
+  lastLoginDevice: { type: String },
+  loginDevices: [{
+    deviceId: { type: String },
+    userAgent: { type: String },
+    lastActive: { type: Date, default: Date.now },
+    deviceName: { type: String },
+    isActive: { type: Boolean, default: true }
+  }]
 })
 
 const userModel = mongoose.model.user || mongoose.model("user", userSchema)

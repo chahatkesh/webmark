@@ -39,6 +39,28 @@ const authMiddleware = async (req, res, next) => {
       }
     }
 
+    // Update last login information (only for API calls that aren't profile-related)
+    // This prevents updating the last login timestamp when viewing the profile page
+    if (!req.originalUrl.includes('/api/user/profile')) {
+      // Store the previous login information before updating
+      const userAgent = req.headers['user-agent'];
+      if (user.lastLogin) {
+        // Only update if it's been more than 1 hour since last update
+        // to prevent excessive updates during active sessions
+        const oneHourAgo = new Date(currentTime.getTime() - (60 * 60 * 1000));
+        if (new Date(user.lastLogin) < oneHourAgo) {
+          user.lastLogin = currentTime;
+          user.lastLoginDevice = userAgent;
+          await user.save();
+        }
+      } else {
+        // First login ever
+        user.lastLogin = currentTime;
+        user.lastLoginDevice = userAgent;
+        await user.save();
+      }
+    }
+
     req.body.userId = decoded.id;
     next();
   } catch (error) {

@@ -59,8 +59,7 @@ const Header = () => {
     {
       label: "Profile",
       icon: User,
-      comingSoon: true,
-      onClick: () => {}, // Placeholder for future functionality
+      onClick: () => navigate("/user/profile"),
     },
     {
       label: "Settings",

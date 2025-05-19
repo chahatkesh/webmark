@@ -13,12 +13,20 @@ const googleAuthCallback = async (req, res) => {
   try {
     const { user } = req;
 
+    // Get user agent for device tracking
+    const userAgent = req.headers['user-agent'];
+
     // Generate JWT token
     const token = createToken(user._id);
 
     // Update the token expiry date (30 days from now)
     user.refreshToken = crypto.randomBytes(64).toString('hex');
     user.tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+
+    // Update login information
+    user.lastLogin = new Date();
+    user.lastLoginDevice = userAgent;
+
     await user.save();
 
     // Check if the user has completed onboarding (has a proper username)
@@ -91,13 +99,22 @@ const getUserData = async (req, res) => {
       });
     }
 
+    // Ensure profile picture is a valid URL
+    if (user.profilePicture && !user.profilePicture.startsWith('http')) {
+      // If it's not a valid URL, update to use a default avatar service
+      user.profilePicture = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.username)}`;
+      await user.save();
+    }
+
     return res.json({
       success: true,
       username: user.username,
       email: user.email,
       name: user.name,
       profilePicture: user.profilePicture,
-      joinedAt: user.joinedAt
+      joinedAt: user.joinedAt,
+      lastLogin: user.lastLogin,
+      lastLoginDevice: user.lastLoginDevice
     });
   } catch (error) {
     console.error("Get user data error:", error);

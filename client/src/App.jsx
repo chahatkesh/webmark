@@ -7,6 +7,7 @@ import Help from "./pages/Help";
 import ReportProblem from "./pages/ReportProblem";
 import Auth from "./pages/Auth"; // Google Auth component
 import Onboarding from "./pages/Onboarding"; // Onboarding component
+import Profile from "./pages/Profile"; // Profile page component
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
 import Loader from "./components/Loader";
 import { ToastContainer } from "react-toastify";
@@ -70,6 +71,16 @@ const App = () => {
               <ProtectedRoute>
                 <AuthenticatedLayout>
                   <ReportProblem />
+                </AuthenticatedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user/profile"
+            element={
+              <ProtectedRoute>
+                <AuthenticatedLayout>
+                  <Profile />
                 </AuthenticatedLayout>
               </ProtectedRoute>
             }
