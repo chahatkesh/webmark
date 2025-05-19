@@ -1,14 +1,21 @@
 import { motion } from "framer-motion";
+import PropTypes from "prop-types";
 
 /**
  * Enhanced Loader component with multiple animation types
  * @param {Object} props - Component props
- * @param {string} props.type - Type of loader: "spinner", "dots", or "pulse"
+ * @param {string} props.type - Type of loader: "spinner", "dots", "pulse", or "text"
  * @param {string} props.size - Size of the loader: "xs", "sm", "md", "lg", or "xl"
  * @param {boolean} props.fullScreen - Whether to show loader in a fullscreen overlay
+ * @param {string} props.text - Text to display for text animation loader (default: "Webmark")
  */
 const Loader = (props) => {
-  const { type = "spinner", size = "md", fullScreen = false } = props;
+  const {
+    type = "spinner",
+    size = "md",
+    fullScreen = false,
+    text = "Webmark",
+  } = props;
 
   // Render the spinner loader
   const renderSpinner = () => {
@@ -97,6 +104,47 @@ const Loader = (props) => {
     );
   };
 
+  // Render the text animation loader
+  const renderTextAnimation = () => {
+    // Font size mappings for different sizes
+    const textSizes = {
+      xs: "text-xl",
+      sm: "text-2xl",
+      md: "text-3xl",
+      lg: "text-4xl",
+      xl: "text-5xl",
+    };
+
+    const textSize = textSizes[size] || textSizes.md;
+    const letters = text.split("");
+
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <div className="flex">
+          {letters.map((letter, index) => (
+            <motion.div
+              key={index}
+              className={`${textSize} font-bold text-blue-500`}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{
+                opacity: [0, 1, 1, 0],
+                y: [-20, 0, 0, 20],
+                color: ["#3b82f6", "#3b82f6", "#60a5fa", "#93c5fd"],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "loop",
+                delay: index * 0.1,
+              }}>
+              {letter === " " ? "\u00A0" : letter}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Select the loader based on type
   const getLoader = () => {
     switch (type) {
@@ -104,6 +152,8 @@ const Loader = (props) => {
         return renderDots();
       case "pulse":
         return renderPulse();
+      case "text":
+        return renderTextAnimation();
       case "spinner":
       default:
         return renderSpinner();
@@ -120,6 +170,22 @@ const Loader = (props) => {
   }
 
   return getLoader();
+};
+
+// PropTypes validation
+Loader.propTypes = {
+  type: PropTypes.oneOf(["spinner", "dots", "pulse", "text"]),
+  size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
+  fullScreen: PropTypes.bool,
+  text: PropTypes.string,
+};
+
+// Default props
+Loader.defaultProps = {
+  type: "spinner",
+  size: "md",
+  fullScreen: false,
+  text: "Webmark",
 };
 
 // Export component

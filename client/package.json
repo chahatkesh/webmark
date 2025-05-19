@@ -5,9 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node --experimental-modules src/utils/sitemapGenerator.js && vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-sitemap": "node --experimental-modules src/utils/sitemapGenerator.js",
+    "update-sitemaps": "node --experimental-modules src/utils/sitemapGenerator.js && echo 'All sitemaps updated with current date'",
+    "update-meta": "node --experimental-modules src/utils/metaDescriptionGenerator.js",
+    "seo-analyze": "npx lighthouse https://webmark.site --config-path=./lighthouse-config.json --output-path=./seo-reports/lighthouse-report --view",
+    "seo-validate": "npx schema-validator https://webmark.site",
+    "seo-monitor": "node --experimental-modules src/utils/seoMonitor.js",
+    "seo-full-update": "npm run update-meta && npm run generate-sitemap && npm run seo-analyze"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.1",
@@ -30,6 +37,8 @@
     "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.3.1",
+    "react-helmet": "^6.1.0",
+    "react-helmet-async": "^2.0.5",
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.24.1",
     "react-toastify": "^10.0.6",

@@ -1,5 +1,24 @@
+# Webmark robots.txt
 User-agent: *
 Allow: /
 Disallow: /dashboard/private/
+Disallow: /user/
 Disallow: /api/
+Disallow: /auth
+Disallow: /*?*
+
+# Google-specific crawl rate settings
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+# Bing-specific crawl rate settings
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+# Point to sitemaps
+Sitemap: https://webmark.site/sitemap-index.xml
 Sitemap: https://webmark.site/sitemap.xml
+Sitemap: https://webmark.site/sitemap-features.xml
+Sitemap: https://webmark.site/sitemap-faq.xml

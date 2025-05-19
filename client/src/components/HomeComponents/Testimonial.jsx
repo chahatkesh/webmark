@@ -99,13 +99,8 @@ const Testimonial = () => {
 
   const TestimonialCard = ({ testimonial }) => (
     <article
-      className={`
-        rotate-[${testimonial.rotation}deg] 
-        ml-3 mr-3 shadow p-5 
-        bg-[#ffffffb3] rounded-2xl 
-        flex flex-col w-[22rem] relative
-        hover:shadow-lg transition-shadow duration-300
-      `}>
+      className="ml-3 mr-3 shadow p-5 bg-[#ffffffb3] rounded-2xl flex flex-col w-[22rem] relative hover:shadow-lg transition-shadow duration-300"
+      style={{ transform: `rotate(${testimonial.rotation}deg)` }}>
       <header className="flex items-center mb-4 gap-3">
         <img
           className="rounded-full flex-shrink-0 max-w-full h-auto object-cover"
