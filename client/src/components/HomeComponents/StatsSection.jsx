@@ -30,7 +30,7 @@ const StatsSection = () => {
   }
 
   return (
-    <section className="relative">
+    <section id="about-us" className="relative">
       <div className="pointer-events-none absolute translate-x-[-50%] translate-y-[-50%] top-0 left-[50%] -z-10">
         <div className="filter blur-[160px] opacity-50 from-[#3b82f6] to-[#111827] bg-gradient-to-tr rounded-full w-80 h-80"></div>
       </div>
