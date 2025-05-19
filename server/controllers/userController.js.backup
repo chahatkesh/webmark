@@ -1,6 +1,0 @@
-import userModel from "../models/userModel.js";
-import jwt from "jsonwebtoken";
-import createDefaultBookmarks from '../utils/defaultBookmarks.js';
-
-// This file is kept for reference only - all authentication has been moved to googleAuthController.js
-// All methods in this file are no longer used as we have switched to Google OAuth authentication
