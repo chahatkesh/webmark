@@ -4,6 +4,7 @@ import { connectDB } from './config/db.js'
 import userRouter from './routes/userRoute.js'
 import bookmarkRouter from './routes/bookmarkRoute.js'
 import statsRoute from './routes/statsRoute.js';
+import clickRoute from './routes/clickRoute.js';
 import { initializeCronJobs } from './utils/cronJobs.js';
 import passport from './config/passport.js';
 import 'dotenv/config'
@@ -30,6 +31,7 @@ initializeCronJobs();
 app.use("/api/user", userRouter)
 app.use("/api/bookmarks", bookmarkRouter)
 app.use('/api/stats', statsRoute);
+app.use('/api/clicks', clickRoute);
 
 app.get('/', (req, res) => {
   res.send("API Working")

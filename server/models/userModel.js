@@ -18,7 +18,16 @@ const userSchema = new mongoose.Schema({
     lastActive: { type: Date, default: Date.now },
     deviceName: { type: String },
     isActive: { type: Boolean, default: true }
-  }]
+  }],
+  stats: {
+    totalClicks: { type: Number, default: 0 },
+    timeSaved: { type: Number, default: 0 }, // in seconds
+    lastClickedBookmark: {
+      timestamp: { type: Date },
+      bookmarkId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bookmark' },
+      name: { type: String }
+    }
+  }
 })
 
 const userModel = mongoose.model.user || mongoose.model("user", userSchema)
