@@ -19,9 +19,12 @@ const Auth = () => {
   useEffect(() => {
     // Redirect to dashboard if user is already authenticated
     if (isAuthenticated && !isLoading) {
-      navigate("/user/dashboard");
+      // Check if current path is not already /onboarding to prevent redirect loops
+      if (window.location.pathname !== "/onboarding") {
+        navigate("/user/dashboard");
+      }
     }
-    
+
     // Handle direct token passing (from Google OAuth callback)
     if (token) {
       localStorage.setItem("token", token);
@@ -33,6 +36,15 @@ const Auth = () => {
       toast.error(error || "Authentication failed");
     }
   }, [token, error, navigate, isAuthenticated, isLoading]);
+
+  // Show loader while authentication status is being determined
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader type="spinner" size="lg" />
+      </div>
+    );
+  }
 
   const handleGoogleLogin = () => {
     if (!agreedToTerms) {

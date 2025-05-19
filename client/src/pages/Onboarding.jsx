@@ -5,12 +5,18 @@ import { useAuth } from "../hooks/useAuth";
 import { Input } from "../components/ui/input";
 import { toast } from "react-toastify";
 import LoaderButton from "../components/ui/LoaderButton";
+import Loader from "../components/Loader";
 
 const Onboarding = () => {
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { completeOnboarding } = useAuth();
+  const {
+    completeOnboarding,
+    isAuthenticated,
+    isLoading: authLoading,
+    user,
+  } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -21,12 +27,28 @@ const Onboarding = () => {
       localStorage.setItem("token", token);
     }
 
+    // Check if user is already authenticated and has a username (completed onboarding)
+    if (isAuthenticated && !authLoading && user?.username) {
+      // User already has a username, redirect to dashboard
+      navigate("/user/dashboard");
+      return;
+    }
+
     // Check if user already has a token (should be authenticated)
     const existingToken = localStorage.getItem("token");
     if (!existingToken) {
       navigate("/auth");
     }
-  }, [token, navigate]);
+  }, [token, navigate, isAuthenticated, authLoading, user]);
+
+  // Show a loader while checking authentication status
+  if (authLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader type="spinner" size="lg" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
