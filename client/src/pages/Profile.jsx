@@ -16,6 +16,7 @@ import {
   Calendar,
   Globe,
   Sparkles,
+  Share,
   LogOut,
 } from "lucide-react";
 import Loader from "../components/Loader";
@@ -25,8 +26,10 @@ import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
 import { format, formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
+import ShareModal from "../components/DashboardComponents/ShareModel";
 
 const Profile = () => {
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const { profile, loading, error, fetchProfileData, updateProfile } =
     useProfile();
   const {
@@ -45,6 +48,11 @@ const Profile = () => {
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
+  // Handle share button click
+  const handleShareClick = () => {
+    setIsShareModalOpen(true);
   };
 
   // Scale animation for cards
@@ -201,13 +209,22 @@ const Profile = () => {
             Manage your account and view your bookmark statistics
           </p>
         </div>
-        <Button
-          onClick={handleLogout}
-          className="mt-4 md:mt-0 bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-800 px-5 py-2.5 rounded-md transition-all duration-200 shadow-sm flex items-center gap-2 font-medium"
-          aria-label="Logout">
-          <LogOut className="h-4 w-4" />
-          <span className="hidden sm:inline">Logout</span>
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            onClick={handleShareClick}
+            className="bg-blue-50 text-blue-600 hover:text-blue-700 hover:bg-blue-100">
+            <Share className="h-4 w-4 mr-2" />
+            Share
+          </Button>
+          <Button
+            onClick={handleLogout}
+            className="mt-4 md:mt-0 bg-red-50 hover:bg-red-100 text-red-600 px-5 py-2.5 rounded-md transition-all duration-200 shadow-sm flex items-center gap-2 font-medium"
+            aria-label="Logout">
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </Button>
+        </div>
       </motion.div>
 
       {/* Main Content Grid */}
@@ -621,6 +638,10 @@ const Profile = () => {
         className="mt-10 text-center text-sm text-gray-500">
         <p>Webmark - Simplifying Bookmark Management</p>
       </motion.div>
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+      />
     </motion.div>
   );
 };

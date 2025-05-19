@@ -14,11 +14,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Loader from "../components/Loader";
 import { assets } from "../assets/assests";
-import ShareModal from "./DashboardComponents/ShareModel";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(() => {
     // Initialize search term from sessionStorage if available
     return sessionStorage.getItem("bookmarkSearchTerm") || "";
@@ -55,17 +53,12 @@ const Header = () => {
     }
   }, [searchTerm, location.pathname]);
 
-  // Handle share button click
-  const handleShareClick = () => {
-    setIsShareModalOpen(true);
-  };
-
   if (loading) return <Loader />;
 
   return (
     <header className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
       <div className="max-w-[1600px] mx-auto">
-        <div className="flex items-center justify-between h-16 px-4 md:px-6">
+        <div className="flex items-center justify-between h-16 px-4 md:px-16">
           {/* Logo and Welcome Message */}
           <div className="flex items-center gap-4">
             <button
@@ -139,17 +132,6 @@ const Header = () => {
               );
             })}
           </nav>
-
-          {/* User Menu and Share Button */}
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              onClick={handleShareClick}
-              className="bg-blue-50 text-blue-600 hover:text-blue-700 hover:bg-blue-100">
-              <Share className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -210,10 +192,6 @@ const Header = () => {
           </nav>
         )}
       </div>
-      <ShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-      />
     </header>
   );
 };
