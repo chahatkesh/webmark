@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   RefreshCcw,
   AlertTriangle,
-  XCircle,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { reportError } from "../utils/errorReporter";
+import { reportError } from "../../utils/errorReporter";
 
 export class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -55,9 +54,12 @@ export const ErrorFallback = ({ error, errorInfo, resetError }) => {
   const [showDetails, setShowDetails] = useState(false);
   const navigate = useNavigate();
 
+  // Safely extract error information
   const errorMessage =
     error?.message || "An unexpected error occurred. Please try again.";
-  const errorStack = error?.stack?.split("\n").slice(0, 3).join("\n") || "";
+  const errorStack = error?.stack
+    ? error.stack.split("\n").slice(0, 3).join("\n")
+    : "";
 
   return (
     <div className="min-h-[400px] flex items-center justify-center p-6">
@@ -107,6 +109,16 @@ export const ErrorFallback = ({ error, errorInfo, resetError }) => {
           </Button>
         </div>
       </div>
+    </div>
+  );
+};
+
+// Simple error message component for displaying inline errors
+export const InlineError = ({ message }) => {
+  return (
+    <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-md mt-2">
+      <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+      <p className="text-sm">{message}</p>
     </div>
   );
 };

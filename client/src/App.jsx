@@ -11,10 +11,12 @@ import Profile from "./pages/Profile"; // Profile page component
 import TermsAndConditions from "./pages/TermsAndConditions"; // Terms and Conditions page
 import PrivacyPolicy from "./pages/PrivacyPolicy"; // Privacy Policy page
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
+import NotFoundPage from "./pages/NotFoundPage"; // 404 page component
 import Loader from "./components/Loader";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ErrorBoundary } from "./components/ErrorComponents";
+// Use the enhanced error components
+import { ErrorBoundary } from "./components/enhanced/ErrorComponents";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -92,6 +94,9 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+          {/* Catch-all route for 404 pages */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
       <ToastContainer />
