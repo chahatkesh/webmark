@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: webmark-client
+    env: static
+    buildCommand: npm install --include=dev && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: 20.15.1
+      - key: NPM_CONFIG_PRODUCTION
+        value: false
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=86400
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
