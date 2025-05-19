@@ -8,6 +8,8 @@ import ReportProblem from "./pages/ReportProblem";
 import Auth from "./pages/Auth"; // Google Auth component
 import Onboarding from "./pages/Onboarding"; // Onboarding component
 import Profile from "./pages/Profile"; // Profile page component
+import TermsAndConditions from "./pages/TermsAndConditions"; // Terms and Conditions page
+import PrivacyPolicy from "./pages/PrivacyPolicy"; // Privacy Policy page
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
 import Loader from "./components/Loader";
 import { ToastContainer } from "react-toastify";
@@ -33,6 +35,11 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route
+            path="/terms-and-conditions"
+            element={<TermsAndConditions />}
+          />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
           {/* Protected Routes */}
           <Route

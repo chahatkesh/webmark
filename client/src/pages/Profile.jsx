@@ -297,9 +297,13 @@ const Profile = () => {
                   <div>
                     <div className="font-medium">Active Devices</div>
                     <div className="text-sm text-gray-500">
-                      {profile?.totalActiveDevices || 1}{" "}
-                      {profile?.totalActiveDevices === 1 ? "device" : "devices"}{" "}
-                      currently active
+                      {profile?.activeDevices?.filter((d) => d.isCurrent).length
+                        ? `${profile.activeDevices.length} ${
+                            profile.activeDevices.length === 1
+                              ? "device"
+                              : "devices"
+                          } currently active`
+                        : "Current session active"}
                     </div>
                   </div>
                 </div>

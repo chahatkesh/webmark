@@ -31,9 +31,7 @@ export const useProfile = () => {
         `${url}/api/user/profile`,
         {},
         { headers }
-      );
-
-      if (response.data.success) {
+      ); if (response.data.success) {
         // Log received profile data for debugging
         console.log("Profile data received:", response.data.profile);
 
@@ -44,15 +42,17 @@ export const useProfile = () => {
           console.log("No profile picture in data");
         }
 
+        // Store the device ID from the response data for consistency
+        if (response.data.profile?.currentDeviceId) {
+          console.log("Current device ID:", response.data.profile.currentDeviceId);
+          localStorage.setItem('device-id', response.data.profile.currentDeviceId);
+        } else if (response.headers['x-device-id']) {
+          console.log("Device ID from headers:", response.headers['x-device-id']);
+          localStorage.setItem('device-id', response.headers['x-device-id']);
+        }
+
         setProfile(response.data.profile);
         setError(null);
-
-        // Store the device ID if it's returned in headers
-        const returnedDeviceId = response.headers['x-device-id'];
-        if (returnedDeviceId) {
-          console.log("Device ID received:", returnedDeviceId);
-          localStorage.setItem('device-id', returnedDeviceId);
-        }
       } else {
         setError(response.data.message || 'Failed to fetch profile data');
       }
