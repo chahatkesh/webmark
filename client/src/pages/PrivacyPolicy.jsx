@@ -190,9 +190,7 @@ const PrivacyPolicy = () => {
               Privacy Policy
             </Link>
             <span>•</span>
-            <Link
-              to="/terms-and-conditions"
-              className="text-blue-600 hover:text-blue-800">
+            <Link to="/terms" className="text-blue-600 hover:text-blue-800">
               Terms and Conditions
             </Link>
           </div>
