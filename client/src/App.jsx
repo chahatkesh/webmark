@@ -2,8 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import Tools from "./pages/Tools";
-import Help from "./pages/Help";
+import Docs from "./pages/Docs";
 import Auth from "./pages/Auth"; // Google Auth component
 import Onboarding from "./pages/Onboarding"; // Onboarding component
 import Profile from "./pages/Profile"; // Profile page component
@@ -54,21 +53,11 @@ const App = () => {
             }
           />
           <Route
-            path="/user/more-tools"
+            path="/user/docs"
             element={
               <ProtectedRoute>
                 <AuthenticatedLayout>
-                  <Tools />
-                </AuthenticatedLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/user/how-to-use"
-            element={
-              <ProtectedRoute>
-                <AuthenticatedLayout>
-                  <Help />
+                  <Docs />
                 </AuthenticatedLayout>
               </ProtectedRoute>
             }
