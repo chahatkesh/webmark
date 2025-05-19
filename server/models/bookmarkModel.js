@@ -21,7 +21,18 @@ const bookmarkSchema = new mongoose.Schema({
   order: {
     type: Number,
     default: 0
-  }
+  },
+  clickCount: {
+    type: Number,
+    default: 0
+  },
+  lastClicked: {
+    type: Date
+  },
+  clickHistory: [{
+    timestamp: { type: Date, default: Date.now },
+    deviceId: { type: String }
+  }]
 }, { timestamps: true });
 
 export default mongoose.model("Bookmark", bookmarkSchema);

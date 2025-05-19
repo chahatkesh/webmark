@@ -9,6 +9,11 @@ export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Initiate Google Authentication
+  const googleLogin = useCallback(() => {
+    window.location.href = `${url}/api/user/auth/google`;
+  }, [url]);
+
   const fetchUserData = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -25,10 +30,18 @@ export const useAuth = () => {
         { headers: { token } }
       );
 
+      // Check for new token in headers (token refresh)
+      const newToken = response.headers['x-auth-token'];
+      if (newToken) {
+        localStorage.setItem('token', newToken);
+      }
+
       if (response.data.success) {
         const userData = {
           username: response.data.username,
           email: response.data.email,
+          name: response.data.name,
+          profilePicture: response.data.profilePicture,
           joinedAt: response.data.joinedAt
         };
 
@@ -36,18 +49,11 @@ export const useAuth = () => {
         setIsAuthenticated(true);
         return true;
       } else {
-        // Handle verification required
-        if (response.data.requiresVerification) {
-          localStorage.removeItem('token');
-          setUser(null);
-          setIsAuthenticated(false);
-          navigate('/auth', {
-            state: {
-              requiresVerification: true,
-              email: response.data.email
-            }
-          });
-          return false;
+        // Handle onboarding required
+        if (response.data.requiresOnboarding) {
+          setIsAuthenticated(true); // They are authenticated but need to complete onboarding
+          navigate('/onboarding');
+          return true;
         }
         throw new Error('Failed to fetch user data');
       }
@@ -62,71 +68,51 @@ export const useAuth = () => {
     }
   }, [url, setUser, navigate]);
 
-  const login = async (formData) => {
+  const logout = useCallback(async () => {
     try {
-      const response = await axios.post(`${url}/api/user/login`, formData);
-
-      if (response.data.success) {
-        localStorage.setItem('token', response.data.token);
-        await fetchUserData();
-        return { success: true };
+      const token = localStorage.getItem('token');
+      if (token) {
+        await axios.post(
+          `${url}/api/user/logout`,
+          {},
+          { headers: { token } }
+        );
       }
-
-      // Handle verification required
-      if (response.data.requiresVerification) {
-        return {
-          success: false,
-          requiresVerification: true,
-          email: response.data.email,
-          message: response.data.message
-        };
-      }
-
-      return { success: false, message: response.data.message };
     } catch (error) {
-      console.error('Login error:', error);
-      return {
-        success: false,
-        message: error.response?.data?.message || 'An error occurred during login'
-      };
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      setUser(null);
+      setIsAuthenticated(false);
+      navigate('/auth');
     }
-  };
+  }, [navigate, setUser, url]);
 
-  const signup = async (formData) => {
+  // For completing onboarding (setting username)
+  const completeOnboarding = async (username) => {
     try {
-      const response = await axios.post(`${url}/api/user/register`, formData);
-
-      if (response.data.requiresVerification) {
-        return {
-          success: false,
-          requiresVerification: true,
-          email: formData.email,
-          message: "Please verify your email to continue"
-        };
-      }
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${url}/api/user/complete-onboarding`,
+        { username },
+        { headers: { token } }
+      );
 
       if (response.data.success) {
-        localStorage.setItem('token', response.data.token);
         await fetchUserData();
+        navigate('/user/dashboard');
         return { success: true };
       }
 
       return { success: false, message: response.data.message };
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Onboarding error:', error);
       return {
         success: false,
-        message: error.response?.data?.message || 'An error occurred during registration'
+        message: error.response?.data?.message || 'An error occurred during onboarding'
       };
     }
   };
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setUser(null);
-    setIsAuthenticated(false);
-    navigate('/auth');
-  }, [navigate, setUser]);
 
   // Check auth status when the hook is initialized
   useEffect(() => {
@@ -136,8 +122,8 @@ export const useAuth = () => {
   return {
     isAuthenticated,
     isLoading,
-    login,
-    signup,
+    googleLogin,
+    completeOnboarding,
     logout,
     fetchUserData,
     user: useContext(StoreContext).user

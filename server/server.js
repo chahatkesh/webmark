@@ -4,7 +4,9 @@ import { connectDB } from './config/db.js'
 import userRouter from './routes/userRoute.js'
 import bookmarkRouter from './routes/bookmarkRoute.js'
 import statsRoute from './routes/statsRoute.js';
+import clickRoute from './routes/clickRoute.js';
 import { initializeCronJobs } from './utils/cronJobs.js';
+import passport from './config/passport.js';
 import 'dotenv/config'
 
 // app config
@@ -13,7 +15,11 @@ const port = process.env.PORT || 4000
 
 // middleware
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}))
+app.use(passport.initialize())
 
 // DB Connection
 connectDB();
@@ -25,6 +31,7 @@ initializeCronJobs();
 app.use("/api/user", userRouter)
 app.use("/api/bookmarks", bookmarkRouter)
 app.use('/api/stats', statsRoute);
+app.use('/api/clicks', clickRoute);
 
 app.get('/', (req, res) => {
   res.send("API Working")

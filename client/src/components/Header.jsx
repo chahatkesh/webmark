@@ -1,31 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { StoreContext } from "../context/StoreContext";
-import { useAuth } from "../hooks/useAuth";
 import {
-  Home,
   Wrench,
   HelpCircle,
-  AlertCircle,
-  Settings,
-  LogOut,
   User,
-  Keyboard,
-  FileDown,
-  UserPlus,
   Menu,
   X,
-  ChevronDown,
-  Lock,
+  Bookmark,
+  Search as SearchIcon,
+  Share,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Loader from "../components/Loader";
@@ -35,8 +20,11 @@ import ShareModal from "./DashboardComponents/ShareModel";
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(() => {
+    // Initialize search term from sessionStorage if available
+    return sessionStorage.getItem("bookmarkSearchTerm") || "";
+  });
   const { user } = useContext(StoreContext);
-  const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -49,52 +37,30 @@ const Header = () => {
   const isActive = (route) => location.pathname.includes(route);
 
   const navigationItems = [
-    { path: "dashboard", label: "Dashboard", icon: Home },
+    { path: "dashboard", label: "My Bookmarks", icon: Bookmark },
     { path: "more-tools", label: "Tools", icon: Wrench },
     { path: "how-to-use", label: "Help", icon: HelpCircle },
-    { path: "report-problem", label: "Report", icon: AlertCircle },
+    { path: "profile", label: "Profile", icon: User },
   ];
 
-  const userMenuItems = [
-    {
-      label: "Profile",
-      icon: User,
-      comingSoon: true,
-      onClick: () => {}, // Placeholder for future functionality
-    },
-    {
-      label: "Settings",
-      icon: Settings,
-      comingSoon: true,
-      onClick: () => {}, // Placeholder for future functionality
-    },
-    {
-      label: "Shortcuts",
-      icon: Keyboard,
-      shortcut: "⌘K",
-      comingSoon: true,
-      onClick: () => {}, // Placeholder for future functionality
-    },
-    null, // Separator
-    {
-      label: "Export",
-      icon: FileDown,
-      comingSoon: true,
-      onClick: () => {}, // Placeholder for future functionality
-    },
-    {
-      label: "Invite Friend",
-      icon: UserPlus,
-      onClick: () => setIsShareModalOpen(true),
-    },
-    null, // Separator
-    {
-      label: "Logout",
-      icon: LogOut,
-      onClick: logout,
-      danger: true,
-    },
-  ];
+  // Forward search term to dashboard when on bookmark page
+  useEffect(() => {
+    if (location.pathname.includes("dashboard")) {
+      // Store in sessionStorage for the BookmarkList component to access
+      sessionStorage.setItem("bookmarkSearchTerm", searchTerm);
+
+      // Dispatch a custom event to notify BookmarkList component
+      const searchEvent = new CustomEvent("searchTermChanged", {
+        detail: { searchTerm },
+      });
+      window.dispatchEvent(searchEvent);
+    }
+  }, [searchTerm, location.pathname]);
+
+  // Handle share button click
+  const handleShareClick = () => {
+    setIsShareModalOpen(true);
+  };
 
   if (loading) return <Loader />;
 
@@ -132,6 +98,30 @@ const Header = () => {
             </div>
           </div>
 
+          {/* Search Bar - Enhanced */}
+          <div
+            className={`relative hidden md:block flex-1 max-w-md ${
+              location.pathname.includes("dashboard") ? "visible" : "invisible"
+            }`}>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search bookmarks by name or URL..."
+              className="w-full h-10 pl-10 pr-10 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 hover:bg-white transition-colors"
+              aria-label="Search bookmarks"
+            />
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                aria-label="Clear search">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navigationItems.map((item) => {
@@ -150,82 +140,46 @@ const Header = () => {
                 </Button>
               );
             })}
-
-            {/* <Button
-              className="ml-2 gap-2 bg-blue-500 hover:bg-blue-600 text-white"
-              onClick={() => {}}>
-              <Upload className="h-4 w-4" />
-              Publish
-              <span className="text-xs bg-blue-600 px-1.5 py-0.5 rounded-full">
-                Soon
-              </span>
-            </Button> */}
           </nav>
 
-          {/* User Menu */}
+          {/* User Menu and Share Button */}
           <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2 font-normal">
-                  <div className="relative h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium">
-                    {user?.username?.charAt(0).toUpperCase() || "U"}
-                  </div>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="flex items-center gap-3 p-3">
-                  <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium text-lg">
-                    {user?.username?.charAt(0).toUpperCase() || "U"}
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-medium truncate">
-                      {user?.username}
-                    </span>
-                    <span className="text-xs text-gray-500 truncate">
-                      {user?.email}
-                    </span>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-
-                {userMenuItems.map((item, index) =>
-                  item ? (
-                    <DropdownMenuItem
-                      key={index}
-                      onClick={item.onClick}
-                      disabled={item.comingSoon}
-                      className={cn(
-                        "flex items-center gap-2 cursor-pointer p-2 relative group",
-                        item.danger && "text-red-600",
-                        item.comingSoon && "opacity-60 hover:opacity-70"
-                      )}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
-                      {item.shortcut && (
-                        <span className="ml-auto text-xs text-gray-400">
-                          {item.shortcut}
-                        </span>
-                      )}
-                      {item.comingSoon && (
-                        <span className="ml-auto text-[10px] font-medium text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                          <Lock className="h-3 w-3" />
-                          Soon
-                        </span>
-                      )}
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuSeparator key={index} />
-                  )
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="ghost"
+              onClick={handleShareClick}
+              className="bg-blue-50 text-blue-600 hover:text-blue-700 hover:bg-blue-100">
+              <Share className="h-4 w-4 mr-2" />
+              Share
+            </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <nav className="md:hidden border-t border-gray-200 bg-white">
+            {/* Mobile Search Bar */}
+            {location.pathname.includes("dashboard") && (
+              <div className="p-3 border-b border-gray-200">
+                <div className="relative">
+                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search bookmarks..."
+                    className="w-full h-10 pl-10 pr-4 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <X className="h-4 w-4 text-gray-400" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
             {navigationItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -245,16 +199,16 @@ const Header = () => {
                 </Button>
               );
             })}
-
-            {/* <Button
-              className="w-full justify-start gap-2 rounded-none bg-blue-500 hover:bg-blue-600 text-white"
-              onClick={() => {}}>
-              <Upload className="h-4 w-4" />
-              Publish
-              <span className="text-xs bg-blue-600 px-1.5 py-0.5 rounded-full">
-                Soon
-              </span>
-            </Button> */}
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-2 rounded-none"
+              onClick={() => {
+                handleShareClick();
+                setIsMobileMenuOpen(false);
+              }}>
+              <Share className="h-4 w-4" />
+              <span>Share</span>
+            </Button>
           </nav>
         )}
       </div>

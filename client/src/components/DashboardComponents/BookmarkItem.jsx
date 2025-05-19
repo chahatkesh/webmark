@@ -5,6 +5,7 @@ import {
   useDeleteBookmark,
   useUpdateBookmarkOrder,
 } from "../../hooks/useBookmarks";
+import useClicks from "../../hooks/useClicks";
 import { Button } from "../ui/button";
 import {
   PlusCircle,
@@ -39,12 +40,33 @@ const BookmarkItem = ({
   const deleteCategory = useDeleteCategory();
   const deleteBookmark = useDeleteBookmark();
   const updateBookmarkOrder = useUpdateBookmarkOrder();
+  const { trackClick } = useClicks();
   const [isAddingBookmark, setIsAddingBookmark] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [selectedBookmark, setSelectedBookmark] = useState(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [bookmarkToDelete, setBookmarkToDelete] = useState(null);
   const displayBookmarks = filteredBookmarks || bookmarks;
+
+  // Handle bookmark click
+  const handleBookmarkClick = async (bookmarkId, e) => {
+    if (e.target.closest("button") || e.target.closest("[role='menuitem']")) {
+      e.preventDefault();
+      return;
+    }
+
+    // Track the bookmark click
+    try {
+      const result = await trackClick(bookmarkId);
+      if (result) {
+        console.log(
+          `Click tracked: ${result.clickCount} clicks for this bookmark`
+        );
+      }
+    } catch (err) {
+      console.error("Error tracking click:", err);
+    }
+  };
 
   if (isLoading) return <BookmarkItemSkeleton />;
 
@@ -160,14 +182,7 @@ const BookmarkItem = ({
                             target="_blank"
                             href={item.link}
                             className="block"
-                            onClick={(e) => {
-                              if (
-                                e.target.closest("button") ||
-                                e.target.closest("[role='menuitem']")
-                              ) {
-                                e.preventDefault();
-                              }
-                            }}>
+                            onClick={(e) => handleBookmarkClick(item._id, e)}>
                             <h2 className="text-[13px] md:text-[16px] font-[400] truncate">
                               {item.name}
                             </h2>
