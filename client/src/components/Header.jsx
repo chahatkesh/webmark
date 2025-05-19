@@ -1,15 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { StoreContext } from "../context/StoreContext";
 import {
-  Wrench,
-  HelpCircle,
   User,
   Menu,
   X,
   Bookmark,
   Search as SearchIcon,
   Share,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -38,8 +37,7 @@ const Header = () => {
 
   const navigationItems = [
     { path: "dashboard", label: "My Bookmarks", icon: Bookmark },
-    { path: "more-tools", label: "Tools", icon: Wrench },
-    { path: "how-to-use", label: "Help", icon: HelpCircle },
+    { path: "docs", label: "Docs", icon: BookOpen },
     { path: "profile", label: "Profile", icon: User },
   ];
 
