@@ -6,9 +6,10 @@ import { FcGoogle } from "react-icons/fc";
 import { Button } from "../components/ui/button";
 import { toast } from "react-toastify";
 import { Checkbox } from "../components/ui/checkbox";
+import Loader from "../components/Loader";
 
 const Auth = () => {
-  const { googleLogin } = useAuth();
+  const { googleLogin, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -16,6 +17,11 @@ const Auth = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   useEffect(() => {
+    // Redirect to dashboard if user is already authenticated
+    if (isAuthenticated && !isLoading) {
+      navigate("/user/dashboard");
+    }
+    
     // Handle direct token passing (from Google OAuth callback)
     if (token) {
       localStorage.setItem("token", token);
@@ -26,7 +32,7 @@ const Auth = () => {
     if (error) {
       toast.error(error || "Authentication failed");
     }
-  }, [token, error, navigate]);
+  }, [token, error, navigate, isAuthenticated, isLoading]);
 
   const handleGoogleLogin = () => {
     if (!agreedToTerms) {

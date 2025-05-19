@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useCategories } from "../../hooks/useBookmarks";
 import BookmarkItem from "./BookmarkItem";
 import { Button } from "../ui/button";
 import { PlusCircle, Search as SearchIcon, X } from "lucide-react";
 import { Input } from "../ui/input";
 import AddCategoryDialog from "./AddCategoryDialog";
+import { CategoryListSkeleton } from "./LoadingSkeletons";
 
 const BookmarkList = () => {
   const { data: categories, isLoading, error } = useCategories();
@@ -57,7 +58,7 @@ const BookmarkList = () => {
     setFilteredCategories(filtered);
   }, [searchTerm, categories]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <CategoryListSkeleton />;
   if (error) return <div>Error: {error.message}</div>;
 
   // Count total bookmarks in filtered results
@@ -116,21 +117,19 @@ const BookmarkList = () => {
           </Button>
         </div>
       </div>
-
-      {/* Search Results Summary - Mobile Only */}
+      {/* Search Results Summary - Mobile Only */}{" "}
       {searchTerm && (
         <div className="sm:hidden mb-4 text-sm text-gray-600">
           {totalBookmarks === 0 ? (
-            <p>No bookmarks found for "{searchTerm}"</p>
+            <p>No bookmarks found for &quot;{searchTerm}&quot;</p>
           ) : (
             <p>
               Found {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""}{" "}
-              for "{searchTerm}"
+              for &quot;{searchTerm}&quot;
             </p>
           )}
         </div>
       )}
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 md:gap-y-6">
         {filteredCategories.map((categoryItem) => (
           <BookmarkItem
@@ -144,7 +143,6 @@ const BookmarkList = () => {
           />
         ))}
       </div>
-
       <AddCategoryDialog
         open={isAddingCategory}
         onClose={() => setIsAddingCategory(false)}

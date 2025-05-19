@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { assets } from "../assets/assests";
 import { useAuth } from "../hooks/useAuth";
-import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { toast } from "react-toastify";
+import LoaderButton from "../components/ui/LoaderButton";
 
 const Onboarding = () => {
   const [username, setUsername] = useState("");
@@ -99,12 +99,13 @@ const Onboarding = () => {
           </div>
 
           <div>
-            <Button
+            <LoaderButton
               type="submit"
-              disabled={isLoading}
+              isLoading={isLoading}
+              loadingText="Setting up..."
               className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-              {isLoading ? "Setting up..." : "Complete Setup"}
-            </Button>
+              Complete Setup
+            </LoaderButton>
           </div>
         </form>
       </div>

@@ -8,8 +8,9 @@ import {
   Clock,
   Monitor,
   Edit,
-  Loader2,
 } from "lucide-react";
+import Loader from "../components/Loader";
+import LoaderButton from "../components/ui/LoaderButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -73,7 +74,7 @@ const Profile = () => {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-120px)]">
         <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <Loader type="spinner" size="md" />
           <p className="text-sm text-gray-500">Loading profile...</p>
         </div>
       </div>
@@ -161,15 +162,12 @@ const Profile = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button
+                    <LoaderButton
                       type="submit"
-                      disabled={submitting}
+                      isLoading={submitting}
                       className="flex-1">
-                      {submitting && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
                       Save
-                    </Button>
+                    </LoaderButton>
                     <Button
                       type="button"
                       variant="outline"
