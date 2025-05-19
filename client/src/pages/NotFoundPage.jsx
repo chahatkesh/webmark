@@ -68,17 +68,6 @@ const NotFoundPage = () => {
             </Link>
           </Button>
         </div>
-
-        {/* Help text */}
-        <p className="mt-8 text-sm text-gray-500">
-          If you believe this is an error, please{" "}
-          <Link
-            to="/user/report-problem"
-            className="text-blue-600 hover:text-blue-800 font-medium">
-            report the problem
-          </Link>
-          .
-        </p>
       </div>
     </div>
   );
