@@ -22,13 +22,11 @@ import hero_image from './hero_image.png'
 import stripes from './stripes.svg'
 import stripes_dark from './stripes-dark.svg'
 
-
 // founder message
 import chahat from './chahat.png'
 
 // feature image
 import feature_product from './feature_product.png'
-import features_card from './features_card.png'
 
 export const assets = {
   logo_black,
@@ -45,7 +43,6 @@ export const assets = {
   chahat,
   stripes_dark,
   feature_product,
-  features_card,
   small_logo_white,
   user_icon,
   small_logo_color,

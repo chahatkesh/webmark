@@ -55,7 +55,7 @@ const StatsSection = () => {
                   <Bookmark className="text-blue-600" size={24} />
                 </div>
               </div>
-              <h3 className="text-[#111827] flex items-center font-bold text-3xl md:text-4xl mb-2 text-blue-600">
+              <h3 className="flex items-center font-bold text-3xl md:text-4xl mb-2 text-blue-600">
                 {stats?.totalBookmarks?.toLocaleString() || 0}
               </h3>
               <p className="text-[#374151] text-sm">
@@ -70,7 +70,7 @@ const StatsSection = () => {
                   <FolderKanban className="text-green-600" size={24} />
                 </div>
               </div>
-              <h3 className="text-[#111827] flex items-center font-bold text-3xl md:text-4xl mb-2 text-green-600">
+              <h3 className="flex items-center font-bold text-3xl md:text-4xl mb-2 text-green-600">
                 {stats?.totalCategories?.toLocaleString() || 0}
               </h3>
               <p className="text-[#374151] text-sm">
@@ -85,7 +85,7 @@ const StatsSection = () => {
                   <Users className="text-purple-600" size={24} />
                 </div>
               </div>
-              <h3 className="text-[#111827] flex items-center font-bold text-3xl md:text-4xl mb-2 text-purple-600">
+              <h3 className="flex items-center font-bold text-3xl md:text-4xl mb-2 text-purple-600">
                 {stats?.totalUsers?.toLocaleString() || 0}
               </h3>
               <p className="text-[#374151] text-sm">
@@ -100,7 +100,7 @@ const StatsSection = () => {
                   <BarChart3 className="text-amber-600" size={24} />
                 </div>
               </div>
-              <h3 className="text-[#111827] flex items-center font-bold text-3xl md:text-4xl mb-2 text-amber-600">
+              <h3 className="flex items-center font-bold text-3xl md:text-4xl mb-2 text-amber-600">
                 {stats?.totalBookmarks && stats?.totalUsers
                   ? Math.round(
                       stats.totalBookmarks / stats.totalUsers
