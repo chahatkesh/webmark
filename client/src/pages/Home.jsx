@@ -9,8 +9,7 @@ import Message from "../components/HomeComponents/Message";
 import Footer from "../components/HomeComponents/Footer";
 import Cta from "../components/HomeComponents/Cta";
 import Testimonial from "../components/HomeComponents/Testimonial";
-import Features1 from "../components/HomeComponents/Features1";
-// import Features2 from "../components/HomeComponents/Features2";
+import Features from "../components/HomeComponents/Features";
 import Loader from "../components/Loader";
 import HowtoUse from "../components/HomeComponents/HowtoUse";
 import StatsSection from "../components/HomeComponents/StatsSection";
@@ -38,10 +37,9 @@ const Home = () => {
           <HeroContent />
         </section>
         <Message />
-        <Features1 />
-        {/* <Features2 /> */}
-        <HowtoUse />
+        <Features />
         <StatsSection />
+        <HowtoUse />
         <Testimonial />
         <Cta />
       </main>
