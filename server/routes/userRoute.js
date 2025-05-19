@@ -1,23 +1,30 @@
 import express from "express"
 import {
-  loginUser,
-  registerUser,
-  userData,
-  forgotPassword,
-  resetPassword,
-  verifyEmail,
-  resendVerification
-} from "../controllers/userController.js"
+  googleAuthCallback,
+  completeOnboarding,
+  getUserData,
+  logoutUser
+} from "../controllers/googleAuthController.js"
 import authMiddleware from "../middleware/authmiddleware.js"
+import passport from "../config/passport.js"
 
 const userRouter = express.Router()
 
-userRouter.post("/register", registerUser)
-userRouter.post("/login", loginUser)
-userRouter.post("/userdata", authMiddleware, userData)
-userRouter.post("/forgot-password", forgotPassword)
-userRouter.post("/reset-password", resetPassword)
-userRouter.get("/verify-email/:token", verifyEmail)
-userRouter.post("/resend-verification", resendVerification)
+// Google OAuth routes
+userRouter.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+)
+
+userRouter.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login", session: false }),
+  googleAuthCallback
+)
+
+// User data and management
+userRouter.post("/userdata", authMiddleware, getUserData)
+userRouter.post("/complete-onboarding", authMiddleware, completeOnboarding)
+userRouter.post("/logout", authMiddleware, logoutUser)
 
 export default userRouter;
