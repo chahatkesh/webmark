@@ -1,9 +1,8 @@
-import React from "react";
 import { useAuth } from "../../hooks/useAuth";
 
 const Navbar = () => {
   let logoColour = "#1361F5";
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const scrollToSection = (sectionId) => {
     document.getElementById(sectionId).scrollIntoView({
@@ -100,22 +99,13 @@ const Navbar = () => {
                 </a>
               </li>
             ) : (
-              <>
-                <li>
-                  <a
-                    className="inline-flex cursor-pointer shadow text-[#1f2937] bg-white pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500] hover:bg-gray-50"
-                    href="/auth">
-                    Login
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
-                    href="/auth">
-                    Signup
-                  </a>
-                </li>
-              </>
+              <li>
+                <a
+                  className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-4 pr-4 pt-[6px] pb-[6px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
+                  href="/auth">
+                  Get Started
+                </a>
+              </li>
             )}
           </ul>
         </div>
