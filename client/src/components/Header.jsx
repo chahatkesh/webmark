@@ -3,10 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { StoreContext } from "../context/StoreContext";
 import { useAuth } from "../hooks/useAuth";
 import {
-  Home,
   Wrench,
   HelpCircle,
-  AlertCircle,
   Settings,
   LogOut,
   User,
@@ -18,6 +16,7 @@ import {
   ChevronDown,
   Lock,
   Bookmark,
+  Search as SearchIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -36,6 +35,10 @@ import ShareModal from "./DashboardComponents/ShareModel";
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(() => {
+    // Initialize search term from sessionStorage if available
+    return sessionStorage.getItem("bookmarkSearchTerm") || "";
+  });
   const { user } = useContext(StoreContext);
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -53,8 +56,21 @@ const Header = () => {
     { path: "dashboard", label: "My Bookmarks", icon: Bookmark },
     { path: "more-tools", label: "Tools", icon: Wrench },
     { path: "how-to-use", label: "Help", icon: HelpCircle },
-    { path: "report-problem", label: "Report", icon: AlertCircle },
   ];
+
+  // Forward search term to dashboard when on bookmark page
+  useEffect(() => {
+    if (location.pathname.includes("dashboard")) {
+      // Store in sessionStorage for the BookmarkList component to access
+      sessionStorage.setItem("bookmarkSearchTerm", searchTerm);
+
+      // Dispatch a custom event to notify BookmarkList component
+      const searchEvent = new CustomEvent("searchTermChanged", {
+        detail: { searchTerm },
+      });
+      window.dispatchEvent(searchEvent);
+    }
+  }, [searchTerm, location.pathname]);
 
   const userMenuItems = [
     {
@@ -138,6 +154,29 @@ const Header = () => {
             </div>
           </div>
 
+          {/* Search Bar - Enhanced */}
+          {location.pathname.includes("dashboard") && (
+            <div className="relative hidden md:block flex-1 max-w-md">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search bookmarks by name or URL..."
+                className="w-full h-10 pl-10 pr-10 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 hover:bg-white transition-colors"
+                aria-label="Search bookmarks"
+              />
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Clear search">
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navigationItems.map((item) => {
@@ -156,16 +195,6 @@ const Header = () => {
                 </Button>
               );
             })}
-
-            {/* <Button
-              className="ml-2 gap-2 bg-blue-500 hover:bg-blue-600 text-white"
-              onClick={() => {}}>
-              <Upload className="h-4 w-4" />
-              Publish
-              <span className="text-xs bg-blue-600 px-1.5 py-0.5 rounded-full">
-                Soon
-              </span>
-            </Button> */}
           </nav>
 
           {/* User Menu */}
@@ -232,6 +261,29 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <nav className="md:hidden border-t border-gray-200 bg-white">
+            {/* Mobile Search Bar */}
+            {location.pathname.includes("dashboard") && (
+              <div className="p-3 border-b border-gray-200">
+                <div className="relative">
+                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search bookmarks..."
+                    className="w-full h-10 pl-10 pr-4 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <X className="h-4 w-4 text-gray-400" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
             {navigationItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -251,16 +303,6 @@ const Header = () => {
                 </Button>
               );
             })}
-
-            {/* <Button
-              className="w-full justify-start gap-2 rounded-none bg-blue-500 hover:bg-blue-600 text-white"
-              onClick={() => {}}>
-              <Upload className="h-4 w-4" />
-              Publish
-              <span className="text-xs bg-blue-600 px-1.5 py-0.5 rounded-full">
-                Soon
-              </span>
-            </Button> */}
           </nav>
         )}
       </div>

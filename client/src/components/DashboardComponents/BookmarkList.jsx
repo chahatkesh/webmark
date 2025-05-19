@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useCategories } from "../../hooks/useBookmarks";
 import BookmarkItem from "./BookmarkItem";
 import { Button } from "../ui/button";
-import { PlusCircle, Search as SearchIcon, X } from "lucide-react";
-import { Input } from "../ui/input";
+import { PlusCircle } from "lucide-react";
 import AddCategoryDialog from "./AddCategoryDialog";
 import { CategoryListSkeleton } from "./LoadingSkeletons";
 
@@ -13,48 +12,87 @@ const BookmarkList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCategories, setFilteredCategories] = useState([]);
 
+  // Get search term from Header component via sessionStorage
+  useEffect(() => {
+    const headerSearchTerm = sessionStorage.getItem("bookmarkSearchTerm") || "";
+    setSearchTerm(headerSearchTerm);
+
+    // Listen for search term changes from the Header component
+    const handleSearchTermChanged = (event) => {
+      setSearchTerm(event.detail.searchTerm);
+    };
+
+    window.addEventListener("searchTermChanged", handleSearchTermChanged);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("searchTermChanged", handleSearchTermChanged);
+    };
+  }, []);
+
   useEffect(() => {
     if (!categories) return;
 
-    if (!searchTerm.trim()) {
+    if (!searchTerm || !searchTerm.trim()) {
       setFilteredCategories(categories);
       return;
     }
 
-    const searchWords = searchTerm.toLowerCase().split(" ");
+    // Improved search logic
+    const searchWords = searchTerm.toLowerCase().trim().split(/\s+/);
 
     const filtered = categories
       .map((category) => {
-        // Filter bookmarks within each category
-        const filteredBookmarks = category.bookmarks.filter((bookmark) =>
-          searchWords.every(
-            (word) =>
-              bookmark.name.toLowerCase().includes(word) ||
-              bookmark.link.toLowerCase().includes(word)
-          )
-        );
+        try {
+          // Filter bookmarks within each category
+          const filteredBookmarks = Array.isArray(category.bookmarks)
+            ? category.bookmarks.filter((bookmark) =>
+                searchWords.some(
+                  (word) =>
+                    (bookmark.name &&
+                      bookmark.name.toLowerCase().includes(word)) ||
+                    (bookmark.link &&
+                      bookmark.link.toLowerCase().includes(word))
+                )
+              )
+            : [];
 
-        // Return category with filtered bookmarks if any match found
-        if (filteredBookmarks.length > 0) {
-          return {
-            ...category,
-            bookmarks: filteredBookmarks,
-          };
+          // Return category with filtered bookmarks if any match found
+          if (filteredBookmarks.length > 0) {
+            return {
+              ...category,
+              bookmarks: filteredBookmarks,
+            };
+          }
+
+          // Check if category name matches
+          if (
+            category.category &&
+            searchWords.some((word) =>
+              category.category.toLowerCase().includes(word)
+            )
+          ) {
+            return category;
+          }
+
+          return null;
+        } catch (err) {
+          console.error(
+            "Error filtering bookmarks in category:",
+            category,
+            err
+          );
+          return null;
         }
-
-        // Check if category name matches
-        if (
-          searchWords.every((word) =>
-            category.category.toLowerCase().includes(word)
-          )
-        ) {
-          return category;
-        }
-
-        return null;
       })
       .filter(Boolean); // Remove null categories
 
+    console.log(
+      "Search term:",
+      searchTerm,
+      "Filtered categories:",
+      filtered.length
+    );
     setFilteredCategories(filtered);
   }, [searchTerm, categories]);
 
@@ -87,27 +125,6 @@ const BookmarkList = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Search Input */}
-          <div className="relative w-full sm:w-[300px]">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <SearchIcon className="h-4 w-4 text-gray-400" />
-            </div>
-            <Input
-              type="search"
-              placeholder="Search bookmarks..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 h-10 bg-white"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-              </button>
-            )}
-          </div>
-
           {/* Add Category Button */}
           <Button
             onClick={() => setIsAddingCategory(true)}

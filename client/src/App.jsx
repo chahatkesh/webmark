@@ -4,7 +4,6 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Tools from "./pages/Tools";
 import Help from "./pages/Help";
-import ReportProblem from "./pages/ReportProblem";
 import Auth from "./pages/Auth"; // Google Auth component
 import Onboarding from "./pages/Onboarding"; // Onboarding component
 import Profile from "./pages/Profile"; // Profile page component
@@ -74,16 +73,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/user/report-problem"
-            element={
-              <ProtectedRoute>
-                <AuthenticatedLayout>
-                  <ReportProblem />
-                </AuthenticatedLayout>
-              </ProtectedRoute>
-            }
-          />
+          {/* Report Problem page removed as requested */}
           <Route
             path="/user/profile"
             element={
