@@ -1,10 +1,5 @@
-import React, { useEffect, useState } from "react";
-import {
-  Link,
-  useNavigate,
-  useLocation,
-  useSearchParams,
-} from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { assets } from "../assets/assests";
 import { useAuth } from "../hooks/useAuth";
 import { FcGoogle } from "react-icons/fc";
@@ -14,7 +9,6 @@ import { toast } from "react-toastify";
 const Auth = () => {
   const { googleLogin } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const error = searchParams.get("error");

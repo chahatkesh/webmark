@@ -17,6 +17,7 @@ import {
   X,
   ChevronDown,
   Lock,
+  Bookmark,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -49,7 +50,7 @@ const Header = () => {
   const isActive = (route) => location.pathname.includes(route);
 
   const navigationItems = [
-    { path: "dashboard", label: "Dashboard", icon: Home },
+    { path: "dashboard", label: "My Bookmarks", icon: Bookmark },
     { path: "more-tools", label: "Tools", icon: Wrench },
     { path: "how-to-use", label: "Help", icon: HelpCircle },
     { path: "report-problem", label: "Report", icon: AlertCircle },
@@ -57,10 +58,16 @@ const Header = () => {
 
   const userMenuItems = [
     {
-      label: "Profile",
+      label: "My Profile",
       icon: User,
       onClick: () => navigate("/user/profile"),
     },
+    {
+      label: "Add Bookmark",
+      icon: Bookmark,
+      onClick: () => navigate("/user/dashboard"),
+    },
+    null, // Separator
     {
       label: "Settings",
       icon: Settings,
@@ -76,7 +83,7 @@ const Header = () => {
     },
     null, // Separator
     {
-      label: "Export",
+      label: "Export PDF",
       icon: FileDown,
       comingSoon: true,
       onClick: () => {}, // Placeholder for future functionality
