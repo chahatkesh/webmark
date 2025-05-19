@@ -39,12 +39,12 @@ const Docs = () => {
             <li>Navigate to the dashboard</li>
             <li>Find the category where you want to add the bookmark</li>
             <li>Click the &ldquo;+&rdquo; button in that category</li>
-            <li>Enter the website URL and name</li>
+            <li>Enter the website URL</li>
             <li>Click Save</li>
           </ol>
           <p>
-            The system will automatically fetch the website&apos;s favicon for
-            visual identification.
+            The system will automatically fetch the website&apos;s Name and
+            favicon for visual identification.
           </p>
         </>
       ),
