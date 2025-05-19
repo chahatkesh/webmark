@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node --experimental-modules src/utils/sitemapGenerator.js && vite build",
+    "build": "npm install --include=dev && node --experimental-modules src/utils/sitemapGenerator.js && ./node_modules/.bin/vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "generate-sitemap": "node --experimental-modules src/utils/sitemapGenerator.js",
