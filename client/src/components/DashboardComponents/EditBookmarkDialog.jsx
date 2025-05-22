@@ -12,6 +12,7 @@ const EditBookmarkDialog = ({ open, onClose, bookmark }) => {
     name: "",
     link: "",
     logo: "",
+    notes: "",
   });
   const [showLogoSearch, setShowLogoSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,6 +26,7 @@ const EditBookmarkDialog = ({ open, onClose, bookmark }) => {
         name: bookmark.name,
         link: bookmark.link,
         logo: bookmark.logo,
+        notes: bookmark.notes || "",
       });
     }
   }, [bookmark]);
@@ -248,6 +250,22 @@ const EditBookmarkDialog = ({ open, onClose, bookmark }) => {
                 </span>
               </div>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-600">
+              Notes (Optional)
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
+              placeholder="Add notes about this bookmark..."
+              rows="3"
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              disabled={isSubmitting}
+            />
           </div>
 
           <div className="flex gap-3 justify-end pt-4">

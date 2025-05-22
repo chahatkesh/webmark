@@ -12,6 +12,7 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
     name: "",
     link: "",
     logo: "",
+    notes: "",
     categoryId,
   };
   const [formData, setFormData] = useState(initialFormState);
@@ -290,6 +291,22 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
                 </span>
               </div>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-600">
+              Notes (Optional)
+            </label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
+              placeholder="Add notes about this bookmark..."
+              rows="3"
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              disabled={isSubmitting}
+            />
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>

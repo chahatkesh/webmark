@@ -27,7 +27,7 @@ export const getBookmarks = async (req, res) => {
 // Create new bookmark
 export const createBookmark = async (req, res) => {
   try {
-    const { categoryId, name, link, logo } = req.body;
+    const { categoryId, name, link, logo, notes } = req.body;
 
     // Verify category belongs to user
     const category = await Category.findOne({
@@ -49,6 +49,7 @@ export const createBookmark = async (req, res) => {
       name,
       link,
       logo,
+      notes: notes || "",
       order
     });
 
@@ -62,7 +63,7 @@ export const createBookmark = async (req, res) => {
 // Update bookmark
 export const updateBookmark = async (req, res) => {
   try {
-    const { bookmarkId, name, link, logo } = req.body;
+    const { bookmarkId, name, link, logo, notes } = req.body;
 
     const bookmark = await Bookmark.findById(bookmarkId);
     if (!bookmark) {
@@ -81,7 +82,7 @@ export const updateBookmark = async (req, res) => {
 
     const updatedBookmark = await Bookmark.findByIdAndUpdate(
       bookmarkId,
-      { name, link, logo },
+      { name, link, logo, notes },
       { new: true }
     );
 

@@ -29,6 +29,10 @@ const bookmarkSchema = new mongoose.Schema({
   lastClicked: {
     type: Date
   },
+  notes: {
+    type: String,
+    default: ""
+  },
   clickHistory: [{
     timestamp: { type: Date, default: Date.now },
     deviceId: { type: String }

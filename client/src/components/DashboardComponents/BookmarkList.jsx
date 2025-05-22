@@ -52,7 +52,9 @@ const BookmarkList = () => {
                     (bookmark.name &&
                       bookmark.name.toLowerCase().includes(word)) ||
                     (bookmark.link &&
-                      bookmark.link.toLowerCase().includes(word))
+                      bookmark.link.toLowerCase().includes(word)) ||
+                    (bookmark.notes &&
+                      bookmark.notes.toLowerCase().includes(word))
                 )
               )
             : [];
