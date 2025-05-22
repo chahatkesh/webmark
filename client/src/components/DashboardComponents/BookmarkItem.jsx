@@ -13,6 +13,7 @@ import {
   Trash2,
   MoreVertical,
   GripVertical,
+  StickyNote,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -46,6 +47,8 @@ const BookmarkItem = ({
   const [selectedBookmark, setSelectedBookmark] = useState(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [bookmarkToDelete, setBookmarkToDelete] = useState(null);
+  const [selectedBookmarkForNotes, setSelectedBookmarkForNotes] =
+    useState(null);
   const displayBookmarks = filteredBookmarks || bookmarks;
 
   // Handle bookmark click
@@ -211,6 +214,14 @@ const BookmarkItem = ({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-32">
                               <DropdownMenuItem
+                                onClick={() =>
+                                  setSelectedBookmarkForNotes(item)
+                                }
+                                className="cursor-pointer">
+                                <StickyNote className="h-4 w-4 mr-2" />
+                                Notes
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
                                 onClick={() => setSelectedBookmark(item)}
                                 className="cursor-pointer">
                                 <Pencil className="h-4 w-4 mr-2" />
@@ -278,6 +289,64 @@ const BookmarkItem = ({
         itemName={`${bookmarkToDelete?.name}`}
         message={`Are you sure you want to delete "${bookmarkToDelete?.name}"? This action cannot be undone.`}
       />
+
+      {selectedBookmarkForNotes && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl border border-gray-100">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <img
+                  className="h-6 w-6 rounded"
+                  src={selectedBookmarkForNotes.logo}
+                  alt=""
+                  onError={(e) => {
+                    e.target.src = "/api/placeholder/24/24";
+                    e.target.onerror = null;
+                  }}
+                />
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Notes for {selectedBookmarkForNotes.name}
+                </h3>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedBookmarkForNotes(null)}
+                className="hover:bg-gray-100 rounded-full h-8 w-8 p-0">
+                ✕
+              </Button>
+            </div>
+            <div className="mb-6 bg-gray-50 rounded-lg p-4 min-h-[100px] max-h-[300px] overflow-y-auto">
+              <p className="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed">
+                {selectedBookmarkForNotes.notes || (
+                  <span className="text-gray-400 italic">
+                    No notes available
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedBookmarkForNotes(null)}
+                className="text-gray-600">
+                Close
+              </Button>
+              <Button
+                onClick={() => {
+                  setSelectedBookmark(selectedBookmarkForNotes);
+                  setSelectedBookmarkForNotes(null);
+                }}
+                size="sm"
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+                <Pencil className="h-3.5 w-3.5" />
+                Edit Notes
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
