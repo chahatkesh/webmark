@@ -35,7 +35,7 @@ const Message = () => {
               target="_blank"
               rel="noreferrer"
               className="text-blue-500 hover:text-blue-600"
-              href="https://chahat-website.onrender.com/">
+              href="https://chahatkesh.me/">
               Designed by
             </a>
             <span> Chahat Kesharwani</span>
