@@ -24,7 +24,7 @@ const NotFoundPage = () => {
       <SEO
         title="Page Not Found - 404 Error"
         description="Sorry, the page you are looking for does not exist or has been moved."
-        canonicalUrl="https://webmark.site/404"
+        canonicalUrl="https://webmark.chahatkesh.me/404"
         keywords="404, page not found, error, webmark"
         indexPage={false}
       />

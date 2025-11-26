@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 const ShareModal = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
-  const shareUrl = "https://www.webmark.site";
+  const shareUrl = "https://webmark.chahatkesh.me";
   const shareMessage =
     "Check out Webmark - a beautifully simple way to organize your bookmarks! ✨";
 

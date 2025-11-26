@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const BASE_URL = 'https://webmark.site';
+const BASE_URL = 'https://webmark.chahatkesh.me';
 const OUTPUT_PATH = path.join(__dirname, '../../public/sitemap.xml');
 const CURRENT_DATE = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
@@ -147,7 +147,7 @@ export function updateRobotsTxt() {
       if (!robotsContent.includes('sitemap-index.xml')) {
         robotsContent = robotsContent.replace(
           /Sitemap: https:\/\/webmark\.site\/sitemap\.xml/,
-          'Sitemap: https://webmark.site/sitemap-index.xml\nSitemap: https://webmark.site/sitemap.xml'
+          'Sitemap: https://webmark.chahatkesh.me/sitemap-index.xml\nSitemap: https://webmark.chahatkesh.me/sitemap.xml'
         );
       }
 
@@ -156,12 +156,12 @@ export function updateRobotsTxt() {
         if (robotsContent.includes('sitemap-features.xml')) {
           robotsContent = robotsContent.replace(
             /Sitemap: https:\/\/webmark\.site\/sitemap-features\.xml/,
-            'Sitemap: https://webmark.site/sitemap-features.xml\nSitemap: https://webmark.site/sitemap-faq.xml'
+            'Sitemap: https://webmark.chahatkesh.me/sitemap-features.xml\nSitemap: https://webmark.chahatkesh.me/sitemap-faq.xml'
           );
         } else {
           robotsContent = robotsContent.replace(
             /Sitemap: https:\/\/webmark\.site\/sitemap\.xml/,
-            'Sitemap: https://webmark.site/sitemap.xml\nSitemap: https://webmark.site/sitemap-features.xml\nSitemap: https://webmark.site/sitemap-faq.xml'
+            'Sitemap: https://webmark.chahatkesh.me/sitemap.xml\nSitemap: https://webmark.chahatkesh.me/sitemap-features.xml\nSitemap: https://webmark.chahatkesh.me/sitemap-faq.xml'
           );
         }
       }

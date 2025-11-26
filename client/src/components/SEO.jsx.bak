@@ -89,9 +89,9 @@ import { Helmet } from "react-helmet  // Create default structured data for WebA
 const SEO = ({
   title = "Webmark - Modern Bookmark Management Application",
   description = "Simplify your digital life with Webmark, the ultimate bookmark management tool. Organize, categorize, and access your bookmarks efficiently.",
-  canonicalUrl = "https://webmark.site",
+  canonicalUrl = "https://webmark.chahatkesh.me",
   keywords = "bookmark manager, bookmark organization, web bookmarks, bookmark tool",
-  ogImage = "https://webmark.site/hero_image.png",
+  ogImage = "https://webmark.chahatkesh.me/hero_image.png",
   ogType = "website",
   twitterCard = "summary_large_image",
   pageType = "website",
@@ -213,10 +213,10 @@ SEO.defaultProps = {
   title: "Webmark - Modern Bookmark Management Application",
   description:
     "Simplify your digital life with Webmark, the ultimate bookmark management tool. Organize, categorize, and access your bookmarks efficiently.",
-  canonicalUrl: "https://webmark.site",
+  canonicalUrl: "https://webmark.chahatkesh.me",
   keywords:
     "bookmark manager, bookmark organization, web bookmarks, bookmark tool",
-  ogImage: "https://webmark.site/hero_image.png",
+  ogImage: "https://webmark.chahatkesh.me/hero_image.png",
   ogType: "website",
   twitterCard: "summary_large_image",
   pageType: "website",

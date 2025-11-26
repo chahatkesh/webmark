@@ -18,7 +18,7 @@ Allow: /
 Crawl-delay: 2
 
 # Point to sitemaps
-Sitemap: https://webmark.site/sitemap-index.xml
-Sitemap: https://webmark.site/sitemap.xml
-Sitemap: https://webmark.site/sitemap-features.xml
-Sitemap: https://webmark.site/sitemap-faq.xml
+Sitemap: https://webmark.chahatkesh.me/sitemap-index.xml
+Sitemap: https://webmark.chahatkesh.me/sitemap.xml
+Sitemap: https://webmark.chahatkesh.me/sitemap-features.xml
+Sitemap: https://webmark.chahatkesh.me/sitemap-faq.xml

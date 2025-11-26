@@ -19,7 +19,7 @@
  */
 export function generateWebAppSchema({
   name = "Webmark",
-  url = "https://webmark.site",
+  url = "https://webmark.chahatkesh.me",
   description = "Modern bookmark management application",
   applicationCategory = "ProductivityApplication",
   publishedDate = "2025-01-01",
@@ -170,7 +170,7 @@ export function generateArticleSchema({
       "name": "Webmark",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://webmark.site/logo_color.png"
+        "url": "https://webmark.chahatkesh.me/logo_color.png"
       }
     }
   };

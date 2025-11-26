@@ -2,8 +2,8 @@
 
 ![Webmark Banner](https://github.com/user-attachments/assets/4603d5ce-63dd-41a5-b1ed-a1d33a3cebf1)
 
-[![Project Status](https://img.shields.io/badge/status-active-brightgreen.svg)](https://webmark.site)
-[![Render](https://img.shields.io/badge/deployed-Render-blue?logo=render)](https://webmark.site)
+[![Project Status](https://img.shields.io/badge/status-active-brightgreen.svg)](https://webmark.chahatkesh.me)
+[![Render](https://img.shields.io/badge/deployed-Render-blue?logo=render)](https://webmark.chahatkesh.me)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen.svg)](https://nodejs.org/)
 [![React Version](https://img.shields.io/badge/react-18.2.0-blue.svg)](https://reactjs.org/)
 ![GitHub issues](https://img.shields.io/github/issues/chahatkesh/webmark)
@@ -378,7 +378,7 @@ Personal productivity challenges that sparked this solution
 Need help? Reach out to us:
 
 - 📧 Email: [ckesharwani4@gmail.com](mailto:ckesharwani4@gmail.com)
-- 🌐 Website: [https://webmark.site](https://www.webmark.site)
+- 🌐 Website: [https://webmark.chahatkesh.me](https://webmark.chahatkesh.me)
 
 ---
 

@@ -20,12 +20,12 @@ const __dirname = path.dirname(__filename);
 // Configuration
 const REPORTS_DIR = path.join(__dirname, '../../seo-reports');
 const PAGES_TO_MONITOR = [
-  'https://webmark.site',
-  'https://webmark.site/features',
-  'https://webmark.site/docs',
-  'https://webmark.site/faq',
-  'https://webmark.site/privacy-policy',
-  'https://webmark.site/terms'
+  'https://webmark.chahatkesh.me',
+  'https://webmark.chahatkesh.me/features',
+  'https://webmark.chahatkesh.me/docs',
+  'https://webmark.chahatkesh.me/faq',
+  'https://webmark.chahatkesh.me/privacy-policy',
+  'https://webmark.chahatkesh.me/terms'
 ];
 
 /**
@@ -66,8 +66,8 @@ async function generateFullSEOReport() {
   const report = {
     generated: timestamp,
     sitewide: {
-      sitemap: { exists: true, valid: true, url: 'https://webmark.site/sitemap-index.xml' },
-      robots: { exists: true, valid: true, url: 'https://webmark.site/robots.txt' },
+      sitemap: { exists: true, valid: true, url: 'https://webmark.chahatkesh.me/sitemap-index.xml' },
+      robots: { exists: true, valid: true, url: 'https://webmark.chahatkesh.me/robots.txt' },
       ssl: { valid: true, expiry: '2026-05-20' },
     },
     pages: {}

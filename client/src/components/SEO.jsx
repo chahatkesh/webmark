@@ -22,9 +22,9 @@ import { getCanonicalUrl } from "../utils/canonicalizer";
 const SEO = ({
   title = "Webmark - Modern Bookmark Management Application",
   description = "Simplify your digital life with Webmark, the ultimate bookmark management tool. Organize, categorize, and access your bookmarks efficiently.",
-  canonicalUrl = "https://webmark.site",
+  canonicalUrl = "https://webmark.chahatkesh.me",
   keywords = "bookmark manager, bookmark organization, web bookmarks, bookmark tool",
-  ogImage = "https://webmark.site/hero_image.png",
+  ogImage = "https://webmark.chahatkesh.me/hero_image.png",
   ogType = "website",
   twitterCard = "summary_large_image",
   pageType = "website",
@@ -37,7 +37,7 @@ const SEO = ({
 }) => {
   // Generate canonical URL if not explicitly provided, using our canonicalizer
   const finalCanonicalUrl =
-    canonicalUrl === "https://webmark.site" && path
+    canonicalUrl === "https://webmark.chahatkesh.me" && path
       ? getCanonicalUrl({ path, useTrailingSlash })
       : canonicalUrl;
   // Format the complete title
@@ -75,7 +75,7 @@ const SEO = ({
 
   // Create breadcrumb data if this is not the homepage
   const breadcrumbData =
-    finalCanonicalUrl !== "https://webmark.site"
+    finalCanonicalUrl !== "https://webmark.chahatkesh.me"
       ? {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
@@ -84,7 +84,7 @@ const SEO = ({
               "@type": "ListItem",
               position: 1,
               name: "Home",
-              item: "https://webmark.site",
+              item: "https://webmark.chahatkesh.me",
             },
             {
               "@type": "ListItem",

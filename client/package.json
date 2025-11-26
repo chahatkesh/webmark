@@ -11,8 +11,8 @@
     "generate-sitemap": "node --experimental-modules src/utils/sitemapGenerator.js",
     "update-sitemaps": "node --experimental-modules src/utils/sitemapGenerator.js && echo 'All sitemaps updated with current date'",
     "update-meta": "node --experimental-modules src/utils/metaDescriptionGenerator.js",
-    "seo-analyze": "npx lighthouse https://webmark.site --config-path=./lighthouse-config.json --output-path=./seo-reports/lighthouse-report --view",
-    "seo-validate": "npx schema-validator https://webmark.site",
+    "seo-analyze": "npx lighthouse https://webmark.chahatkesh.me --config-path=./lighthouse-config.json --output-path=./seo-reports/lighthouse-report --view",
+    "seo-validate": "npx schema-validator https://webmark.chahatkesh.me",
     "seo-monitor": "node --experimental-modules src/utils/seoMonitor.js",
     "seo-full-update": "npm run update-meta && npm run generate-sitemap && npm run seo-analyze"
   },

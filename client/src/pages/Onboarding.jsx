@@ -86,7 +86,7 @@ const Onboarding = () => {
       <SEO
         title="Get Started with Webmark - Onboarding"
         description="Complete your registration and start organizing your bookmarks with Webmark. Set up your profile and get started in just a few steps."
-        canonicalUrl="https://webmark.site/onboarding"
+        canonicalUrl="https://webmark.chahatkesh.me/onboarding"
         keywords="webmark onboarding, get started, setup profile, bookmark manager setup"
         path="/onboarding"
         indexPage={false}

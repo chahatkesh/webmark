@@ -105,8 +105,8 @@ import { generateArticleSchema } from "../utils/jsonLDGenerator";
 const articleData = generateArticleSchema({
   headline: "Article Title",
   description: "Article description",
-  url: "https://webmark.site/article-url",
-  imageUrl: "https://webmark.site/article-image.jpg",
+  url: "https://webmark.chahatkesh.me/article-url",
+  imageUrl: "https://webmark.chahatkesh.me/article-image.jpg",
   datePublished: "2025-05-20",
   dateModified: "2025-05-20",
   authorName: "Author Name",

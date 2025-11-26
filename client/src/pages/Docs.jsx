@@ -128,7 +128,7 @@ const Docs = () => {
       <SEO
         title="Documentation - Webmark"
         description="Learn how to use Webmark's features efficiently. Step-by-step guides on bookmarking, categorization, search, and more."
-        canonicalUrl="https://webmark.site/docs"
+        canonicalUrl="https://webmark.chahatkesh.me/docs"
         keywords="webmark documentation, bookmark tutorial, how to use webmark, bookmark management guide"
         structuredData={{
           "@context": "https://schema.org",

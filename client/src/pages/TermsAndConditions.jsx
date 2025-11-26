@@ -9,7 +9,7 @@ const TermsAndConditions = () => {
       <SEO
         title="Terms and Conditions - Webmark"
         description="Read the terms and conditions for using Webmark's bookmark management service. Understand our service terms, user responsibilities, and legal agreements."
-        canonicalUrl="https://webmark.site/terms"
+        canonicalUrl="https://webmark.chahatkesh.me/terms"
         keywords="webmark terms, terms and conditions, user agreement, service terms"
       />
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

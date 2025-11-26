@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
       <SEO
         title="Privacy Policy - Webmark"
         description="Learn about how Webmark collects, uses, and protects your personal information. Our privacy policy outlines our commitment to data security."
-        canonicalUrl="https://webmark.site/privacy-policy"
+        canonicalUrl="https://webmark.chahatkesh.me/privacy-policy"
         keywords="webmark privacy policy, data protection, user privacy, bookmark manager privacy"
       />
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

@@ -8,7 +8,7 @@ const Dashboard = () => {
       <SEO
         title="Your Bookmarks Dashboard - Webmark"
         description="Manage your bookmarks efficiently with Webmark's intuitive dashboard. Organize, categorize, and access your web bookmarks all in one place."
-        canonicalUrl="https://webmark.site/user/dashboard"
+        canonicalUrl="https://webmark.chahatkesh.me/user/dashboard"
         keywords="bookmark dashboard, bookmark manager, organize bookmarks, bookmark categories"
         path="/user/dashboard"
         indexPage={false}

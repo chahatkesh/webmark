@@ -32,13 +32,13 @@ const Home = () => {
       <SEO
         title="Webmark - Modern Bookmark Management Application"
         description="Simplify your digital life with Webmark, the ultimate bookmark management tool. Organize, categorize, and access your bookmarks efficiently."
-        canonicalUrl="https://webmark.site"
+        canonicalUrl="https://webmark.chahatkesh.me"
         keywords="bookmark manager, bookmark organization, web bookmarks, bookmark tool, productivity tool, bookmark management system"
         structuredData={{
           "@context": "https://schema.org",
           "@type": "WebApplication",
           name: "Webmark",
-          url: "https://webmark.site",
+          url: "https://webmark.chahatkesh.me",
           description:
             "A modern bookmark management application designed to help users efficiently organize and manage their bookmarks",
           applicationCategory: "Productivity Software",
@@ -47,7 +47,7 @@ const Home = () => {
             price: "0",
             priceCurrency: "USD",
           },
-          screenshot: "https://webmark.site/hero_image.png",
+          screenshot: "https://webmark.chahatkesh.me/hero_image.png",
           featureList: [
             "Custom bookmark categories",
             "Quick search functionality",

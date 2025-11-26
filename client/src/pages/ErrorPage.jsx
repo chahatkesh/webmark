@@ -59,7 +59,7 @@ const ErrorPage = () => {
       <SEO
         title="Error - Webmark"
         description="We encountered an error. Please try again or return to the homepage."
-        canonicalUrl="https://webmark.site/error"
+        canonicalUrl="https://webmark.chahatkesh.me/error"
         indexPage={false}
       />
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">

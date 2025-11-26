@@ -25,7 +25,7 @@ export function getCanonicalUrl({
   ignoreParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid']
 }) {
   // Base domain
-  const domain = 'https://webmark.site';
+  const domain = 'https://webmark.chahatkesh.me';
 
   // Normalize path
   let normalizedPath = path;
