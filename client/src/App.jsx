@@ -19,6 +19,7 @@ const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Profile = lazy(() => import("./pages/Profile"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const BookmarkletSave = lazy(() => import("./pages/BookmarkletSave"));
 const AuthenticatedLayout = lazy(() => import("./layouts/AuthenticatedLayout"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
@@ -95,6 +96,16 @@ const App = () => {
             element={
               <Suspense fallback={<Loader />}>
                 <PrivacyPolicy />
+              </Suspense>
+            }
+          />
+
+          {/* Bookmarklet relay page — opens as a popup from any domain */}
+          <Route
+            path="/save"
+            element={
+              <Suspense fallback={<Loader />}>
+                <BookmarkletSave />
               </Suspense>
             }
           />

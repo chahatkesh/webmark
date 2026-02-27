@@ -5,28 +5,21 @@ import { Bookmark, Copy, Check, FolderOpen, GripHorizontal } from "lucide-react"
 import { Button } from "../ui/button";
 import { toast } from "react-toastify";
 
-// Generates a self-contained bookmarklet href.
-// The token and categoryId are embedded at generation time so the bookmarklet
-// works on any domain without needing access to Webmark's localStorage.
-const buildBookmarklet = (apiUrl, token, categoryId) => {
-  // Keep this minified — browsers cap bookmark URL length
-  const code = `(function(){` +
-    `var t=document.title||location.hostname,` +
-    `u=location.href,` +
-    `h=location.hostname;` +
-    `fetch('${apiUrl}/api/bookmarks/bookmark',{` +
-    `method:'POST',` +
-    `headers:{'Content-Type':'application/json',token:'${token}'},` +
-    `body:JSON.stringify({categoryId:'${categoryId}',name:t,link:u,logo:'https://www.google.com/s2/favicons?domain='+h+'&sz=128',autoCateg:true})` +
-    `}).then(function(r){return r.json()}).then(function(d){` +
-    `if(d.success){` +
-    `var e=document.createElement('div');` +
-    `e.style='position:fixed;bottom:20px;right:20px;background:#1d4ed8;color:#fff;padding:12px 18px;border-radius:8px;z-index:2147483647;font:600 13px/1 system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25)';` +
-    `e.textContent='\\u2713 Saved to Webmark';` +
-    `document.body.appendChild(e);` +
-    `setTimeout(function(){e.remove()},2500)` +
-    `}else{alert('Webmark: '+d.message)}` +
-    `}).catch(function(){alert('Webmark: Could not save bookmark')})` +
+// Generates a bookmarklet that opens a small popup inside our own app.
+// The popup (/save) makes the API call from OUR security context,
+// bypassing any Content-Security-Policy the host page might set.
+// appUrl  — the frontend origin (e.g. http://localhost:5173 or https://webmark.site)
+const buildBookmarklet = (appUrl, token, categoryId) => {
+  const code =
+    `(function(){` +
+    `var t=encodeURIComponent(document.title||location.hostname),` +
+    `u=encodeURIComponent(location.href),` +
+    `fav=encodeURIComponent('https://www.google.com/s2/favicons?domain='+location.hostname+'&sz=128'),` +
+    `w=420,h=300,` +
+    `x=Math.round(screen.width/2-210),` +
+    `y=Math.round(screen.height/2-150),` +
+    `dest='${appUrl}/save?url='+u+'&title='+t+'&logo='+fav+'&catId=${categoryId}&token=${token}';` +
+    `window.open(dest,'_webmark','width='+w+',height='+h+',top='+y+',left='+x+',noopener=no');` +
     `})();`;
 
   return `javascript:${encodeURIComponent(code)}`;
@@ -34,6 +27,8 @@ const buildBookmarklet = (apiUrl, token, categoryId) => {
 
 const BookmarkletWidget = () => {
   const { url } = useContext(StoreContext);
+  // appUrl = frontend origin (used for /save popup); url = API backend
+  const appUrl = typeof window !== "undefined" ? window.location.origin : url;
   const token = localStorage.getItem("token") || "";
   const { data: categories, isLoading } = useCategories();
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
@@ -44,7 +39,7 @@ const BookmarkletWidget = () => {
 
   const bookmarkletHref =
     token && effectiveCategoryId
-      ? buildBookmarklet(url, token, effectiveCategoryId)
+      ? buildBookmarklet(appUrl, token, effectiveCategoryId)
       : null;
 
   const handleCopy = () => {
