@@ -345,3 +345,32 @@ export const useImportBookmarks = () => {
     },
   });
 };
+
+export const useAISort = () => {
+  const queryClient = useQueryClient();
+  const { url } = useContext(StoreContext);
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${url}/api/bookmarks/ai/sort`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          token: localStorage.getItem('token'),
+        },
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      return data.results;
+    },
+    onSuccess: (results) => {
+      queryClient.invalidateQueries(['categories']);
+      toast.success(
+        `AI sorted ${results.totalBookmarks} bookmarks into ${results.taxonomy.length} categories (${results.bookmarksMoved} moved)`
+      );
+    },
+    onError: (error) => {
+      toast.error(error.message || 'AI sorting failed');
+    },
+  });
+};

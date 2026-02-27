@@ -17,7 +17,7 @@ const buildBookmarklet = (apiUrl, token, categoryId) => {
     `fetch('${apiUrl}/api/bookmarks/bookmark',{` +
     `method:'POST',` +
     `headers:{'Content-Type':'application/json',token:'${token}'},` +
-    `body:JSON.stringify({categoryId:'${categoryId}',name:t,link:u,logo:'https://www.google.com/s2/favicons?domain='+h+'&sz=128'})` +
+    `body:JSON.stringify({categoryId:'${categoryId}',name:t,link:u,logo:'https://www.google.com/s2/favicons?domain='+h+'&sz=128',autoCateg:true})` +
     `}).then(function(r){return r.json()}).then(function(d){` +
     `if(d.success){` +
     `var e=document.createElement('div');` +

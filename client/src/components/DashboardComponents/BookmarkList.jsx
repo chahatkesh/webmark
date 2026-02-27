@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useCategories } from "../../hooks/useBookmarks";
+import { useCategories, useAISort } from "../../hooks/useBookmarks";
 import BookmarkItem from "./BookmarkItem";
 import { Button } from "../ui/button";
-import { PlusCircle, Upload } from "lucide-react";
+import { PlusCircle, Upload, Sparkles } from "lucide-react";
 import AddCategoryDialog from "./AddCategoryDialog";
 import ImportBookmarksDialog from "./ImportBookmarksDialog";
 import { CategoryListSkeleton } from "./LoadingSkeletons";
@@ -13,6 +13,7 @@ const BookmarkList = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCategories, setFilteredCategories] = useState([]);
+  const { mutate: aiSort, isPending: isSorting } = useAISort();
 
   // Get search term from Header component via sessionStorage
   useEffect(() => {
@@ -129,6 +130,19 @@ const BookmarkList = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
+          {/* AI Sort bookmarks */}
+          <Button
+            onClick={() => {
+              if (window.confirm("AI will reorganize all your bookmarks into smart categories. This may create, merge, or remove categories. Continue?")) {
+                aiSort();
+              }
+            }}
+            disabled={isSorting}
+            variant="outline"
+            className="h-10 px-4 gap-2 whitespace-nowrap">
+            <Sparkles className={`h-5 w-5 ${isSorting ? 'animate-spin' : ''}`} />
+            <span>{isSorting ? "Sorting..." : "AI Sort"}</span>
+          </Button>
           {/* Import bookmarks from browser */}
           <Button
             onClick={() => setIsImporting(true)}

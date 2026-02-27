@@ -1,5 +1,6 @@
 import Bookmark from "../models/bookmarkModel.js";
 import Category from "../models/categoryModel.js";
+import { autoCategorizeSingle } from "./aiController.js";
 
 // Get all bookmarks for a category
 export const getBookmarks = async (req, res) => {
@@ -55,6 +56,13 @@ export const createBookmark = async (req, res) => {
 
     await newBookmark.save();
     res.json({ success: true, bookmark: newBookmark });
+
+    // Fire-and-forget: AI auto-categorize for bookmarklet saves
+    if (req.body.autoCateg) {
+      autoCategorizeSingle(newBookmark._id, req.body.userId).catch((err) => {
+        console.error("AI auto-categorize error (non-fatal):", err.message);
+      });
+    }
   } catch (error) {
     res.json({ success: false, message: "Error creating bookmark" });
   }
