@@ -315,3 +315,33 @@ export const useUpdateBookmarkOrder = () => {
     },
   });
 };
+
+export const useImportBookmarks = () => {
+  const queryClient = useQueryClient();
+  const { url } = useContext(StoreContext);
+
+  return useMutation({
+    mutationFn: async (folders) => {
+      const res = await fetch(`${url}/api/bookmarks/import`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          token: localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ folders }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      return data.results;
+    },
+    onSuccess: (results) => {
+      queryClient.invalidateQueries(['categories']);
+      toast.success(
+        `Imported ${results.bookmarksCreated} bookmark${results.bookmarksCreated !== 1 ? 's' : ''} across ${results.categoriesCreated} new categor${results.categoriesCreated !== 1 ? 'ies' : 'y'}`
+      );
+    },
+    onError: () => {
+      toast.error('Import failed. Please try again.');
+    },
+  });
+};

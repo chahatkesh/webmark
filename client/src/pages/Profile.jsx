@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import { format, formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import ShareModal from "../components/DashboardComponents/ShareModel";
+import BookmarkletWidget from "../components/DashboardComponents/BookmarkletWidget";
 
 const Profile = () => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -405,6 +406,11 @@ const Profile = () => {
                 </div>
               </div>
             </div>
+          </motion.div>
+
+          {/* Bookmarklet */}
+          <motion.div variants={scaleUp}>
+            <BookmarkletWidget />
           </motion.div>
         </div>
 

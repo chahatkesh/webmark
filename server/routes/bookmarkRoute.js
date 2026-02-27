@@ -11,6 +11,7 @@ import {
   updateBookmark,
   deleteBookmark,
   reorderBookmarks,
+  importBookmarks,
 } from "../controllers/bookmarkController.js";
 import authMiddleware from "../middleware/authmiddleware.js";
 
@@ -28,5 +29,6 @@ router.post("/bookmark", authMiddleware, createBookmark);
 router.put("/bookmark", authMiddleware, updateBookmark);
 router.delete("/bookmark", authMiddleware, deleteBookmark);
 router.put("/reorder", authMiddleware, reorderBookmarks);
+router.post("/import", authMiddleware, importBookmarks);
 
 export default router;

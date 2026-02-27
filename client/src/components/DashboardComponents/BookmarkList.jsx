@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { useCategories } from "../../hooks/useBookmarks";
 import BookmarkItem from "./BookmarkItem";
 import { Button } from "../ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Upload } from "lucide-react";
 import AddCategoryDialog from "./AddCategoryDialog";
+import ImportBookmarksDialog from "./ImportBookmarksDialog";
 import { CategoryListSkeleton } from "./LoadingSkeletons";
 
 const BookmarkList = () => {
   const { data: categories, isLoading, error } = useCategories();
   const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCategories, setFilteredCategories] = useState([]);
 
@@ -127,6 +129,14 @@ const BookmarkList = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
+          {/* Import bookmarks from browser */}
+          <Button
+            onClick={() => setIsImporting(true)}
+            variant="outline"
+            className="h-10 px-4 gap-2 whitespace-nowrap">
+            <Upload className="h-5 w-5" />
+            <span>Import</span>
+          </Button>
           {/* Add Category Button */}
           <Button
             onClick={() => setIsAddingCategory(true)}
@@ -165,6 +175,10 @@ const BookmarkList = () => {
       <AddCategoryDialog
         open={isAddingCategory}
         onClose={() => setIsAddingCategory(false)}
+      />
+      <ImportBookmarksDialog
+        open={isImporting}
+        onClose={() => setIsImporting(false)}
       />
     </>
   );

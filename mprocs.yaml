@@ -1,0 +1,10 @@
+procs:
+  mongo:
+    shell: "docker compose -f infra/docker-compose.yml up --remove-orphans"
+    stop: "SIGINT"
+
+  server:
+    shell: "pnpm --filter server dev"
+
+  client:
+    shell: "pnpm --filter client dev"
