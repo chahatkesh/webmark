@@ -363,14 +363,8 @@ export const useAISort = () => {
       if (!data.success) throw new Error(data.message);
       return data.results;
     },
-    onSuccess: (results) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(['categories']);
-      toast.success(
-        `AI sorted ${results.totalBookmarks} bookmarks into ${results.taxonomy.length} categories (${results.bookmarksMoved} moved)`
-      );
-    },
-    onError: (error) => {
-      toast.error(error.message || 'AI sorting failed');
     },
   });
 };

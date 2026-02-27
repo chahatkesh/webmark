@@ -5,15 +5,17 @@ import { Button } from "../ui/button";
 import { PlusCircle, Upload, Sparkles } from "lucide-react";
 import AddCategoryDialog from "./AddCategoryDialog";
 import ImportBookmarksDialog from "./ImportBookmarksDialog";
+import AISortDialog from "./AISortDialog";
 import { CategoryListSkeleton } from "./LoadingSkeletons";
 
 const BookmarkList = () => {
   const { data: categories, isLoading, error } = useCategories();
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isAISortOpen, setIsAISortOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCategories, setFilteredCategories] = useState([]);
-  const { mutate: aiSort, isPending: isSorting } = useAISort();
+  const { mutate: aiSort, isPending: isSorting, data: sortResults, error: sortError, reset: resetSort } = useAISort();
 
   // Get search term from Header component via sessionStorage
   useEffect(() => {
@@ -132,16 +134,11 @@ const BookmarkList = () => {
         <div className="flex flex-col sm:flex-row gap-3">
           {/* AI Sort bookmarks */}
           <Button
-            onClick={() => {
-              if (window.confirm("AI will reorganize all your bookmarks into smart categories. This may create, merge, or remove categories. Continue?")) {
-                aiSort();
-              }
-            }}
-            disabled={isSorting}
+            onClick={() => setIsAISortOpen(true)}
             variant="outline"
             className="h-10 px-4 gap-2 whitespace-nowrap">
-            <Sparkles className={`h-5 w-5 ${isSorting ? 'animate-spin' : ''}`} />
-            <span>{isSorting ? "Sorting..." : "AI Sort"}</span>
+            <Sparkles className="h-5 w-5" />
+            <span>AI Sort</span>
           </Button>
           {/* Import bookmarks from browser */}
           <Button
@@ -193,6 +190,15 @@ const BookmarkList = () => {
       <ImportBookmarksDialog
         open={isImporting}
         onClose={() => setIsImporting(false)}
+      />
+      <AISortDialog
+        open={isAISortOpen}
+        onClose={() => setIsAISortOpen(false)}
+        onConfirm={() => aiSort()}
+        isSorting={isSorting}
+        results={sortResults ?? null}
+        sortError={sortError}
+        onReset={resetSort}
       />
     </>
   );
