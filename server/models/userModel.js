@@ -32,6 +32,23 @@ const userSchema = new mongoose.Schema({
   aiSortsRemaining: { type: Number, default: 5 },
   importBonusUsedThisMonth: { type: Number, default: 0 },
   importBonusMonthKey: { type: String, default: '' },
+  // Snapshot for AI Sort revert (stores the state before last sort)
+  aiSortSnapshot: {
+    bookmarks: [{
+      bookmarkId: { type: mongoose.Schema.Types.ObjectId },
+      categoryId: { type: mongoose.Schema.Types.ObjectId },
+      order: { type: Number },
+    }],
+    categories: [{
+      categoryId: { type: mongoose.Schema.Types.ObjectId },
+      category: { type: String },
+      emoji: { type: String },
+      bgcolor: { type: String },
+      hcolor: { type: String },
+      order: { type: Number },
+    }],
+    createdAt: { type: Date },
+  },
 })
 
 const userModel = mongoose.model.user || mongoose.model("user", userSchema)

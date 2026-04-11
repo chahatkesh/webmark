@@ -388,6 +388,37 @@ export const useAISort = () => {
       if (results?.aiSortsRemaining !== undefined) {
         localStorage.setItem('aiSortsRemaining', String(results.aiSortsRemaining));
       }
+      if (results?.canRevert) {
+        localStorage.setItem('canRevertAISort', 'true');
+      }
+    },
+  });
+};
+
+export const useRevertAISort = () => {
+  const queryClient = useQueryClient();
+  const { url } = useContext(StoreContext);
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${url}/api/bookmarks/ai/sort/revert`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          token: localStorage.getItem('token'),
+        },
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['categories']);
+      localStorage.removeItem('canRevertAISort');
+      toast.success('AI Sort reverted successfully');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to revert AI Sort');
     },
   });
 };

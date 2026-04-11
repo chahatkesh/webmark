@@ -15,6 +15,7 @@ import {
   Layers,
   Tag,
   HardDrive,
+  Undo2,
 } from "lucide-react";
 
 const STAGES = [
@@ -34,9 +35,11 @@ const STAGE_DELAYS_MS = [0, 4000, 10000, 22000];
  *   onClose()   – called to dismiss
  *   onConfirm() – calls the mutation
  *   isSorting   – boolean from mutation isPending
- *   results     – { totalBookmarks, taxonomy, bookmarksMoved } | null
+ *   results     – { totalBookmarks, taxonomy, bookmarksMoved, canRevert } | null
  *   sortError   – Error | null
  *   onReset()   – resets mutation state
+ *   onRevert()  – calls the revert mutation
+ *   isReverting – boolean from revert mutation isPending
  */
 const AISortDialog = ({
   open,
@@ -46,6 +49,8 @@ const AISortDialog = ({
   results,
   sortError,
   onReset,
+  onRevert,
+  isReverting,
 }) => {
   const [stageIdx, setStageIdx] = useState(-1);
   const [progress, setProgress] = useState(0);
@@ -116,8 +121,24 @@ const AISortDialog = ({
               Your library has been reorganized by AI.
             </p>
           </div>
-          <div className="flex justify-end">
-            <Button onClick={handleClose}>Done</Button>
+          <div className="flex justify-between">
+            {results.canRevert && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onRevert();
+                  handleClose();
+                }}
+                disabled={isReverting}
+                className="gap-2 text-amber-600 border-amber-200 hover:bg-amber-50"
+              >
+                <Undo2 className="h-4 w-4" />
+                {isReverting ? "Reverting…" : "Undo Sort"}
+              </Button>
+            )}
+            <div className="ml-auto">
+              <Button onClick={handleClose}>Done</Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -269,14 +290,33 @@ const AISortDialog = ({
           This will reorganize your entire library. The process takes 20–40 seconds.
         </p>
 
-        <div className="flex justify-end gap-2 pt-1">
-          <Button variant="outline" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleConfirm} className="gap-2">
-            <Sparkles className="h-4 w-4" />
-            Start sorting
-          </Button>
+        <div className="flex justify-between items-center pt-1">
+          <div>
+            {localStorage.getItem('canRevertAISort') === 'true' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  onRevert();
+                  handleClose();
+                }}
+                disabled={isReverting}
+                className="gap-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+              >
+                <Undo2 className="h-3.5 w-3.5" />
+                {isReverting ? "Reverting…" : "Undo last sort"}
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirm} className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Start sorting
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

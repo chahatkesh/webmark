@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useCategories, useAISort, useImportBookmarks } from "../../hooks/useBookmarks";
+import { useCategories, useAISort, useImportBookmarks, useRevertAISort } from "../../hooks/useBookmarks";
 import BookmarkItem from "./BookmarkItem";
 import { Button } from "../ui/button";
 import { PlusCircle, Upload, Wand2 } from "lucide-react";
@@ -22,6 +22,7 @@ const BookmarkList = () => {
     () => parseInt(localStorage.getItem("importsRemainingThisMonth") ?? "2", 10)
   );
   const { mutate: aiSort, isPending: isSorting, data: sortResults, error: sortError, reset: resetSort } = useAISort();
+  const { mutate: revertSort, isPending: isReverting } = useRevertAISort();
   const importMutation = useImportBookmarks();
 
   const syncLimitsFromStorage = () => {
@@ -246,6 +247,8 @@ const BookmarkList = () => {
         results={sortResults ?? null}
         sortError={sortError}
         onReset={resetSort}
+        onRevert={revertSort}
+        isReverting={isReverting}
       />
     </>
   );
