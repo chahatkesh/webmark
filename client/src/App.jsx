@@ -6,8 +6,8 @@ import { lazy, Suspense } from "react";
 import Home from "./pages/Home";
 import Loader from "./components/Loader";
 import Prefetcher from "./components/Prefetcher"; // Prefetcher component for performance
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.min.css";
 // Use the enhanced error components
 import { ErrorBoundary } from "./components/enhanced/ErrorComponents";
 
@@ -161,7 +161,22 @@ const App = () => {
           />
         </Routes>
       </div>
-      <ToastContainer />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        transition={Slide}
+        limit={3}
+        toastClassName="!bg-white !shadow-lg !shadow-black/5 !border !border-gray-100 !rounded-xl !px-4 !py-3 !min-h-0"
+        bodyClassName="!text-sm !font-medium !text-gray-800 !p-0 !m-0"
+        closeButton={false}
+      />
     </ErrorBoundary>
   );
 };

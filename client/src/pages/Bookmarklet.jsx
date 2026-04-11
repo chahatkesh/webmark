@@ -39,7 +39,7 @@ const steps = [
   {
     icon: GripHorizontal,
     title: "Drag to bookmarks bar",
-    description: 'Drag the "🔖 Save to Webmark" button into your browser\'s bookmarks bar.',
+    description: 'Drag the "Save to Webmark" button into your browser\'s bookmarks bar.',
   },
   {
     icon: MousePointerClick,
@@ -84,8 +84,28 @@ const Bookmarklet = () => {
       e.preventDefault();
       return;
     }
-    e.dataTransfer.setData("text/uri-list", bookmarkletHref);
+    // Firefox: "URL\nTitle" format — stores name + icon from the page favicon
+    e.dataTransfer.setData(
+      "text/x-moz-url",
+      `${bookmarkletHref}\nSave to Webmark`,
+    );
+    // RFC-compliant uri-list: comment line then URL (Chrome reads <a> text for the name)
+    e.dataTransfer.setData(
+      "text/uri-list",
+      `# Save to Webmark\n${bookmarkletHref}`,
+    );
+    // Full HTML with favicon — some bookmark managers read <link rel="icon"> from this
+    e.dataTransfer.setData(
+      "text/html",
+      `<html><head>` +
+        `<link rel="shortcut icon" href="${appUrl}/favicon.png">` +
+        `<title>Save to Webmark</title>` +
+        `</head><body>` +
+        `<a href="${bookmarkletHref}">Save to Webmark</a>` +
+        `</body></html>`,
+    );
     e.dataTransfer.setData("text/plain", bookmarkletHref);
+    e.dataTransfer.effectAllowed = "copy";
   };
 
   return (
@@ -145,7 +165,7 @@ const Bookmarklet = () => {
                   title="Drag me to your bookmarks toolbar"
                 >
                   <GripHorizontal className="h-5 w-5 text-blue-400" />
-                  🔖 Save to Webmark
+                  Save to Webmark
                 </a>
 
                 <div className="flex items-center gap-2">
@@ -172,6 +192,9 @@ const Bookmarklet = () => {
                 </p>
               )
             )}
+            <p className="mt-3 text-xs text-gray-400">
+              Tip: browsers show a generic icon for JavaScript bookmarklets — look for <span className="font-medium text-gray-600">Save to Webmark</span> by name on your bar.
+            </p>
           </div>
         </div>
 

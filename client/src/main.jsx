@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SWRConfig } from "swr";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
@@ -11,23 +11,6 @@ import { setupGlobalErrorHandlers } from "./utils/errorHandling.js";
 
 // Set up global error handlers
 setupGlobalErrorHandlers();
-
-// Create a React Query client with error handling
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      onError: (error) => {
-        console.error("Query error:", error);
-      },
-    },
-    mutations: {
-      onError: (error) => {
-        console.error("Mutation error:", error);
-      },
-    },
-  },
-});
 
 // Create router with error handling
 const router = createBrowserRouter([
@@ -45,10 +28,19 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
+    <SWRConfig
+      value={{
+        revalidateOnFocus: false,
+        errorRetryCount: 1,
+        dedupingInterval: 5000,
+        onError: (error) => {
+          console.error("SWR error:", error);
+        },
+      }}
+    >
       <StoreContextProvider>
         <RouterProvider router={router} />
       </StoreContextProvider>
-    </QueryClientProvider>
+    </SWRConfig>
   </HelmetProvider>
 );
