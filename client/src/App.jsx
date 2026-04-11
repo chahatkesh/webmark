@@ -13,12 +13,13 @@ import { ErrorBoundary } from "./components/enhanced/ErrorComponents";
 
 // Lazy load non-critical routes
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Docs = lazy(() => import("./pages/Docs"));
+const Bookmarklet = lazy(() => import("./pages/Bookmarklet"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Profile = lazy(() => import("./pages/Profile"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const BookmarkletSave = lazy(() => import("./pages/BookmarkletSave"));
 const AuthenticatedLayout = lazy(() => import("./layouts/AuthenticatedLayout"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
@@ -99,6 +100,16 @@ const App = () => {
             }
           />
 
+          {/* Bookmarklet relay page — opens as a popup from any domain */}
+          <Route
+            path="/save"
+            element={
+              <Suspense fallback={<Loader />}>
+                <BookmarkletSave />
+              </Suspense>
+            }
+          />
+
           {/* Protected Routes */}
           <Route
             path="/user/dashboard"
@@ -112,18 +123,20 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
-            path="/user/docs"
+            path="/user/bookmarklet"
             element={
               <ProtectedRoute>
                 <Suspense fallback={<Loader />}>
                   <AuthenticatedLayout>
-                    <Docs />
+                    <Bookmarklet />
                   </AuthenticatedLayout>
                 </Suspense>
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/user/profile"
             element={

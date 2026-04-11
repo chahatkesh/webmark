@@ -1,16 +1,49 @@
 import { useState, useEffect } from "react";
-import { useCategories } from "../../hooks/useBookmarks";
+import { useCategories, useAISort, useImportBookmarks } from "../../hooks/useBookmarks";
 import BookmarkItem from "./BookmarkItem";
 import { Button } from "../ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Upload, Wand2 } from "lucide-react";
 import AddCategoryDialog from "./AddCategoryDialog";
+import ImportBookmarksDialog from "./ImportBookmarksDialog";
+import AISortDialog from "./AISortDialog";
 import { CategoryListSkeleton } from "./LoadingSkeletons";
 
 const BookmarkList = () => {
   const { data: categories, isLoading, error } = useCategories();
   const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [isAISortOpen, setIsAISortOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCategories, setFilteredCategories] = useState([]);
+  const [sortsLeft, setSortsLeft] = useState(
+    () => parseInt(localStorage.getItem("aiSortsRemaining") ?? "5", 10)
+  );
+  const [importsLeft, setImportsLeft] = useState(
+    () => parseInt(localStorage.getItem("importsRemainingThisMonth") ?? "2", 10)
+  );
+  const { mutate: aiSort, isPending: isSorting, data: sortResults, error: sortError, reset: resetSort } = useAISort();
+  const importMutation = useImportBookmarks();
+
+  const syncLimitsFromStorage = () => {
+    const storedSorts = parseInt(localStorage.getItem("aiSortsRemaining") ?? "5", 10);
+    const storedImports = parseInt(localStorage.getItem("importsRemainingThisMonth") ?? "2", 10);
+    setSortsLeft(storedSorts);
+    setImportsLeft(storedImports);
+  };
+
+  // Sync on mutation settle AND whenever another tab/the profile hook updates localStorage
+  useEffect(() => {
+    syncLimitsFromStorage();
+  }, [sortResults, sortError, importMutation.data]);
+
+  useEffect(() => {
+    window.addEventListener("storage", syncLimitsFromStorage);
+    window.addEventListener("limitsUpdated", syncLimitsFromStorage);
+    return () => {
+      window.removeEventListener("storage", syncLimitsFromStorage);
+      window.removeEventListener("limitsUpdated", syncLimitsFromStorage);
+    };
+  }, []);
 
   // Get search term from Header component via sessionStorage
   useEffect(() => {
@@ -127,6 +160,40 @@ const BookmarkList = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
+          {/* AI Sort bookmarks */}
+          <Button
+            onClick={() => setIsAISortOpen(true)}
+            variant="outline"
+            disabled={sortsLeft <= 0 || isSorting}
+            title={sortsLeft <= 0 ? "No AI Sort credits left. Import bookmarks to earn more." : `${sortsLeft} credit${sortsLeft !== 1 ? 's' : ''} remaining`}
+            className="h-10 px-4 gap-2 whitespace-nowrap">
+            <Wand2 className="h-5 w-5" />
+            <span>AI Sort</span>
+            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+              sortsLeft <= 0
+                ? "bg-red-100 text-red-600"
+                : sortsLeft <= 2
+                ? "bg-amber-100 text-amber-700"
+                : "bg-blue-100 text-blue-700"
+            }`}>{sortsLeft}</span>
+          </Button>
+          {/* Import bookmarks from browser */}
+          <Button
+            onClick={() => setIsImporting(true)}
+            variant="outline"
+            disabled={importMutation.isPending || importsLeft <= 0}
+            title={importsLeft <= 0 ? "Import limit reached for this month (2/month). Resets next month." : `${importsLeft} import${importsLeft !== 1 ? 's' : ''} remaining this month`}
+            className="h-10 px-4 gap-2 whitespace-nowrap">
+            <Upload className="h-5 w-5" />
+            <span>Import</span>
+            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+              importsLeft <= 0
+                ? "bg-red-100 text-red-600"
+                : importsLeft <= 1
+                ? "bg-amber-100 text-amber-700"
+                : "bg-blue-100 text-blue-700"
+            }`}>{importsLeft}</span>
+          </Button>
           {/* Add Category Button */}
           <Button
             onClick={() => setIsAddingCategory(true)}
@@ -165,6 +232,20 @@ const BookmarkList = () => {
       <AddCategoryDialog
         open={isAddingCategory}
         onClose={() => setIsAddingCategory(false)}
+      />
+      <ImportBookmarksDialog
+        open={isImporting}
+        onClose={() => setIsImporting(false)}
+        importMutation={importMutation}
+      />
+      <AISortDialog
+        open={isAISortOpen}
+        onClose={() => setIsAISortOpen(false)}
+        onConfirm={() => aiSort()}
+        isSorting={isSorting}
+        results={sortResults ?? null}
+        sortError={sortError}
+        onReset={resetSort}
       />
     </>
   );

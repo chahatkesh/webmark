@@ -315,3 +315,79 @@ export const useUpdateBookmarkOrder = () => {
     },
   });
 };
+
+export const useImportBookmarks = () => {
+  const queryClient = useQueryClient();
+  const { url } = useContext(StoreContext);
+
+  return useMutation({
+    mutationFn: async (folders) => {
+      const res = await fetch(`${url}/api/bookmarks/import`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          token: localStorage.getItem('token'),
+        },
+        body: JSON.stringify({ folders }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(['categories']);
+      const { results, importBonusGranted, aiSortsRemaining, importsRemainingThisMonth } = data;
+      toast.success(
+        `Imported ${results.bookmarksCreated} bookmark${
+          results.bookmarksCreated !== 1 ? 's' : ''
+        } across ${results.categoriesCreated} new categor${
+          results.categoriesCreated !== 1 ? 'ies' : 'y'
+        }`
+      );
+      if (importBonusGranted) {
+        toast.info('🎁 Import bonus: +1 AI Sort credit added!');
+      }
+      if (aiSortsRemaining !== null && aiSortsRemaining !== undefined) {
+        localStorage.setItem('aiSortsRemaining', String(aiSortsRemaining));
+      }
+      if (importsRemainingThisMonth !== undefined) {
+        localStorage.setItem('importsRemainingThisMonth', String(importsRemainingThisMonth));
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Import failed. Please try again.');
+    },
+  });
+};
+
+export const useAISort = () => {
+  const queryClient = useQueryClient();
+  const { url } = useContext(StoreContext);
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`${url}/api/bookmarks/ai/sort`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          token: localStorage.getItem('token'),
+        },
+      });
+      const data = await res.json();
+      if (!data.success) {
+        // Sync credit count even on rejection so the UI reflects reality
+        if (data.aiSortsRemaining !== undefined) {
+          localStorage.setItem('aiSortsRemaining', String(data.aiSortsRemaining));
+        }
+        throw new Error(data.message);
+      }
+      return data.results;
+    },
+    onSuccess: (results) => {
+      queryClient.invalidateQueries(['categories']);
+      if (results?.aiSortsRemaining !== undefined) {
+        localStorage.setItem('aiSortsRemaining', String(results.aiSortsRemaining));
+      }
+    },
+  });
+};

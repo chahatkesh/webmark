@@ -7,7 +7,7 @@ import {
   X,
   Bookmark,
   Search as SearchIcon,
-  BookOpen,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ const Header = () => {
 
   const navigationItems = [
     { path: "dashboard", label: "My Bookmarks", icon: Bookmark },
-    { path: "docs", label: "Docs", icon: BookOpen },
+    { path: "bookmarklet", label: "Bookmarklet", icon: Zap },
     { path: "profile", label: "Profile", icon: User },
   ];
 

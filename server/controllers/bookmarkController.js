@@ -1,5 +1,7 @@
 import Bookmark from "../models/bookmarkModel.js";
 import Category from "../models/categoryModel.js";
+import User from "../models/userModel.js";
+import { autoCategorizeSingle } from "./aiController.js";
 
 // Get all bookmarks for a category
 export const getBookmarks = async (req, res) => {
@@ -55,6 +57,13 @@ export const createBookmark = async (req, res) => {
 
     await newBookmark.save();
     res.json({ success: true, bookmark: newBookmark });
+
+    // Fire-and-forget: AI auto-categorize for bookmarklet saves
+    if (req.body.autoCateg) {
+      autoCategorizeSingle(newBookmark._id, req.body.userId).catch((err) => {
+        console.error("AI auto-categorize error (non-fatal):", err.message);
+      });
+    }
   } catch (error) {
     res.json({ success: false, message: "Error creating bookmark" });
   }
@@ -143,5 +152,99 @@ export const reorderBookmarks = async (req, res) => {
     res.json({ success: true, message: "Bookmark order updated successfully" });
   } catch (error) {
     res.json({ success: false, message: "Error updating bookmark order" });
+  }
+};
+
+// Bulk import bookmarks from browser export
+// Body: { folders: [{ name, bookmarks: [{ name, link, logo }] }] }
+export const importBookmarks = async (req, res) => {
+  try {
+    const { folders } = req.body;
+    const userId = req.body.userId;
+
+    if (!Array.isArray(folders) || folders.length === 0) {
+      return res.json({ success: false, message: "No folders provided" });
+    }
+
+    // Check monthly import limit (max 2 imports per calendar month)
+    const user = await User.findById(userId);
+    if (!user) return res.json({ success: false, message: "User not found" });
+
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
+    if (user.importBonusMonthKey !== monthKey) {
+      user.importBonusUsedThisMonth = 0;
+      user.importBonusMonthKey = monthKey;
+    }
+
+    if (user.importBonusUsedThisMonth >= 2) {
+      return res.json({
+        success: false,
+        message: "You can only import bookmarks 2 times per month. Your limit resets at the start of next month.",
+        aiSortsRemaining: user.aiSortsRemaining ?? 5,
+      });
+    }
+
+    const results = { categoriesCreated: 0, bookmarksCreated: 0, skipped: 0 };
+
+    for (const folder of folders) {
+      if (!folder.name || !Array.isArray(folder.bookmarks) || folder.bookmarks.length === 0) {
+        results.skipped++;
+        continue;
+      }
+
+      // Reuse existing category with same name, or create a new one
+      let category = await Category.findOne({ userId, category: folder.name });
+
+      if (!category) {
+        const lastCat = await Category.findOne({ userId }).sort("-order");
+        category = await Category.create({
+          userId,
+          category: folder.name,
+          order: lastCat ? lastCat.order + 1 : 0,
+        });
+        results.categoriesCreated++;
+      }
+
+      // Find current max order in this category
+      const lastBm = await Bookmark.findOne({ categoryId: category._id }).sort("-order");
+      let order = lastBm ? lastBm.order + 1 : 0;
+
+      const docs = folder.bookmarks
+        .filter(bm => bm.link && bm.name)
+        .map(bm => ({
+          categoryId: category._id,
+          name: bm.name,
+          link: bm.link,
+          logo: bm.logo || `https://www.google.com/s2/favicons?domain=${new URL(bm.link).hostname}&sz=128`,
+          order: order++,
+        }));
+
+      if (docs.length > 0) {
+        await Bookmark.insertMany(docs, { ordered: false });
+        results.bookmarksCreated += docs.length;
+      }
+    }
+
+    // Grant import bonus credit and record this import
+    user.importBonusUsedThisMonth += 1;
+    let importBonusGranted = false;
+    const currentCredits = user.aiSortsRemaining ?? 5;
+    if (currentCredits < 5) {
+      user.aiSortsRemaining = currentCredits + 1;
+      importBonusGranted = true;
+    }
+    await user.save();
+
+    res.json({
+      success: true,
+      results,
+      importBonusGranted,
+      aiSortsRemaining: user.aiSortsRemaining ?? 5,
+      importsRemainingThisMonth: 2 - user.importBonusUsedThisMonth,
+    });
+  } catch (error) {
+    console.error("Import error:", error);
+    res.json({ success: false, message: "Import failed", error: error.message });
   }
 };

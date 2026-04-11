@@ -250,7 +250,14 @@ export const getProfileInfo = async (req, res) => {
         categoryCount,
         activeDevices,
         currentDeviceId,
-        totalActiveDevices: activeDevices.length
+        totalActiveDevices: activeDevices.length,
+        aiSortsRemaining: user.aiSortsRemaining ?? 5,
+        importsRemainingThisMonth: (() => {
+          const now = new Date();
+          const monthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
+          if (user.importBonusMonthKey !== monthKey) return 2;
+          return Math.max(0, 2 - (user.importBonusUsedThisMonth ?? 0));
+        })(),
       }
     });
   } catch (error) {
