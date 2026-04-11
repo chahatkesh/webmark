@@ -1,5 +1,6 @@
 import Bookmark from "../models/bookmarkModel.js";
 import Category from "../models/categoryModel.js";
+import User from "../models/userModel.js";
 import { autoCategorizeSingle } from "./aiController.js";
 
 // Get all bookmarks for a category
@@ -165,6 +166,25 @@ export const importBookmarks = async (req, res) => {
       return res.json({ success: false, message: "No folders provided" });
     }
 
+    // Check monthly import limit (max 2 imports per calendar month)
+    const user = await User.findById(userId);
+    if (!user) return res.json({ success: false, message: "User not found" });
+
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
+    if (user.importBonusMonthKey !== monthKey) {
+      user.importBonusUsedThisMonth = 0;
+      user.importBonusMonthKey = monthKey;
+    }
+
+    if (user.importBonusUsedThisMonth >= 2) {
+      return res.json({
+        success: false,
+        message: "You can only import bookmarks 2 times per month. Your limit resets at the start of next month.",
+        aiSortsRemaining: user.aiSortsRemaining ?? 5,
+      });
+    }
+
     const results = { categoriesCreated: 0, bookmarksCreated: 0, skipped: 0 };
 
     for (const folder of folders) {
@@ -206,7 +226,23 @@ export const importBookmarks = async (req, res) => {
       }
     }
 
-    res.json({ success: true, results });
+    // Grant import bonus credit and record this import
+    user.importBonusUsedThisMonth += 1;
+    let importBonusGranted = false;
+    const currentCredits = user.aiSortsRemaining ?? 5;
+    if (currentCredits < 5) {
+      user.aiSortsRemaining = currentCredits + 1;
+      importBonusGranted = true;
+    }
+    await user.save();
+
+    res.json({
+      success: true,
+      results,
+      importBonusGranted,
+      aiSortsRemaining: user.aiSortsRemaining ?? 5,
+      importsRemainingThisMonth: 2 - user.importBonusUsedThisMonth,
+    });
   } catch (error) {
     console.error("Import error:", error);
     res.json({ success: false, message: "Import failed", error: error.message });

@@ -15,7 +15,6 @@ const Prefetcher = () => {
 
     idleCallback(() => {
       const prefetchLinks = [
-        "/docs",
         "/about",
         "/features",
         "/privacy-policy",

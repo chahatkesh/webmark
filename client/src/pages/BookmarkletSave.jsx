@@ -14,6 +14,8 @@ export default function BookmarkletSave() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const params = new URLSearchParams(window.location.search);
     const rawUrl = params.get("url");
     const rawTitle = params.get("title");
@@ -41,6 +43,7 @@ export default function BookmarkletSave() {
 
     fetch(`${apiUrl}/api/bookmarks/bookmark`, {
       method: "POST",
+      signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
         token,
@@ -70,12 +73,15 @@ export default function BookmarkletSave() {
           setMessage(data.message || "Failed to save bookmark.");
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err.name === "AbortError") return; // cleanup from StrictMode unmount
         setStatus("error");
         setMessage(
           "Could not reach the Webmark server. Make sure it is running."
         );
       });
+
+    return () => controller.abort();
   }, []);
 
   return (

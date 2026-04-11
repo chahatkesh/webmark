@@ -53,6 +53,19 @@ export const useProfile = () => {
 
         setProfile(response.data.profile);
         setError(null);
+        // Seed usage limits into localStorage so dashboard badges are accurate
+        let limitsUpdated = false;
+        if (response.data.profile.aiSortsRemaining !== undefined) {
+          localStorage.setItem('aiSortsRemaining', String(response.data.profile.aiSortsRemaining));
+          limitsUpdated = true;
+        }
+        if (response.data.profile.importsRemainingThisMonth !== undefined) {
+          localStorage.setItem('importsRemainingThisMonth', String(response.data.profile.importsRemainingThisMonth));
+          limitsUpdated = true;
+        }
+        if (limitsUpdated) {
+          window.dispatchEvent(new Event('limitsUpdated'));
+        }
       } else {
         setError(response.data.message || 'Failed to fetch profile data');
       }

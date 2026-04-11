@@ -332,16 +332,30 @@ export const useImportBookmarks = () => {
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
-      return data.results;
+      return data;
     },
-    onSuccess: (results) => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(['categories']);
+      const { results, importBonusGranted, aiSortsRemaining, importsRemainingThisMonth } = data;
       toast.success(
-        `Imported ${results.bookmarksCreated} bookmark${results.bookmarksCreated !== 1 ? 's' : ''} across ${results.categoriesCreated} new categor${results.categoriesCreated !== 1 ? 'ies' : 'y'}`
+        `Imported ${results.bookmarksCreated} bookmark${
+          results.bookmarksCreated !== 1 ? 's' : ''
+        } across ${results.categoriesCreated} new categor${
+          results.categoriesCreated !== 1 ? 'ies' : 'y'
+        }`
       );
+      if (importBonusGranted) {
+        toast.info('🎁 Import bonus: +1 AI Sort credit added!');
+      }
+      if (aiSortsRemaining !== null && aiSortsRemaining !== undefined) {
+        localStorage.setItem('aiSortsRemaining', String(aiSortsRemaining));
+      }
+      if (importsRemainingThisMonth !== undefined) {
+        localStorage.setItem('importsRemainingThisMonth', String(importsRemainingThisMonth));
+      }
     },
-    onError: () => {
-      toast.error('Import failed. Please try again.');
+    onError: (error) => {
+      toast.error(error.message || 'Import failed. Please try again.');
     },
   });
 };
@@ -360,11 +374,20 @@ export const useAISort = () => {
         },
       });
       const data = await res.json();
-      if (!data.success) throw new Error(data.message);
+      if (!data.success) {
+        // Sync credit count even on rejection so the UI reflects reality
+        if (data.aiSortsRemaining !== undefined) {
+          localStorage.setItem('aiSortsRemaining', String(data.aiSortsRemaining));
+        }
+        throw new Error(data.message);
+      }
       return data.results;
     },
-    onSuccess: () => {
+    onSuccess: (results) => {
       queryClient.invalidateQueries(['categories']);
+      if (results?.aiSortsRemaining !== undefined) {
+        localStorage.setItem('aiSortsRemaining', String(results.aiSortsRemaining));
+      }
     },
   });
 };

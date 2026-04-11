@@ -1,5 +1,6 @@
 import Bookmark from "../models/bookmarkModel.js";
 import Category from "../models/categoryModel.js";
+import User from "../models/userModel.js";
 import {
   generateTaxonomy,
   assignToCategories,
@@ -76,6 +77,19 @@ export const aiSortBookmarks = async (req, res) => {
   try {
     const userId = req.body.userId;
 
+    // 0. Check credits
+    const user = await User.findById(userId);
+    if (!user) return res.json({ success: false, message: "User not found" });
+
+    const sortsLeft = user.aiSortsRemaining ?? 5;
+    if (sortsLeft <= 0) {
+      return res.json({
+        success: false,
+        message: "You've used all your AI Sort credits. Import bookmarks to earn more (up to 2 per month).",
+        aiSortsRemaining: 0,
+      });
+    }
+
     // 1. Gather everything
     const categories = await Category.find({ userId }).lean();
     const categoryIds = categories.map((c) => c._id);
@@ -150,6 +164,10 @@ export const aiSortBookmarks = async (req, res) => {
       }
     }
 
+    // 7. Decrement credits
+    user.aiSortsRemaining = sortsLeft - 1;
+    await user.save();
+
     res.json({
       success: true,
       results: {
@@ -158,6 +176,7 @@ export const aiSortBookmarks = async (req, res) => {
         categoriesRemoved,
         bookmarksMoved,
         totalBookmarks: allBookmarks.length,
+        aiSortsRemaining: user.aiSortsRemaining,
       },
     });
   } catch (error) {

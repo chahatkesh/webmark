@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { StoreContext } from "../../context/StoreContext";
 import { useCategories } from "../../hooks/useBookmarks";
-import { Bookmark, Copy, Check, FolderOpen, GripHorizontal } from "lucide-react";
+import { Copy, Check, FolderOpen, GripHorizontal, Zap } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "react-toastify";
 
@@ -56,109 +56,108 @@ const BookmarkletWidget = () => {
       e.preventDefault();
       return;
     }
-    // Setting the href as text/uri-list allows the browser to treat it as a
-    // bookmark drag (works in Firefox; Chrome picks it up from the anchor href).
     e.dataTransfer.setData("text/uri-list", bookmarkletHref);
     e.dataTransfer.setData("text/plain", bookmarkletHref);
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-5">
-      {/* Header */}
-      <div className="flex items-start gap-3">
-        <div className="rounded-lg bg-blue-50 p-2">
-          <Bookmark className="h-5 w-5 text-blue-500" />
+    <div className="rounded-xl overflow-hidden border border-blue-200 shadow-sm">
+      {/* Gradient header band */}
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-4 flex items-center gap-3">
+        <div className="rounded-lg bg-white/20 p-2">
+          <Zap className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900">Bookmarklet</h3>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Save any page to Webmark with one click from your browser toolbar.
+          <h3 className="font-semibold text-white leading-tight">Bookmarklet</h3>
+          <p className="text-blue-100 text-xs mt-0.5">
+            Save any page in one click from your browser toolbar
           </p>
         </div>
       </div>
 
-      {/* Category selector */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-medium text-gray-600 flex items-center gap-1.5">
-          <FolderOpen className="h-3.5 w-3.5" />
-          Default category for new saves
-        </label>
-        {isLoading ? (
-          <div className="h-9 w-full rounded-md bg-gray-100 animate-pulse" />
-        ) : categories && categories.length > 0 ? (
-          <select
-            value={selectedCategoryId || (categories[0]?._id ?? "")}
-            onChange={(e) => setSelectedCategoryId(e.target.value)}
-            className="w-full h-9 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.emoji} {cat.category}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <p className="text-sm text-amber-600 bg-amber-50 rounded-md px-3 py-2">
-            Create at least one category on your dashboard first.
-          </p>
-        )}
-      </div>
-
-      {/* Drag target */}
-      {bookmarkletHref ? (
-        <div className="space-y-2">
-          <p className="text-xs font-medium text-gray-600">
-            Drag this to your bookmarks bar:
-          </p>
-          <div className="flex items-center gap-3">
-            {/* The draggable anchor IS the bookmarklet */}
-            <a
-              href={bookmarkletHref}
-              draggable
-              onDragStart={handleDragStart}
-              onClick={(e) => e.preventDefault()} // prevent navigation when clicked in-page
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-700 cursor-grab active:cursor-grabbing hover:bg-blue-100 transition-colors select-none"
-              title="Drag me to your bookmarks toolbar"
+      <div className="bg-white p-5 space-y-4">
+        {/* Category selector */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-gray-600 flex items-center gap-1.5">
+            <FolderOpen className="h-3.5 w-3.5" />
+            Default category for new saves
+          </label>
+          {isLoading ? (
+            <div className="h-9 w-full rounded-md bg-gray-100 animate-pulse" />
+          ) : categories && categories.length > 0 ? (
+            <select
+              value={selectedCategoryId || (categories[0]?._id ?? "")}
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
+              className="w-full h-9 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
-              <GripHorizontal className="h-4 w-4 text-blue-400" />
-              Save to Webmark
-            </a>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.emoji} {cat.category}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-sm text-amber-600 bg-amber-50 rounded-md px-3 py-2">
+              Create at least one category on your dashboard first.
+            </p>
+          )}
+        </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCopy}
-              className="gap-1.5 text-xs"
-              title="Copy bookmarklet code"
-            >
-              {copied ? (
-                <><Check className="h-3.5 w-3.5 text-green-500" /> Copied</>
-              ) : (
-                <><Copy className="h-3.5 w-3.5" /> Copy</>
-              )}
-            </Button>
+        {/* Drag target */}
+        {bookmarkletHref ? (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-gray-500">
+              Drag this button to your bookmarks bar:
+            </p>
+            <div className="flex items-center gap-3">
+              <a
+                href={bookmarkletHref}
+                draggable
+                onDragStart={handleDragStart}
+                onClick={(e) => e.preventDefault()}
+                className="inline-flex items-center gap-2 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-700 cursor-grab active:cursor-grabbing hover:bg-blue-100 transition-colors select-none"
+                title="Drag me to your bookmarks toolbar"
+              >
+                <GripHorizontal className="h-4 w-4 text-blue-400" />
+                🔖 Save to Webmark
+              </a>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopy}
+                className="gap-1.5 text-xs"
+                title="Copy bookmarklet code"
+              >
+                {copied ? (
+                  <><Check className="h-3.5 w-3.5 text-green-500" /> Copied</>
+                ) : (
+                  <><Copy className="h-3.5 w-3.5" /> Copy</>
+                )}
+              </Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        !isLoading && (
-          <p className="text-sm text-gray-400 italic">
-            Select a category above to generate your bookmarklet.
-          </p>
-        )
-      )}
+        ) : (
+          !isLoading && (
+            <p className="text-sm text-gray-400 italic">
+              Select a category above to generate your bookmarklet.
+            </p>
+          )
+        )}
 
-      {/* How to use */}
-      <div className="rounded-lg bg-gray-50 border border-gray-100 px-4 py-3 space-y-1.5">
-        <p className="text-xs font-semibold text-gray-700">How to use</p>
-        <ol className="text-xs text-gray-500 space-y-1 list-decimal list-inside">
-          <li>Make sure your browser bookmarks bar is visible (Ctrl/Cmd + Shift + B).</li>
-          <li>Drag the <span className="font-medium text-blue-600">Save to Webmark</span> button above into your bookmarks bar.</li>
-          <li>Visit any page you want to save and click the bookmark.</li>
-          <li>A confirmation toast will appear on the page — done!</li>
-        </ol>
-        <p className="text-xs text-amber-600 mt-1.5">
-          ⚠ If you change your password or log out, generate a new bookmarklet — the old one will stop working.
-        </p>
+        {/* How to use */}
+        <div className="rounded-lg bg-gray-50 border border-gray-100 px-4 py-3 space-y-1.5">
+          <p className="text-xs font-semibold text-gray-700">How to use</p>
+          <ol className="text-xs text-gray-500 space-y-1 list-decimal list-inside">
+            <li>Make sure your browser bookmarks bar is visible (Ctrl/Cmd + Shift + B).</li>
+            <li>Drag the <span className="font-medium text-blue-600">🔖 Save to Webmark</span> button above into your bookmarks bar.</li>
+            <li>Visit any page you want to save and click the bookmark.</li>
+            <li>A small popup confirms the save — AI sorts it automatically.</li>
+          </ol>
+          <p className="text-xs text-amber-600 mt-1.5">
+            ⚠ If you change your password or log out, generate a new bookmarklet — the old one will stop working.
+          </p>
+        </div>
       </div>
     </div>
   );

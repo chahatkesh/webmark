@@ -27,7 +27,11 @@ const userSchema = new mongoose.Schema({
       bookmarkId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bookmark' },
       name: { type: String }
     }
-  }
+  },
+  // AI Sort usage limits
+  aiSortsRemaining: { type: Number, default: 5 },
+  importBonusUsedThisMonth: { type: Number, default: 0 },
+  importBonusMonthKey: { type: String, default: '' },
 })
 
 const userModel = mongoose.model.user || mongoose.model("user", userSchema)

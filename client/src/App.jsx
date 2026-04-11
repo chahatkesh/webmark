@@ -13,7 +13,7 @@ import { ErrorBoundary } from "./components/enhanced/ErrorComponents";
 
 // Lazy load non-critical routes
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Docs = lazy(() => import("./pages/Docs"));
+const Bookmarklet = lazy(() => import("./pages/Bookmarklet"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -123,18 +123,20 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
-            path="/user/docs"
+            path="/user/bookmarklet"
             element={
               <ProtectedRoute>
                 <Suspense fallback={<Loader />}>
                   <AuthenticatedLayout>
-                    <Docs />
+                    <Bookmarklet />
                   </AuthenticatedLayout>
                 </Suspense>
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/user/profile"
             element={

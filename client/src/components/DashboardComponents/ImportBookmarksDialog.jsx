@@ -63,14 +63,15 @@ const parseBookmarksHTML = (htmlString) => {
 };
 
 // ─── Component ─────────────────────────────────────────────────────────────
-const ImportBookmarksDialog = ({ open, onClose }) => {
+const ImportBookmarksDialog = ({ open, onClose, importMutation: importMutationProp }) => {
   const [folders, setFolders] = useState([]); // parsed folders
   const [selected, setSelected] = useState({}); // { folderName: bool }
   const [fileName, setFileName] = useState("");
   const [parseError, setParseError] = useState("");
   const fileInputRef = useRef(null);
 
-  const importMutation = useImportBookmarks();
+  const internalMutation = useImportBookmarks();
+  const importMutation = importMutationProp ?? internalMutation;
 
   const reset = () => {
     setFolders([]);

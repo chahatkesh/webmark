@@ -27,7 +27,6 @@ import { toast } from "react-toastify";
 import { format, formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import ShareModal from "../components/DashboardComponents/ShareModel";
-import BookmarkletWidget from "../components/DashboardComponents/BookmarkletWidget";
 
 const Profile = () => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -357,61 +356,7 @@ const Profile = () => {
             </div>
           </motion.div>
 
-          {/* Webmark Statistics */}
-          <motion.div
-            variants={scaleUp}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-              <Globe className="h-5 w-5 mr-2 text-blue-500" />
-              Webmark Benefits
-            </h3>
 
-            <div className="space-y-5">
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 p-3 bg-indigo-50 rounded-lg">
-                  <Clock className="h-5 w-5 text-indigo-500" />
-                </div>
-                <div>
-                  <h4 className="font-medium">Time Saved</h4>
-                  <p className="text-sm text-gray-500">
-                    You've saved {formatTimeSaved(clickStats?.timeSaved || 0)}{" "}
-                    using Webmark's quick access
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 p-3 bg-purple-50 rounded-lg">
-                  <MousePointer className="h-5 w-5 text-purple-500" />
-                </div>
-                <div>
-                  <h4 className="font-medium">Efficient Navigation</h4>
-                  <p className="text-sm text-gray-500">
-                    {clickStats?.totalClicks || 0} clicks optimized through your
-                    bookmark collection
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 p-3 bg-blue-50 rounded-lg">
-                  <Sparkles className="h-5 w-5 text-blue-500" />
-                </div>
-                <div>
-                  <h4 className="font-medium">Organized Web</h4>
-                  <p className="text-sm text-gray-500">
-                    {profile?.categoryCount || 0} categories keeping your{" "}
-                    {profile?.bookmarkCount || 0} bookmarks tidy
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Bookmarklet */}
-          <motion.div variants={scaleUp}>
-            <BookmarkletWidget />
-          </motion.div>
         </div>
 
         {/* Right Column - Statistics */}
