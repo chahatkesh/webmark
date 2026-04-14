@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import createDefaultBookmarks from '../utils/defaultBookmarks.js';
 
-// Helper function to create JWT token with extended expiry
+// Helper function to create a short-lived JWT access token (refreshed silently via DB refresh token)
 const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
 // Handle Google OAuth callback and complete authentication flow
@@ -16,12 +16,12 @@ const googleAuthCallback = async (req, res) => {
     // Get user agent for device tracking
     const userAgent = req.headers['user-agent'];
 
-    // Generate JWT token
+    // Generate short-lived JWT access token
     const token = createToken(user._id);
 
-    // Update the token expiry date (30 days from now)
+    // Refresh token controls the long-lived session window (1 year, rolling)
     user.refreshToken = crypto.randomBytes(64).toString('hex');
-    user.tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+    user.tokenExpiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year from now
 
     // Update login information
     user.lastLogin = new Date();
