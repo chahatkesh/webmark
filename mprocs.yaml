@@ -1,0 +1,7 @@
+procs:
+  client:
+    shell: "pnpm dev"
+    cwd: "<CONFIG_DIR>/client"
+  server:
+    shell: "pnpm dev"
+    cwd: "<CONFIG_DIR>/server"
