@@ -39,4 +39,8 @@ const bookmarkSchema = new mongoose.Schema({
   }]
 }, { timestamps: true });
 
+bookmarkSchema.index({ categoryId: 1, order: 1 });
+bookmarkSchema.index({ categoryId: 1, clickCount: -1 });
+bookmarkSchema.index({ createdAt: -1 });
+
 export default mongoose.model("Bookmark", bookmarkSchema);
