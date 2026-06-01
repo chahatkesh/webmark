@@ -1,12 +1,20 @@
 import jwt from "jsonwebtoken"
 import User from "../models/userModel.js"
-
-const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+import {
+  clearAuthCookies,
+  getAccessTokenFromRequest,
+  getRefreshTokenFromRequest,
+} from "../utils/authTokens.js"
+import { issueUserSession } from "../utils/session.js"
 
 const authMiddleware = async (req, res, next) => {
-  const { token } = req.headers;
+  const token = getAccessTokenFromRequest(req);
   if (!token) {
-    return res.json({ success: false, message: "Not Authorized login again" })
+    return res.status(401).json({
+      success: false,
+      code: "AUTH_REQUIRED",
+      message: "Not Authorized login again",
+    })
   }
 
   try {
@@ -15,41 +23,44 @@ const authMiddleware = async (req, res, next) => {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (jwtError) {
-      if (jwtError.name !== 'TokenExpiredError') {
-        // Invalid signature or malformed token — reject immediately
-        return res.json({ success: false, message: "Not Authorized login again" });
+      if (jwtError.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          code: "ACCESS_TOKEN_EXPIRED",
+          message: "Access token expired",
+        });
       }
 
-      // JWT is expired — attempt silent refresh via the DB refresh token
-      decoded = jwt.decode(token);
-      if (!decoded?.id) {
-        return res.json({ success: false, message: "Not Authorized login again" });
-      }
-
-      const user = await User.findById(decoded.id);
-      if (
-        !user ||
-        !user.refreshToken ||
-        !user.tokenExpiresAt ||
-        new Date(user.tokenExpiresAt) < new Date()
-      ) {
-        return res.json({ success: false, message: "Session expired, please login again" });
-      }
-
-      // Issue a new short-lived access token and roll the refresh window forward
-      const newToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-      user.tokenExpiresAt = new Date(Date.now() + ONE_YEAR_MS);
-      await user.save();
-
-      res.setHeader('x-auth-token', newToken);
-      req.body.userId = String(decoded.id);
-      return next();
+      return res.status(401).json({
+        success: false,
+        code: "INVALID_TOKEN",
+        message: "Not Authorized login again",
+      });
     }
 
-    // JWT is valid — standard path
     const user = await User.findById(decoded.id);
     if (!user) {
-      return res.json({ success: false, message: "User not found" });
+      clearAuthCookies(res);
+      return res.status(401).json({
+        success: false,
+        code: "USER_NOT_FOUND",
+        message: "User not found",
+      });
+    }
+
+    if (user.tokenExpiresAt && new Date(user.tokenExpiresAt) < new Date()) {
+      clearAuthCookies(res);
+      return res.status(401).json({
+        success: false,
+        code: "SESSION_EXPIRED",
+        message: "Session expired, please login again",
+      });
+    }
+
+    // Migrate legacy localStorage sessions to cookie-backed sessions while
+    // the legacy access token is still valid.
+    if (!getRefreshTokenFromRequest(req) && !user.refreshTokenHash && user.refreshToken) {
+      await issueUserSession(user, res, { preservePrevious: false });
     }
 
     // Throttled last-login update (at most once per hour, skip on profile routes)
@@ -64,11 +75,17 @@ const authMiddleware = async (req, res, next) => {
       }
     }
 
+    req.userId = decoded.id;
+    req.body = req.body || {};
     req.body.userId = decoded.id;
-    next();
+    return next();
   } catch (error) {
     console.error("Authentication error:", error);
-    res.json({ success: false, message: "Authentication error, please login again" });
+    res.status(500).json({
+      success: false,
+      code: "AUTH_ERROR",
+      message: "Authentication error, please login again",
+    });
   }
 }
 

@@ -1,6 +1,7 @@
 import express from "express"
 import {
   googleAuthCallback,
+  refreshSession,
   completeOnboarding,
   getUserData,
   logoutUser
@@ -24,6 +25,7 @@ userRouter.get(
 )
 
 // User data and management
+userRouter.post("/refresh", refreshSession)
 userRouter.post("/userdata", authMiddleware, getUserData)
 userRouter.post("/complete-onboarding", authMiddleware, completeOnboarding)
 userRouter.post("/logout", authMiddleware, logoutUser)

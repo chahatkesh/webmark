@@ -1,12 +1,11 @@
 import userModel from "../models/userModel.js";
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
 import createDefaultBookmarks from '../utils/defaultBookmarks.js';
-
-// Helper function to create a short-lived JWT access token (refreshed silently via DB refresh token)
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-};
+import {
+  clearAuthCookies,
+  getRefreshTokenFromRequest,
+  hashToken,
+} from "../utils/authTokens.js";
+import { clearUserSession, issueUserSession } from "../utils/session.js";
 
 // Handle Google OAuth callback and complete authentication flow
 const googleAuthCallback = async (req, res) => {
@@ -16,30 +15,78 @@ const googleAuthCallback = async (req, res) => {
     // Get user agent for device tracking
     const userAgent = req.headers['user-agent'];
 
-    // Generate short-lived JWT access token
-    const token = createToken(user._id);
-
-    // Refresh token controls the long-lived session window (1 year, rolling)
-    user.refreshToken = crypto.randomBytes(64).toString('hex');
-    user.tokenExpiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year from now
-
     // Update login information
     user.lastLogin = new Date();
     user.lastLoginDevice = userAgent;
 
-    await user.save();
+    const { accessToken } = await issueUserSession(user, res, { preservePrevious: false });
 
     // Check if the user has completed onboarding (has a proper username)
     if (!user.hasCompletedOnboarding) {
       // First-time login - needs to complete onboarding
-      return res.redirect(`${process.env.FRONTEND_URL}/onboarding?token=${token}`);
+      return res.redirect(`${process.env.FRONTEND_URL}/onboarding`);
     }
 
     // Regular login - redirect to dashboard
-    return res.redirect(`${process.env.FRONTEND_URL}/auth?token=${token}`);
+    if (process.env.AUTH_REDIRECT_TOKEN === "true") {
+      return res.redirect(`${process.env.FRONTEND_URL}/auth?token=${accessToken}`);
+    }
+
+    return res.redirect(`${process.env.FRONTEND_URL}/auth`);
   } catch (error) {
     console.error("Google auth callback error:", error);
     return res.redirect(`${process.env.FRONTEND_URL}/auth?error=Authentication failed`);
+  }
+};
+
+const refreshSession = async (req, res) => {
+  try {
+    const refreshToken = getRefreshTokenFromRequest(req);
+    if (!refreshToken) {
+      clearAuthCookies(res);
+      return res.status(401).json({
+        success: false,
+        code: "REFRESH_REQUIRED",
+        message: "Refresh token not found",
+      });
+    }
+
+    const refreshHash = hashToken(refreshToken);
+    const now = new Date();
+    const user = await userModel.findOne({
+      $or: [
+        { refreshTokenHash: refreshHash },
+        {
+          previousRefreshTokenHash: refreshHash,
+          previousRefreshTokenExpiresAt: { $gt: now },
+        },
+      ],
+      tokenExpiresAt: { $gt: now },
+    });
+
+    if (!user) {
+      clearAuthCookies(res);
+      return res.status(401).json({
+        success: false,
+        code: "REFRESH_EXPIRED",
+        message: "Session expired, please login again",
+      });
+    }
+
+    const session = await issueUserSession(user, res, { preservePrevious: true });
+    return res.json({
+      success: true,
+      accessToken: session.accessToken,
+      expiresAt: session.expiresAt,
+    });
+  } catch (error) {
+    console.error("Refresh session error:", error);
+    clearAuthCookies(res);
+    return res.status(500).json({
+      success: false,
+      code: "REFRESH_ERROR",
+      message: "Could not refresh session",
+    });
   }
 };
 
@@ -114,7 +161,14 @@ const getUserData = async (req, res) => {
       profilePicture: user.profilePicture,
       joinedAt: user.joinedAt,
       lastLogin: user.lastLogin,
-      lastLoginDevice: user.lastLoginDevice
+      lastLoginDevice: user.lastLoginDevice,
+      aiSortsRemaining: user.aiSortsRemaining ?? 5,
+      importsRemainingThisMonth: (() => {
+        const now = new Date();
+        const monthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
+        if (user.importBonusMonthKey !== monthKey) return 2;
+        return Math.max(0, 2 - (user.importBonusUsedThisMonth ?? 0));
+      })(),
     });
   } catch (error) {
     console.error("Get user data error:", error);
@@ -127,20 +181,20 @@ const logoutUser = async (req, res) => {
   try {
     // Clear refresh token from user record
     const userId = req.body.userId;
-    await userModel.findByIdAndUpdate(userId, {
-      refreshToken: null,
-      tokenExpiresAt: null
-    });
+    const user = await userModel.findById(userId);
+    await clearUserSession(user, res);
 
     return res.json({ success: true, message: "Logged out successfully" });
   } catch (error) {
     console.error("Logout error:", error);
+    clearAuthCookies(res);
     return res.json({ success: false, message: "Error during logout" });
   }
 };
 
 export {
   googleAuthCallback,
+  refreshSession,
   completeOnboarding,
   getUserData,
   logoutUser
