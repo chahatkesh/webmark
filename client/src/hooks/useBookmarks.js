@@ -3,16 +3,10 @@ import useSWR, { mutate as globalMutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { StoreContext } from "../context/StoreContext";
 import { toast } from "react-toastify";
+import { apiRequest } from "../utils/apiClient";
 
 // ── Shared fetcher ─────────────────────────────────────────────────────────────
-const authFetcher = async (url) => {
-  const res = await fetch(url, {
-    headers: { token: localStorage.getItem('token') },
-  });
-  const data = await res.json();
-  if (!data.success) throw new Error(data.message);
-  return data;
-};
+const authFetcher = (url) => apiRequest(url);
 
 // ── Category cache key helper ─────────────────────────────────────────────────
 // All bookmark mutations patch the categories cache directly because the
@@ -94,13 +88,10 @@ export const useCreateCategory = () => {
   const { url } = useContext(StoreContext);
 
   return useMutationAction('create-category', async (_, { arg: categoryData }) => {
-    const res = await fetch(`${url}/api/bookmarks/category`, {
+    const data = await apiRequest(`${url}/api/bookmarks/category`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
-      body: JSON.stringify(categoryData),
+      body: categoryData,
     });
-    const data = await res.json();
-    if (!data.success) { toast.error('Failed to create category'); throw new Error(data.message); }
 
     const newCat = data.category;
     // Inject new category into cache immediately — no second fetch needed
@@ -130,13 +121,10 @@ export const useUpdateCategory = () => {
     });
 
     try {
-      const res = await fetch(`${url}/api/bookmarks/category`, {
+      const data = await apiRequest(`${url}/api/bookmarks/category`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
-        body: JSON.stringify(categoryData),
+        body: categoryData,
       });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
 
       // Confirm with server data
       globalMutate(catKey(url), (current) => {
@@ -170,15 +158,12 @@ export const useDeleteCategory = () => {
     });
 
     try {
-      const res = await fetch(`${url}/api/bookmarks/category`, {
+      await apiRequest(`${url}/api/bookmarks/category`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
-        body: JSON.stringify({ categoryId }),
+        body: { categoryId },
       });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
       toast.success('Category deleted successfully');
-      return data;
+      return { success: true };
     } catch (err) {
       rollback();
       toast.error('Failed to delete category');
@@ -193,13 +178,10 @@ export const useCreateBookmark = () => {
   const { url } = useContext(StoreContext);
 
   return useMutationAction('create-bookmark', async (_, { arg: bookmarkData }) => {
-    const res = await fetch(`${url}/api/bookmarks/bookmark`, {
+    const data = await apiRequest(`${url}/api/bookmarks/bookmark`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
-      body: JSON.stringify(bookmarkData),
+      body: bookmarkData,
     });
-    const data = await res.json();
-    if (!data.success) { toast.error('Failed to create bookmark'); throw new Error(data.message); }
 
     const newBookmark = data.bookmark;
     // Insert into category in the cache immediately
@@ -239,13 +221,10 @@ export const useUpdateBookmark = () => {
     });
 
     try {
-      const res = await fetch(`${url}/api/bookmarks/bookmark`, {
+      const data = await apiRequest(`${url}/api/bookmarks/bookmark`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
-        body: JSON.stringify(bookmarkData),
+        body: bookmarkData,
       });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
 
       // Replace optimistic entry with real server data
       const updated = data.bookmark;
@@ -290,13 +269,10 @@ export const useDeleteBookmark = () => {
     });
 
     try {
-      const res = await fetch(`${url}/api/bookmarks/bookmark`, {
+      await apiRequest(`${url}/api/bookmarks/bookmark`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
-        body: JSON.stringify({ bookmarkId }),
+        body: { bookmarkId },
       });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
       toast.success('Bookmark deleted successfully');
       return { bookmarkId, categoryId };
     } catch (err) {
@@ -333,13 +309,10 @@ export const useUpdateBookmarkOrder = () => {
     });
 
     try {
-      const res = await fetch(`${url}/api/bookmarks/reorder`, {
+      const data = await apiRequest(`${url}/api/bookmarks/reorder`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
-        body: JSON.stringify({ categoryId, bookmarks }),
+        body: { categoryId, bookmarks },
       });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
       return data;
     } catch (err) {
       rollback();
@@ -355,13 +328,10 @@ export const useImportBookmarks = () => {
   const { url } = useContext(StoreContext);
 
   return useMutationAction('import-bookmarks', async (_, { arg: folders }) => {
-    const res = await fetch(`${url}/api/bookmarks/import`, {
+    const data = await apiRequest(`${url}/api/bookmarks/import`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
-      body: JSON.stringify({ folders }),
+      body: { folders },
     });
-    const data = await res.json();
-    if (!data.success) { toast.error(data.message || 'Import failed. Please try again.'); throw new Error(data.message); }
 
     // Full revalidation — import restructures everything
     globalMutate(catKey(url));
@@ -380,15 +350,9 @@ export const useAISort = () => {
   const { url } = useContext(StoreContext);
 
   return useMutationAction('ai-sort', async () => {
-    const res = await fetch(`${url}/api/bookmarks/ai/sort`, {
+    const data = await apiRequest(`${url}/api/bookmarks/ai/sort`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
     });
-    const data = await res.json();
-    if (!data.success) {
-      if (data.aiSortsRemaining !== undefined) localStorage.setItem('aiSortsRemaining', String(data.aiSortsRemaining));
-      throw new Error(data.message);
-    }
     // Full revalidation — AI sort restructures everything
     globalMutate(catKey(url));
     const results = data.results;
@@ -402,12 +366,9 @@ export const useRevertAISort = () => {
   const { url } = useContext(StoreContext);
 
   return useMutationAction('revert-ai-sort', async () => {
-    const res = await fetch(`${url}/api/bookmarks/ai/sort/revert`, {
+    const data = await apiRequest(`${url}/api/bookmarks/ai/sort/revert`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', token: localStorage.getItem('token') },
     });
-    const data = await res.json();
-    if (!data.success) throw new Error(data.message);
     globalMutate(catKey(url));
     localStorage.removeItem('canRevertAISort');
     toast.success('AI Sort reverted successfully');

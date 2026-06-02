@@ -1,31 +1,24 @@
-import { useState, useContext, useCallback } from 'react';
-import axios from 'axios';
-import { StoreContext } from '../context/StoreContext';
-import { toast } from 'react-toastify';
+import { useState, useCallback } from 'react';
+import { apiRequest } from '../utils/apiClient';
 
 export const useClicks = () => {
-  const { url } = useContext(StoreContext);
   const [clickStats, setClickStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Track a bookmark click
   const trackClick = useCallback(async (bookmarkId) => {
-    const token = localStorage.getItem('token');
-    if (!token) return false;
-
     try {
-      const response = await axios.post(
-        `${url}/api/clicks/track`,
-        { bookmarkId },
-        { headers: { token } }
-      );
+      const data = await apiRequest('/api/clicks/track', {
+        method: 'POST',
+        body: { bookmarkId },
+      });
 
-      if (response.data.success) {
+      if (data.success) {
         return {
-          clickCount: response.data.clickCount,
-          totalClicks: response.data.totalClicks,
-          timeSaved: response.data.timeSaved
+          clickCount: data.clickCount,
+          totalClicks: data.totalClicks,
+          timeSaved: data.timeSaved,
         };
       }
       return false;
@@ -33,39 +26,30 @@ export const useClicks = () => {
       console.error('Error tracking click:', error);
       return false;
     }
-  }, [url]);
+  }, []);
 
   // Get user click statistics
   const getClickStats = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      setError('Authentication required');
-      setLoading(false);
-      return;
-    }
 
     try {
-      const response = await axios.post(
-        `${url}/api/clicks/stats`,
-        {},
-        { headers: { token } }
-      );
+      const data = await apiRequest('/api/clicks/stats', {
+        method: 'POST',
+      });
 
-      if (response.data.success) {
-        setClickStats(response.data.stats);
+      if (data.success) {
+        setClickStats(data.stats);
       } else {
-        setError(response.data.message || 'Failed to load click statistics');
+        setError(data.message || 'Failed to load click statistics');
       }
     } catch (error) {
       console.error('Error fetching click statistics:', error);
-      setError('Error loading click statistics');
+      setError(error.data?.message || 'Error loading click statistics');
     } finally {
       setLoading(false);
     }
-  }, [url]);
+  }, []);
 
   // Format time saved in human readable format
   const formatTimeSaved = (seconds) => {
@@ -105,7 +89,7 @@ export const useClicks = () => {
     error,
     trackClick,
     getClickStats,
-    formatTimeSaved
+    formatTimeSaved,
   };
 };
 

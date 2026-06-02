@@ -1,10 +1,8 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
-import axios from 'axios';
-import { StoreContext } from '../context/StoreContext';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { apiRequest } from '../utils/apiClient';
 
 export const useProfile = () => {
-  const { url } = useContext(StoreContext);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,103 +10,74 @@ export const useProfile = () => {
   // Fetch user profile data
   const fetchProfileData = useCallback(async () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
     const deviceId = localStorage.getItem('device-id');
 
-    if (!token) {
-      setError('Authentication token not found');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const headers = { token };
+      const headers = {};
       if (deviceId) {
         headers['device-id'] = deviceId;
       }
 
-      const response = await axios.post(
-        `${url}/api/user/profile`,
-        {},
-        { headers }
-      ); if (response.data.success) {
-        // Log received profile data for debugging
-        console.log("Profile data received:", response.data.profile);
+      const data = await apiRequest('/api/user/profile', {
+        method: 'POST',
+        headers,
+      });
 
-        // Check if profile picture exists and is valid
-        if (response.data.profile && response.data.profile.profilePicture) {
-          console.log("Profile picture URL:", response.data.profile.profilePicture);
-        } else {
-          console.log("No profile picture in data");
+      if (data.success) {
+        if (data.profile?.currentDeviceId) {
+          localStorage.setItem('device-id', data.profile.currentDeviceId);
         }
 
-        // Store the device ID from the response data for consistency
-        if (response.data.profile?.currentDeviceId) {
-          console.log("Current device ID:", response.data.profile.currentDeviceId);
-          localStorage.setItem('device-id', response.data.profile.currentDeviceId);
-        } else if (response.headers['x-device-id']) {
-          console.log("Device ID from headers:", response.headers['x-device-id']);
-          localStorage.setItem('device-id', response.headers['x-device-id']);
-        }
-
-        setProfile(response.data.profile);
+        setProfile(data.profile);
         setError(null);
+
         // Seed usage limits into localStorage so dashboard badges are accurate
         let limitsUpdated = false;
-        if (response.data.profile.aiSortsRemaining !== undefined) {
-          localStorage.setItem('aiSortsRemaining', String(response.data.profile.aiSortsRemaining));
+        if (data.profile.aiSortsRemaining !== undefined) {
+          localStorage.setItem('aiSortsRemaining', String(data.profile.aiSortsRemaining));
           limitsUpdated = true;
         }
-        if (response.data.profile.importsRemainingThisMonth !== undefined) {
-          localStorage.setItem('importsRemainingThisMonth', String(response.data.profile.importsRemainingThisMonth));
+        if (data.profile.importsRemainingThisMonth !== undefined) {
+          localStorage.setItem('importsRemainingThisMonth', String(data.profile.importsRemainingThisMonth));
           limitsUpdated = true;
         }
         if (limitsUpdated) {
           window.dispatchEvent(new Event('limitsUpdated'));
         }
       } else {
-        setError(response.data.message || 'Failed to fetch profile data');
+        setError(data.message || 'Failed to fetch profile data');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      setError('Error fetching profile information');
+      setError(error.data?.message || 'Error fetching profile information');
     } finally {
       setLoading(false);
     }
-  }, [url]);
+  }, []);
 
   // Update user profile
   const updateProfile = async (updatedData) => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      toast.error('You must be logged in to update profile');
-      return false;
-    }
-
     try {
-      const response = await axios.put(
-        `${url}/api/user/profile`,
-        updatedData,
-        { headers: { token } }
-      );
+      const data = await apiRequest('/api/user/profile', {
+        method: 'PUT',
+        body: updatedData,
+      });
 
-      if (response.data.success) {
-        // Update local profile state
-        setProfile(prev => ({
+      if (data.success) {
+        setProfile((prev) => ({
           ...prev,
-          ...response.data.profile
+          ...data.profile,
         }));
 
         toast.success('Profile updated successfully');
         return true;
-      } else {
-        toast.error(response.data.message || 'Failed to update profile');
-        return false;
       }
+
+      toast.error(data.message || 'Failed to update profile');
+      return false;
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Error updating profile information');
+      toast.error(error.data?.message || 'Error updating profile information');
       return false;
     }
   };
@@ -123,7 +92,7 @@ export const useProfile = () => {
     loading,
     error,
     fetchProfileData,
-    updateProfile
+    updateProfile,
   };
 };
 
