@@ -35,7 +35,7 @@ const PAGES_TO_MONITOR = [
  * @param {Object} options - Configuration options
  * @returns {Promise<Object>} SEO analysis results
  */
-async function analyzePage(url, options = {}) {
+async function analyzePage(url, _options = {}) {
   console.log(`Analyzing SEO for: ${url}`);
 
   // This is a placeholder; in a real implementation, we would use a headless browser
