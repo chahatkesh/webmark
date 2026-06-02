@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { useCategories, useAISort, useImportBookmarks, useRevertAISort } from "../../hooks/useBookmarks";
 import BookmarkItem from "./BookmarkItem";
 import { Button } from "../ui/button";
 import { PlusCircle, Upload, Wand2 } from "lucide-react";
-import AddCategoryDialog from "./AddCategoryDialog";
-import ImportBookmarksDialog from "./ImportBookmarksDialog";
-import AISortDialog from "./AISortDialog";
 import { CategoryListSkeleton } from "./LoadingSkeletons";
+
+const AddCategoryDialog = lazy(() => import("./AddCategoryDialog"));
+const ImportBookmarksDialog = lazy(() => import("./ImportBookmarksDialog"));
+const AISortDialog = lazy(() => import("./AISortDialog"));
 
 const BookmarkList = () => {
   const { data: categories, isLoading, error } = useCategories();
@@ -230,26 +231,34 @@ const BookmarkList = () => {
           />
         ))}
       </div>
-      <AddCategoryDialog
-        open={isAddingCategory}
-        onClose={() => setIsAddingCategory(false)}
-      />
-      <ImportBookmarksDialog
-        open={isImporting}
-        onClose={() => setIsImporting(false)}
-        importMutation={importMutation}
-      />
-      <AISortDialog
-        open={isAISortOpen}
-        onClose={() => setIsAISortOpen(false)}
-        onConfirm={() => aiSort()}
-        isSorting={isSorting}
-        results={sortResults ?? null}
-        sortError={sortError}
-        onReset={resetSort}
-        onRevert={revertSort}
-        isReverting={isReverting}
-      />
+      <Suspense fallback={null}>
+        {isAddingCategory && (
+          <AddCategoryDialog
+            open={isAddingCategory}
+            onClose={() => setIsAddingCategory(false)}
+          />
+        )}
+        {isImporting && (
+          <ImportBookmarksDialog
+            open={isImporting}
+            onClose={() => setIsImporting(false)}
+            importMutation={importMutation}
+          />
+        )}
+        {isAISortOpen && (
+          <AISortDialog
+            open={isAISortOpen}
+            onClose={() => setIsAISortOpen(false)}
+            onConfirm={() => aiSort()}
+            isSorting={isSorting}
+            results={sortResults ?? null}
+            sortError={sortError}
+            onReset={resetSort}
+            onRevert={revertSort}
+            isReverting={isReverting}
+          />
+        )}
+      </Suspense>
     </>
   );
 };

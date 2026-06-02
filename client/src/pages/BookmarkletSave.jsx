@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CheckCircle, XCircle, Loader2, Bookmark } from "lucide-react";
+import { apiRequest } from "../utils/apiClient";
 
 /**
  * BookmarkletSave — a lightweight popup that receives URL params from the
@@ -23,7 +24,7 @@ export default function BookmarkletSave() {
     const catId = params.get("catId");
     const token = params.get("token");
 
-    if (!rawUrl || !token || !catId) {
+    if (!rawUrl || !catId) {
       setStatus("error");
       setMessage(
         "Missing parameters. Please re-generate your bookmarklet from the Profile page."
@@ -39,24 +40,18 @@ export default function BookmarkletSave() {
         (() => { try { return new URL(url).hostname; } catch { return ""; } })()
       }&sz=128`;
 
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
-
-    fetch(`${apiUrl}/api/bookmarks/bookmark`, {
+    apiRequest("/api/bookmarks/bookmark", {
       method: "POST",
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        token,
-      },
-      body: JSON.stringify({
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: {
         categoryId: catId,
         name: title,
         link: url,
         logo,
         autoCateg: true, // triggers background AI categorization
-      }),
+      },
     })
-      .then((r) => r.json())
       .then((data) => {
         if (data.success) {
           setStatus("success");

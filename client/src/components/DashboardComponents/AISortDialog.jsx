@@ -180,9 +180,6 @@ const AISortDialog = ({
 
   // ─── Phase: sorting ──────────────────────────────────────────────────────────
   if (isSorting || stageIdx >= 0) {
-    const currentStage = STAGES[Math.min(stageIdx, STAGES.length - 1)];
-    const CurrentIcon = currentStage?.icon ?? Sparkles;
-
     return (
       <Dialog open={open} onOpenChange={() => {}}>
         <DialogContent

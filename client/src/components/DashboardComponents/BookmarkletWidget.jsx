@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 // The popup (/save) makes the API call from OUR security context,
 // bypassing any Content-Security-Policy the host page might set.
 // appUrl  — the frontend origin (e.g. http://localhost:5173 or https://webmark.site)
-const buildBookmarklet = (appUrl, token, categoryId) => {
+const buildBookmarklet = (appUrl, categoryId) => {
   const code =
     `(function(){` +
     `var t=encodeURIComponent(document.title||location.hostname),` +
@@ -18,7 +18,7 @@ const buildBookmarklet = (appUrl, token, categoryId) => {
     `w=420,h=300,` +
     `x=Math.round(screen.width/2-210),` +
     `y=Math.round(screen.height/2-150),` +
-    `dest='${appUrl}/save?url='+u+'&title='+t+'&logo='+fav+'&catId=${categoryId}&token=${token}';` +
+    `dest='${appUrl}/save?url='+u+'&title='+t+'&logo='+fav+'&catId=${categoryId}';` +
     `window.open(dest,'_webmark','width='+w+',height='+h+',top='+y+',left='+x+',noopener=no');` +
     `})();`;
 
@@ -29,7 +29,6 @@ const BookmarkletWidget = () => {
   const { url } = useContext(StoreContext);
   // appUrl = frontend origin (used for /save popup); url = API backend
   const appUrl = typeof window !== "undefined" ? window.location.origin : url;
-  const token = localStorage.getItem("token") || "";
   const { data: categories, isLoading } = useCategories();
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [copied, setCopied] = useState(false);
@@ -38,8 +37,8 @@ const BookmarkletWidget = () => {
     selectedCategoryId || (categories && categories.length > 0 ? categories[0]._id : "");
 
   const bookmarkletHref =
-    token && effectiveCategoryId
-      ? buildBookmarklet(appUrl, token, effectiveCategoryId)
+    effectiveCategoryId
+      ? buildBookmarklet(appUrl, effectiveCategoryId)
       : null;
 
   const handleCopy = () => {
@@ -155,7 +154,7 @@ const BookmarkletWidget = () => {
             <li>A small popup confirms the save — AI sorts it automatically.</li>
           </ol>
           <p className="text-xs text-amber-600 mt-1.5">
-            ⚠ If you change your password or log out, generate a new bookmarklet — the old one will stop working.
+            If you log out of Webmark, sign in again before using the bookmarklet.
           </p>
         </div>
       </div>

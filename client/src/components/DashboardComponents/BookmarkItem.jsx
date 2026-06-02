@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import {
   useBookmarks,
   useDeleteCategory,
@@ -22,11 +22,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import AddBookmarkDialog from "./AddBookmarkDialog";
-import EditBookmarkDialog from "./EditBookmarkDialog";
-import EditCategoryDialog from "./EditCategoryDialog";
-import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
 import { BookmarkItemSkeleton } from "./LoadingSkeletons";
+
+const AddBookmarkDialog = lazy(() => import("./AddBookmarkDialog"));
+const EditBookmarkDialog = lazy(() => import("./EditBookmarkDialog"));
+const EditCategoryDialog = lazy(() => import("./EditCategoryDialog"));
+const ConfirmDeleteDialog = lazy(() => import("./ConfirmDeleteDialog"));
 
 const BookmarkItem = ({
   category,
@@ -34,10 +35,10 @@ const BookmarkItem = ({
   color,
   hcolor,
   emoji,
-  searchTerm,
   bookmarks: filteredBookmarks,
 }) => {
-  const { data: bookmarks, isLoading } = useBookmarks(categoryId);
+  const shouldFetchBookmarks = !Array.isArray(filteredBookmarks);
+  const { data: bookmarks, isLoading } = useBookmarks(shouldFetchBookmarks ? categoryId : null);
   const deleteCategory = useDeleteCategory();
   const deleteBookmark = useDeleteBookmark();
   const updateBookmarkOrder = useUpdateBookmarkOrder();
@@ -247,48 +248,58 @@ const BookmarkItem = ({
         </DragDropContext>
       </div>
 
-      <AddBookmarkDialog
-        open={isAddingBookmark}
-        onClose={() => setIsAddingBookmark(false)}
-        categoryId={categoryId}
-      />
+      <Suspense fallback={null}>
+        {isAddingBookmark && (
+          <AddBookmarkDialog
+            open={isAddingBookmark}
+            onClose={() => setIsAddingBookmark(false)}
+            categoryId={categoryId}
+          />
+        )}
 
-      {selectedBookmark && (
-        <EditBookmarkDialog
-          open={!!selectedBookmark}
-          onClose={() => setSelectedBookmark(null)}
-          bookmark={selectedBookmark}
-        />
-      )}
+        {selectedBookmark && (
+          <EditBookmarkDialog
+            open={!!selectedBookmark}
+            onClose={() => setSelectedBookmark(null)}
+            bookmark={selectedBookmark}
+          />
+        )}
 
-      <EditCategoryDialog
-        open={isEditingCategory}
-        onClose={() => setIsEditingCategory(false)}
-        category={{
-          _id: categoryId,
-          category,
-          bgcolor: color,
-          hcolor,
-          emoji,
-        }}
-      />
+        {isEditingCategory && (
+          <EditCategoryDialog
+            open={isEditingCategory}
+            onClose={() => setIsEditingCategory(false)}
+            category={{
+              _id: categoryId,
+              category,
+              bgcolor: color,
+              hcolor,
+              emoji,
+            }}
+          />
+        )}
 
-      <ConfirmDeleteDialog
-        open={isConfirmDeleteOpen}
-        onClose={() => setIsConfirmDeleteOpen(false)}
-        onConfirm={handleDeleteCategory}
-        title="Delete Category"
-        message="Are you sure you want to delete this category? All bookmarks in this category will be deleted permanently."
-      />
+        {isConfirmDeleteOpen && (
+          <ConfirmDeleteDialog
+            open={isConfirmDeleteOpen}
+            onClose={() => setIsConfirmDeleteOpen(false)}
+            onConfirm={handleDeleteCategory}
+            title="Delete Category"
+            message="Are you sure you want to delete this category? All bookmarks in this category will be deleted permanently."
+          />
+        )}
 
-      <ConfirmDeleteDialog
-        open={!!bookmarkToDelete}
-        onClose={() => setBookmarkToDelete(null)}
-        onConfirm={handleDeleteBookmark}
-        title="Delete Bookmark"
-        itemName={`${bookmarkToDelete?.name}`}
-        message={`Are you sure you want to delete "${bookmarkToDelete?.name}"? This action cannot be undone.`}
-      />
+        {bookmarkToDelete && (
+          <ConfirmDeleteDialog
+            open={!!bookmarkToDelete}
+            onClose={() => setBookmarkToDelete(null)}
+            onConfirm={handleDeleteBookmark}
+            title="Delete Bookmark"
+            itemName={`${bookmarkToDelete?.name}`}
+            message={`Are you sure you want to delete "${bookmarkToDelete?.name}"? This action cannot be undone.`}
+          />
+        )}
+      </Suspense>
 
       {selectedBookmarkForNotes && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">

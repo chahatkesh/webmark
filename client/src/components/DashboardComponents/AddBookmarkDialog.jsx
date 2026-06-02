@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { Search, X, Globe, AlertCircle, Loader2 } from "lucide-react";
+import { Search, X, AlertCircle, Loader2 } from "lucide-react";
 import { useCreateBookmark } from "../../hooks/useBookmarks";
 
 const AddBookmarkDialog = ({ open, onClose, categoryId }) => {

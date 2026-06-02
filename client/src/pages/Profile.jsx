@@ -14,8 +14,6 @@ import {
   Award,
   BarChart3,
   Calendar,
-  Globe,
-  Sparkles,
   Share,
   LogOut,
 } from "lucide-react";

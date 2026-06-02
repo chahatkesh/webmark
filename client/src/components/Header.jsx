@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Loader from "../components/Loader";
 import { assets } from "../assets/assests";
 
 const Header = () => {
@@ -23,12 +22,6 @@ const Header = () => {
   const { user } = useContext(StoreContext);
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Loading state
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
 
   const isActive = (route) => location.pathname.includes(route);
 
@@ -51,8 +44,6 @@ const Header = () => {
       window.dispatchEvent(searchEvent);
     }
   }, [searchTerm, location.pathname]);
-
-  if (loading) return <Loader />;
 
   return (
     <header className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50">

@@ -7,37 +7,22 @@ import { useEffect } from "react";
 const Prefetcher = () => {
   useEffect(() => {
     // Only run in production and only after main content is loaded
-    if (process.env.NODE_ENV !== "production") return;
+    if (!import.meta.env.PROD) return;
+    if (document.querySelector('link[data-webmark-prefetch="true"]')) return;
 
     // Use requestIdleCallback to run during browser idle time
     const idleCallback =
       window.requestIdleCallback || ((cb) => setTimeout(cb, 1000));
 
     idleCallback(() => {
-      const prefetchLinks = [
-        "/about",
-        "/features",
-        "/privacy-policy",
-        "/terms",
-      ];
-
-      // Create link elements for prefetching
-      prefetchLinks.forEach((href) => {
-        const link = document.createElement("link");
-        link.rel = "prefetch";
-        link.href = href;
-        link.as = "document";
-        document.head.appendChild(link);
-      });
-
-      // Prefetch key assets
-      const prefetchAssets = ["/hero_image.png", "/src/assets/logo_color.png"];
+      const prefetchAssets = ["/hero_image.png", "/favicon.png"];
 
       prefetchAssets.forEach((href) => {
         const link = document.createElement("link");
+        link.dataset.webmarkPrefetch = "true";
         link.rel = "prefetch";
         link.href = href;
-        link.as = href.endsWith(".png") ? "image" : "fetch";
+        link.as = "image";
         document.head.appendChild(link);
       });
     });
