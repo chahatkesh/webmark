@@ -10,24 +10,16 @@ import {
   MousePointerClick,
   ShieldCheck,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
-
-const buildBookmarklet = (appUrl, categoryId) => {
-  const code =
-    `(function(){` +
-    `var t=encodeURIComponent(document.title||location.hostname),` +
-    `u=encodeURIComponent(location.href),` +
-    `fav=encodeURIComponent('https://www.google.com/s2/favicons?domain='+location.hostname+'&sz=128'),` +
-    `w=420,h=300,` +
-    `x=Math.round(screen.width/2-210),` +
-    `y=Math.round(screen.height/2-150),` +
-    `dest='${appUrl}/save?url='+u+'&title='+t+'&logo='+fav+'&catId=${categoryId}';` +
-    `window.open(dest,'_webmark','width='+w+',height='+h+',top='+y+',left='+x+',noopener=no');` +
-    `})();`;
-  return `javascript:${encodeURIComponent(code)}`;
-};
+import {
+  applyBookmarkletDragData,
+  buildBookmarklet,
+  BOOKMARKLET_TITLE,
+  downloadBookmarkletFile,
+} from "../utils/bookmarklet";
 
 const steps = [
   {
@@ -38,7 +30,7 @@ const steps = [
   {
     icon: GripHorizontal,
     title: "Drag to bookmarks bar",
-    description: 'Drag the "Save to Webmark" button into your browser\'s bookmarks bar.',
+    description: `Drag the "${BOOKMARKLET_TITLE}" button into your browser's bookmarks bar.`,
   },
   {
     icon: MousePointerClick,
@@ -63,10 +55,9 @@ const Bookmarklet = () => {
     selectedCategoryId ||
     (categories && categories.length > 0 ? categories[0]._id : "");
 
-  const bookmarkletHref =
-    effectiveCategoryId
-      ? buildBookmarklet(appUrl, effectiveCategoryId)
-      : null;
+  const bookmarkletHref = effectiveCategoryId
+    ? buildBookmarklet(appUrl, effectiveCategoryId)
+    : null;
 
   const handleCopy = () => {
     if (!bookmarkletHref) return;
@@ -77,40 +68,29 @@ const Bookmarklet = () => {
     });
   };
 
+  const handleDownload = async () => {
+    if (!bookmarkletHref) return;
+    try {
+      await downloadBookmarkletFile(bookmarkletHref, appUrl);
+      toast.success("Bookmark file downloaded — import it via Chrome Bookmark Manager");
+    } catch (error) {
+      console.error("Failed to export bookmarklet:", error);
+      toast.error("Failed to download bookmark file");
+    }
+  };
+
   const handleDragStart = (e) => {
     if (!bookmarkletHref) {
       e.preventDefault();
       return;
     }
-    // Firefox: "URL\nTitle" format — stores name + icon from the page favicon
-    e.dataTransfer.setData(
-      "text/x-moz-url",
-      `${bookmarkletHref}\nSave to Webmark`,
-    );
-    // RFC-compliant uri-list: comment line then URL (Chrome reads <a> text for the name)
-    e.dataTransfer.setData(
-      "text/uri-list",
-      `# Save to Webmark\n${bookmarkletHref}`,
-    );
-    // Full HTML with favicon — some bookmark managers read <link rel="icon"> from this
-    e.dataTransfer.setData(
-      "text/html",
-      `<html><head>` +
-        `<link rel="shortcut icon" href="${appUrl}/favicon.png">` +
-        `<title>Save to Webmark</title>` +
-        `</head><body>` +
-        `<a href="${bookmarkletHref}">Save to Webmark</a>` +
-        `</body></html>`,
-    );
-    e.dataTransfer.setData("text/plain", bookmarkletHref);
-    e.dataTransfer.effectAllowed = "copy";
+    applyBookmarkletDragData(e, bookmarkletHref, appUrl);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-3xl mx-auto px-4 py-32">
 
-        {/* Hero */}
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Bookmarklet</h1>
           <p className="text-gray-500 max-w-md mx-auto">
@@ -118,10 +98,8 @@ const Bookmarklet = () => {
           </p>
         </div>
 
-        {/* Main card */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8">
 
-          {/* Step 1: Category selector */}
           <div className="px-8 py-6 border-b border-gray-100">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
               Step 1 — Choose default category
@@ -147,41 +125,56 @@ const Bookmarklet = () => {
             )}
           </div>
 
-          {/* Step 2: Drag button */}
           <div className="px-8 py-6 bg-gradient-to-b from-white to-blue-50/40">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-              Step 2 — Drag to your bookmarks bar
+              Step 2 — Add to your bookmarks bar
             </p>
             {bookmarkletHref ? (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <a
-                  href={bookmarkletHref}
-                  draggable
-                  onDragStart={handleDragStart}
-                  onClick={(e) => e.preventDefault()}
-                  className="inline-flex items-center gap-2.5 rounded-xl border-2 border-dashed border-blue-300 bg-white px-5 py-3 text-base font-semibold text-blue-700 cursor-grab active:cursor-grabbing hover:bg-blue-50 hover:border-blue-400 transition-all select-none shadow-sm"
-                  title="Drag me to your bookmarks toolbar"
-                >
-                  <GripHorizontal className="h-5 w-5 text-blue-400" />
-                  Save to Webmark
-                </a>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400">or</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopy}
-                    className="gap-1.5 text-xs h-9"
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <a
+                    href={bookmarkletHref}
+                    draggable
+                    onDragStart={handleDragStart}
+                    onClick={(e) => e.preventDefault()}
+                    className="inline-flex items-center gap-2.5 rounded-xl border-2 border-dashed border-blue-300 bg-white px-5 py-3 text-base font-semibold text-blue-700 cursor-grab active:cursor-grabbing hover:bg-blue-50 hover:border-blue-400 transition-all select-none shadow-sm"
+                    title="Drag me to your bookmarks toolbar"
                   >
-                    {copied ? (
-                      <><Check className="h-3.5 w-3.5 text-green-500" /> Copied</>
-                    ) : (
-                      <><Copy className="h-3.5 w-3.5" /> Copy code</>
-                    )}
-                  </Button>
-                  <span className="text-xs text-gray-400">to paste manually</span>
+                    <GripHorizontal className="h-5 w-5 text-blue-400" />
+                    {BOOKMARKLET_TITLE}
+                  </a>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDownload}
+                      className="gap-1.5 text-xs h-9"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Download
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopy}
+                      className="gap-1.5 text-xs h-9"
+                    >
+                      {copied ? (
+                        <><Check className="h-3.5 w-3.5 text-green-500" /> Copied</>
+                      ) : (
+                        <><Copy className="h-3.5 w-3.5" /> Copy code</>
+                      )}
+                    </Button>
+                  </div>
                 </div>
+
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Drag the button above into your bookmarks bar, or download the bookmark file and import it via
+                  {" "}
+                  <span className="font-medium text-gray-700">Chrome → Bookmarks → Bookmark Manager → Import</span>.
+                  You can also right-click the button and choose <span className="font-medium text-gray-700">Bookmark link</span>.
+                </p>
               </div>
             ) : (
               !isLoading && (
@@ -191,12 +184,15 @@ const Bookmarklet = () => {
               )
             )}
             <p className="mt-3 text-xs text-gray-400">
-              Tip: browsers show a generic icon for JavaScript bookmarklets — look for <span className="font-medium text-gray-600">Save to Webmark</span> by name on your bar.
+              Chrome may still show a generic globe icon for JavaScript bookmarklets — look for
+              {" "}
+              <span className="font-medium text-gray-600">{BOOKMARKLET_TITLE}</span>
+              {" "}
+              by name. Use the download option above to install with the Webmark icon.
             </p>
           </div>
         </div>
 
-        {/* How it works */}
         <div className="mb-8">
           <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400 mb-5 text-center">
             How it works
@@ -222,7 +218,6 @@ const Bookmarklet = () => {
           </div>
         </div>
 
-        {/* Notices */}
         <div className="space-y-3">
           <div className="flex items-start gap-3 bg-white rounded-xl border border-gray-100 px-5 py-4 shadow-sm">
             <ShieldCheck className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
