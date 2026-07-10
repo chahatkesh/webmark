@@ -1,4 +1,5 @@
 import { useAuth } from "../../hooks/useAuth";
+import StarRepo from "./StarRepo";
 
 const Navbar = () => {
   let logoColour = "#1361F5";
@@ -87,15 +88,12 @@ const Navbar = () => {
               >
                 about us
               </li>
-              <li
-                onClick={() => scrollToSection("contact")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
-              >
-                contact
-              </li>
             </ul>
           </nav>
           <ul className="flex flex-1 justify-end items-center gap-3">
+            <li className="hidden sm:block">
+              <StarRepo variant="navbar" />
+            </li>
             {isAuthenticated ? (
               <li>
                 <a

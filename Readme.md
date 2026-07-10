@@ -146,7 +146,7 @@ cp client/.env.example client/.env
 pnpm dev
 ```
 
-This starts both apps via [mprocs](https://github.com/pvolok/mprocs):
+This starts both apps via `mprocs:`
 
 - Frontend → http://localhost:5173
 - Backend → http://localhost:4000
@@ -213,10 +213,6 @@ webmark/
 2. Make your changes and run `pnpm lint && pnpm format:check`
 3. Push and open a pull request against `main`
 
-Use [conventional commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, etc.).
-
 ## Author
 
-Built by [Chahat Kesharwani](https://github.com/chahatkesh)
-
-Questions? [ckesharwani4@gmail.com](mailto:ckesharwani4@gmail.com)
+Built by [Chahat Kesharwani](https://chahatkesh.me)

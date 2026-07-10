@@ -1,6 +1,7 @@
 import React from "react";
 import { assets } from "../../assets/assests";
 import { motion } from "framer-motion";
+import StarRepo from "./StarRepo";
 
 const Cta = () => {
   return (
@@ -15,18 +16,18 @@ const Cta = () => {
             alt=""
           />
         </div>
-        <div className="absolute translate-y-[50%] translate-x-[-50%] bottom-0 left-[50%]">
+        <div className="pointer-events-none absolute translate-y-[50%] translate-x-[-50%] bottom-0 left-[50%]">
           <div className="filter blur-[64px] h-56 border-[#3b82f6] border-[20px] rounded-full w-[480px] "></div>
         </div>
-        <div className="pl-4 pr-4 md:pl-12 md:pr-12 pt-12 pb-12 md:pt-20 md:pb-20">
+        <div className="relative z-10 pl-4 pr-4 md:pl-12 md:pr-12 pt-12 pb-12 md:pt-20 md:pb-20">
           <h2 className="border-in-header-1 text-[#e5e7eb] font-[700] text-[1.4rem] leading-[1.3333] tracking-[-0.037em] md:text-[2.25rem] md:leading-[1.2777] mb-6 md:mb-12">
             Master Your Bookmarks - Simplify Your Web Experience
           </h2>
-          <div className="ml-auto mr-auto max-w-80 sm:max-w-none sm:flex sm:justify-center">
+          <div className="ml-auto mr-auto max-w-80 sm:max-w-none flex flex-col sm:flex-row flex-wrap sm:justify-center gap-4">
             <motion.a
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full sm:w-auto sm:mb-0 mb-4 shadow text-white bg-blue-500 hover:bg-blue-600 hover:font-[600] pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem]"
+              className="w-full sm:w-auto shadow text-white bg-blue-500 hover:bg-blue-600 hover:font-[600] pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem]"
               href="/auth"
             >
               <span className="inline-flex items-center relative">
@@ -36,6 +37,7 @@ const Cta = () => {
                 </span>
               </span>
             </motion.a>
+            <StarRepo variant="cta" />
           </div>
         </div>
       </div>
