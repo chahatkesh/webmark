@@ -73,7 +73,7 @@ const handleSubmit = async (e) => {
     const data = await response.json();
 
     if (data.success) {
-      navigate("/dashboard");
+      navigate("/user/dashboard");
     }
   } catch (error) {
     console.error("Error completing profile:", error);

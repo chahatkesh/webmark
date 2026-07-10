@@ -4,76 +4,27 @@ This document provides a comprehensive guide to the Webmark REST API endpoints, 
 
 ## Authentication
 
-All API endpoints (except authentication endpoints) require a valid JWT token for access.
+Webmark uses Google OAuth for sign-in. Protected endpoints require a valid access token.
 
-**Token Format**: Include the token in the request header:
+The server accepts the access token from:
+
+1. **`wm_access` httpOnly cookie** (primary)
+2. **`token` request header** (legacy fallback)
+
+On login, the server also sets a `wm_refresh` httpOnly cookie for session renewal. The client refreshes expired access tokens via `POST /api/user/refresh` with `credentials: include`.
+
+See [AUTH_SESSION_FLOW.md](./AUTH_SESSION_FLOW.md) for the full flow.
+
+**Authenticated request example:**
 
 ```
-headers: {
-  token: <your-jwt-token>
-}
+fetch("/api/bookmarks/categories", {
+  credentials: "include",
+  headers: { token: "<legacy-token-if-present>" }
+})
 ```
 
 ## User Management
-
-### Register User
-
-```
-POST /api/user/register
-```
-
-**Request Body:**
-
-```json
-{
-  "name": "User Name",
-  "email": "user@example.com",
-  "password": "securepassword"
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "user": {
-    "_id": "user_id",
-    "name": "User Name",
-    "email": "user@example.com"
-  },
-  "token": "jwt_token"
-}
-```
-
-### Login User
-
-```
-POST /api/user/login
-```
-
-**Request Body:**
-
-```json
-{
-  "email": "user@example.com",
-  "password": "securepassword"
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "user": {
-    "_id": "user_id",
-    "name": "User Name",
-    "email": "user@example.com"
-  },
-  "token": "jwt_token"
-}
-```
 
 ### Google Authentication
 
@@ -81,18 +32,50 @@ POST /api/user/login
 GET /api/user/auth/google
 ```
 
-Initiates Google OAuth flow.
+Redirects the user to Google's OAuth consent screen.
 
 ```
 GET /api/user/auth/google/callback
 ```
 
-Google OAuth callback endpoint.
+OAuth callback. Sets `wm_access` and `wm_refresh` cookies, then redirects to the frontend.
+
+### Refresh Session
+
+```
+POST /api/user/refresh
+```
+
+Rotates the refresh token and issues a new access token. Requires the `wm_refresh` cookie.
+
+### Get User Data
+
+```
+POST /api/user/userdata
+```
+
+Returns the authenticated user's profile. Requires auth.
+
+### Complete Onboarding
+
+```
+POST /api/user/complete-onboarding
+```
+
+Sets username and completes first-time setup for new Google sign-ups.
+
+### Logout
+
+```
+POST /api/user/logout
+```
+
+Clears auth cookies, refresh token hashes, and legacy client tokens.
 
 ### Get User Profile
 
 ```
-GET /api/user/profile
+POST /api/user/profile
 ```
 
 **Response:**
@@ -434,6 +417,44 @@ PUT /api/bookmarks/reorder
   "message": "Bookmark order updated successfully"
 }
 ```
+
+### Import Bookmarks
+
+```
+POST /api/bookmarks/import
+```
+
+Imports bookmarks from a parsed browser export. Request body contains folder/bookmark data grouped by category.
+
+### Reorder Layout (cross-category)
+
+```
+PUT /api/bookmarks/reorder-layout
+```
+
+Batch-updates bookmark positions across multiple categories (used after drag-and-drop).
+
+### AI Sort
+
+```
+POST /api/bookmarks/ai/sort
+```
+
+Bulk reorganizes bookmarks using OpenAI. Body: `{ "mode": "all" | "uncategorized" }`. Requires `OPENAI_API_KEY` on the server.
+
+```
+POST /api/bookmarks/ai/sort/revert
+```
+
+Reverts the most recent AI sort operation.
+
+### Bookmarklet Save
+
+```
+GET /api/bookmarks/save
+```
+
+Server-rendered save page for the bookmarklet popup. Authenticated via bookmarklet auth middleware.
 
 ## Click Tracking
 

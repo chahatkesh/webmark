@@ -1,16 +1,14 @@
 # Webmark Developer Setup Guide
 
-This comprehensive guide provides detailed instructions for setting up the Webmark development environment, understanding the codebase, and contributing to the project.
+Instructions for setting up the Webmark development environment and understanding the codebase.
 
 ## Prerequisites
 
-Before starting, ensure you have the following installed:
-
-- **Node.js**: Version 16.0.0 or higher
-- **npm**: Usually comes with Node.js
-- **MongoDB**: Local installation or MongoDB Atlas account
-- **Git**: For version control
-- **Code Editor**: VS Code recommended with ESLint and Prettier extensions
+- **Node.js** 20+
+- **pnpm** — install via `npm install -g pnpm` or [pnpm.io](https://pnpm.io/)
+- **MongoDB** — local installation or [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+- **Git**
+- **Code editor** — VS Code recommended
 
 ## Setup Instructions
 
@@ -21,323 +19,195 @@ git clone https://github.com/chahatkesh/webmark.git
 cd webmark
 ```
 
-### 2. Environment Configuration
+### 2. Install Dependencies
 
-#### Server Configuration
-
-Create a `.env` file in the server directory:
+From the repo root (pnpm workspace):
 
 ```bash
-cd server
-cp .env.example .env
+pnpm install
 ```
 
-Edit the `.env` file with your configuration:
+### 3. Environment Configuration
 
+#### Server
+
+```bash
+cp server/.env.example server/.env
 ```
-# Server Configuration
+
+Edit `server/.env`:
+
+```bash
 PORT=4000
 NODE_ENV=development
-
-# Database Configuration
 MONGO_URI=mongodb://localhost:27017/webmark
-# Or use MongoDB Atlas:
-# MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/webmark
-
-# Authentication
 JWT_SECRET=your_very_secure_jwt_secret
-COOKIE_SECRET=your_very_secure_cookie_secret
 
-# Google OAuth
+FRONTEND_URL=http://localhost:5173
+CORS_ORIGINS=http://localhost:5173
+SERVER_URL=http://localhost:4000
+
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_CALLBACK_URL=http://localhost:4000/api/user/auth/google/callback
 
-# Email Configuration (Optional)
-EMAIL_SERVICE=gmail
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
+# Optional — enables AI sort and bookmarklet categorization
+OPENAI_API_KEY=sk-your-openai-key-here
 ```
 
-#### Client Configuration
+See [GOOGLE_AUTH_SETUP.md](./GOOGLE_AUTH_SETUP.md) for OAuth credential setup.
 
-Create a `.env` file in the client directory:
+#### Client
 
 ```bash
-cd ../client
-cp .env.example .env
+cp client/.env.example client/.env
 ```
 
-Edit the client `.env` file:
+Edit `client/.env`:
 
-```
+```bash
 VITE_API_URL=http://localhost:4000
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
-```
-
-### 3. Install Dependencies
-
-Install server dependencies:
-
-```bash
-cd ../server
-npm install
-```
-
-Install client dependencies:
-
-```bash
-cd ../client
-npm install
 ```
 
 ### 4. Database Setup
 
-#### Option 1: Local MongoDB
-
-If you're using a local MongoDB installation:
-
-1. Start MongoDB service:
+**Local MongoDB:**
 
 ```bash
-sudo service mongod start  # Linux
-brew services start mongodb-community  # macOS
+# macOS
+brew services start mongodb-community
+
+# Linux
+sudo service mongod start
 ```
 
-2. The application will automatically create the necessary collections.
+**MongoDB Atlas:** Create a cluster, whitelist your IP, and paste the connection string into `MONGO_URI`.
 
-#### Option 2: MongoDB Atlas
+Collections are created automatically on first use.
 
-If using MongoDB Atlas:
+### 5. Start Development Servers
 
-1. Create a cluster in [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a database user with read/write permissions
-3. Whitelist your IP address in the Network Access settings
-4. Copy the connection string to your server `.env` file
-
-### 5. Google OAuth Setup
-
-To enable Google authentication:
-
-1. Go to [Google Developer Console](https://console.developers.google.com/)
-2. Create a new project
-3. Navigate to "Credentials" and create OAuth 2.0 Client ID
-4. Configure the consent screen with necessary scopes
-5. Add authorized JavaScript origins: `http://localhost:4000`
-6. Add authorized redirect URIs: `http://localhost:4000/api/user/auth/google/callback`
-7. Copy the Client ID and Client Secret to your server `.env` file
-8. Copy the Client ID to your client `.env` file
-
-### 6. Start Development Servers
-
-Start the server in development mode:
+From the repo root:
 
 ```bash
-cd ../server
-npm run dev
+pnpm dev
 ```
 
-In a separate terminal, start the client development server:
-
-```bash
-cd ../client
-npm run dev
-```
-
-The application should now be running:
+This uses [mprocs](https://github.com/pvolok/mprocs) to run both apps:
 
 - Frontend: http://localhost:5173
 - Backend: http://localhost:4000
 
+Or run them separately:
+
+```bash
+pnpm dev:client
+pnpm dev:server
+```
+
 ## Project Structure
 
-### Server Architecture
+### Server
 
 ```
 server/
-├── config/           # Configuration for database, email, and authentication
-├── controllers/      # Request handlers and business logic
-├── middleware/       # Authentication and request processing middleware
-├── models/           # MongoDB schema definitions
+├── config/           # Database, email, and Passport configuration
+├── controllers/    # Request handlers and business logic
+├── middleware/       # Auth and bookmarklet middleware
+├── models/           # Mongoose schemas
 ├── routes/           # API route definitions
-├── utils/            # Utility functions and helpers
-├── server.js         # Main application entry point
+├── utils/            # AI categorizer, cron jobs, session helpers
+└── server.js         # Application entry point
 ```
 
-### Client Architecture
+### Client
 
 ```
 client/
-├── public/           # Static assets
+├── public/           # Static assets and sitemaps
 └── src/
-    ├── assets/       # Images, icons, and other static resources
-    ├── components/   # Reusable UI components
-    │   ├── DashboardComponents/   # Dashboard-specific components
-    │   ├── HomeComponents/        # Home page components
-    │   ├── enhanced/              # Enhanced components with additional features
-    │   └── ui/                    # Base UI components
-    ├── context/      # React context providers
-    ├── hooks/        # Custom React hooks
-    ├── layouts/      # Page layout components
-    ├── lib/          # Utility libraries
-    ├── pages/        # Page components
-    └── utils/        # Utility functions
+    ├── components/   # UI, dashboard, and home page components
+    ├── context/      # Auth and store providers
+    ├── hooks/        # SWR data hooks (useBookmarks, useAuth, etc.)
+    ├── layouts/      # Authenticated layout wrapper
+    ├── pages/        # Route-level pages
+    └── utils/        # API client, DnD helpers, SEO utilities
 ```
 
 ## Development Workflow
 
-### Branching Strategy
+### Branching
 
-Follow this workflow for contributions:
-
-1. Create feature branch: `git checkout -b feature/your-feature-name`
+1. `git checkout -b feature/your-feature-name`
 2. Make changes and commit: `git commit -m "feat: add your feature"`
-3. Push to remote: `git push origin feature/your-feature-name`
-4. Create pull request to the `main` branch
+3. `git push origin feature/your-feature-name`
+4. Open a pull request to `main`
 
-### Commit Message Format
+### Commit Format
 
-Follow conventional commits format:
+Follow [conventional commits](https://www.conventionalcommits.org/):
 
 ```
-type(scope): short description
-
-[optional body]
-
-[optional footer]
+feat(scope): short description
+fix(scope): short description
+docs(scope): short description
 ```
 
-Types:
-
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or modifying tests
-- `chore`: Build process or auxiliary tool changes
-
-### Code Style Guidelines
-
-- Use ESLint and Prettier for code formatting
-- Follow Airbnb JavaScript Style Guide
-- Use React functional components with hooks
-- Implement proper error handling
-- Write meaningful comments
-- Ensure accessibility standards are met
-
-## Testing
-
-### Running Tests
-
-Run backend tests:
+### Code Quality
 
 ```bash
-cd server
-npm test
-```
-
-Run frontend tests:
-
-```bash
-cd client
-npm test
-```
-
-### Test Coverage
-
-Generate test coverage reports:
-
-```bash
-cd server
-npm run test:coverage
-
-cd ../client
-npm run test:coverage
+pnpm lint           # ESLint (client) + syntax check (server)
+pnpm type-check     # TypeScript check for client UI components
+pnpm format         # Auto-format with Prettier
+pnpm format:check   # Verify formatting (runs in CI)
 ```
 
 ## Debugging
 
-### Server Debugging
+**Server:** Check terminal output from `pnpm dev:server`. Use VS Code debugger or `console.log`.
 
-1. Add console.log statements or use the debugger keyword
-2. Use VS Code's built-in debugger
-3. Check logs in the terminal running the server
-
-### Client Debugging
-
-1. Use React Developer Tools browser extension
-2. Check Console and Network tabs in browser DevTools
-3. Use the debugger statement in your code
+**Client:** Use React DevTools and browser DevTools (Console, Network). API calls go through `client/src/utils/apiClient.js` with `credentials: include` for cookie-based auth.
 
 ## Deployment
 
-### Production Build
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for Vercel setup, environment variables, and CI/CD.
 
-Create production builds:
+Production build:
 
 ```bash
-# Build the client
-cd client
-npm run build
-
-# Start the server in production mode
-cd ../server
-npm run start
+pnpm --filter client run build
+pnpm --filter server run start
 ```
 
-### Environment Variables for Production
+## Common Issues
 
-Update environment variables for production:
+### MongoDB connection fails
 
-1. Set `NODE_ENV=production` in server environment
-2. Update MongoDB connection string to production database
-3. Configure proper OAuth callback URLs for production domain
-4. Set appropriate CORS settings for production
+- Verify MongoDB is running locally, or the Atlas connection string is correct
+- Check network access / IP whitelist on Atlas
 
-## Common Issues and Solutions
+### Google login fails
 
-### MongoDB Connection Issues
+- Confirm `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `server/.env`
+- Authorized redirect URI must be `http://localhost:4000/api/user/auth/google/callback`
+- See [GOOGLE_AUTH_SETUP.md](./GOOGLE_AUTH_SETUP.md)
 
-**Problem**: Cannot connect to MongoDB
-**Solution**:
+### Frontend can't reach the API
 
-- Check if MongoDB service is running
-- Verify connection string in `.env`
-- Ensure network access is properly configured
+- Both servers must be running
+- `VITE_API_URL` in `client/.env` must match the server port
+- Check `CORS_ORIGINS` in `server/.env` includes the client origin
 
-### OAuth Authentication Failures
+### Session / auth issues
 
-**Problem**: Google login not working
-**Solution**:
-
-- Verify Client ID and Client Secret are correct
-- Check authorized domains and callback URLs
-- Ensure the consent screen is properly configured
-
-### Frontend API Connection Issues
-
-**Problem**: Frontend cannot connect to backend API
-**Solution**:
-
-- Check if CORS is properly configured on server
-- Verify API URL in client `.env` file
-- Ensure both client and server are running
-
-### JWT Token Issues
-
-**Problem**: Authentication token issues
-**Solution**:
-
-- Check JWT_SECRET in server `.env`
-- Verify token is being properly stored and sent with requests
-- Check for token expiration handling
+- See [AUTH_SESSION_FLOW.md](./AUTH_SESSION_FLOW.md)
+- For local dev: `COOKIE_SECURE=false`, `COOKIE_SAMESITE=lax`
+- Clear cookies and `localStorage` token if stuck in a bad state
 
 ## Additional Resources
 
 - [MongoDB Documentation](https://docs.mongodb.com/)
-- [React Documentation](https://reactjs.org/docs/getting-started.html)
-- [Node.js Documentation](https://nodejs.org/en/docs/)
-- [Express.js Guide](https://expressjs.com/en/guide/routing.html)
-- [React Beautiful DnD Documentation](https://github.com/atlassian/react-beautiful-dnd)
+- [React Documentation](https://react.dev/)
+- [Vite Documentation](https://vitejs.dev/)
+- [@dnd-kit Documentation](https://docs.dndkit.com/)
+- [SWR Documentation](https://swr.vercel.app/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
