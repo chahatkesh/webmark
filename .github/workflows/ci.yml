@@ -6,9 +6,16 @@ on:
     branches:
       - main
 
+env:
+  VERCEL_CLI_VERSION: 55.0.0
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   client:
-    name: Client
+    name: Client Quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,10 +27,11 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter client run lint
+      - run: pnpm --filter client run type-check
       - run: pnpm --filter client run build
 
   server:
-    name: Server
+    name: Server Quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,3 +44,90 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter server run lint
       - run: pnpm --filter server run build
+
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+
+  deploy-client:
+    name: Deploy Client
+    needs: [client, server, format]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_CLIENT_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: npm install -g vercel@${{ env.VERCEL_CLI_VERSION }}
+      - name: Pull production environment
+        working-directory: client
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build production
+        working-directory: client
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy production
+        working-directory: client
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  deploy-server:
+    name: Deploy Server
+    needs: [client, server, format]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_SERVER_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: npm install -g vercel@${{ env.VERCEL_CLI_VERSION }}
+      - name: Pull production environment
+        working-directory: server
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build production
+        working-directory: server
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Verify serverless bundle includes dependencies
+        working-directory: server
+        run: |
+          FUNC_DIR=".vercel/output/functions/server.js.func"
+          FILE_COUNT=$(find "$FUNC_DIR" -type f | wc -l | tr -d ' ')
+          if [ "$FILE_COUNT" -lt 100 ]; then
+            echo "Serverless bundle only has ${FILE_COUNT} files; dependencies were not bundled."
+            echo "Check VERCEL_CLI_VERSION (must be >= 55 for pnpm monorepos)."
+            exit 1
+          fi
+          if ! find "$FUNC_DIR" -path '*/node_modules/*' -name 'package.json' | grep -q .; then
+            echo "Serverless bundle is missing node_modules; deploy would crash at runtime."
+            exit 1
+          fi
+      - name: Deploy production
+        run: |
+          mkdir -p .vercel
+          cp server/.vercel/project.json .vercel/project.json
+          cp -r server/.vercel/output .vercel/output
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

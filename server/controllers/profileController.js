@@ -1,10 +1,10 @@
-import User from '../models/userModel.js';
-import Bookmark from '../models/bookmarkModel.js';
-import Category from '../models/categoryModel.js';
+import User from "../models/userModel.js";
+import Bookmark from "../models/bookmarkModel.js";
+import Category from "../models/categoryModel.js";
 import {
   getActiveDevicesForResponse,
   persistDeviceActivity,
-} from '../utils/deviceTracking.js';
+} from "../utils/deviceTracking.js";
 
 const AVERAGE_TIME_SAVED_PER_CLICK = 10;
 
@@ -27,19 +27,22 @@ const getClickStatsForUser = async (user, categoryIds) => {
 
   const [topBookmarks, bookmarkTotalClicks] = await Promise.all([
     Bookmark.find({ categoryId: { $in: categoryIds }, clickCount: { $gt: 0 } })
-      .select('name link logo clickCount lastClicked')
+      .select("name link logo clickCount lastClicked")
       .sort({ clickCount: -1 })
       .limit(5)
       .lean(),
     Bookmark.aggregate([
       { $match: { categoryId: { $in: categoryIds } } },
-      { $group: { _id: null, total: { $sum: { $ifNull: ['$clickCount', 0] } } } },
+      {
+        $group: { _id: null, total: { $sum: { $ifNull: ["$clickCount", 0] } } },
+      },
     ]),
   ]);
 
   const aggregatedClicks = bookmarkTotalClicks[0]?.total || 0;
   const totalClicks = user.stats?.totalClicks || aggregatedClicks;
-  const timeSaved = user.stats?.timeSaved || aggregatedClicks * AVERAGE_TIME_SAVED_PER_CLICK;
+  const timeSaved =
+    user.stats?.timeSaved || aggregatedClicks * AVERAGE_TIME_SAVED_PER_CLICK;
 
   return {
     totalClicks,
@@ -63,16 +66,16 @@ export const getProfileInfo = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: "User not found",
       });
     }
 
     const userId = user._id;
-    const userAgent = req.headers['user-agent'];
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const deviceIdHeader = req.headers['device-id'];
+    const userAgent = req.headers["user-agent"];
+    const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    const deviceIdHeader = req.headers["device-id"];
 
-    const categories = await Category.find({ userId }).select('_id').lean();
+    const categories = await Category.find({ userId }).select("_id").lean();
     const categoryIds = categories.map((category) => category._id);
 
     const [bookmarkCount, clickStats, deviceInfo] = await Promise.all([
@@ -80,18 +83,20 @@ export const getProfileInfo = async (req, res) => {
         ? Bookmark.countDocuments({ categoryId: { $in: categoryIds } })
         : Promise.resolve(0),
       getClickStatsForUser(user, categoryIds),
-      Promise.resolve(getActiveDevicesForResponse(user, userAgent, ip, deviceIdHeader)),
+      Promise.resolve(
+        getActiveDevicesForResponse(user, userAgent, ip, deviceIdHeader),
+      ),
     ]);
 
-    res.set('X-Device-ID', deviceInfo.deviceId);
+    res.set("X-Device-ID", deviceInfo.deviceId);
 
     res.json({
       success: true,
       profile: {
         username: user.username,
         email: user.email,
-        name: user.name || '',
-        profilePicture: user.profilePicture || '',
+        name: user.name || "",
+        profilePicture: user.profilePicture || "",
         joinedAt: user.joinedAt,
         lastLogin: user.lastLogin || deviceInfo.currentLogin,
         lastLoginDevice: user.lastLoginDevice || userAgent,
@@ -107,14 +112,16 @@ export const getProfileInfo = async (req, res) => {
       clickStats,
     });
 
-    persistDeviceActivity(userId, userAgent, ip, deviceIdHeader).catch((error) => {
-      console.error('Failed to persist device activity:', error);
-    });
+    persistDeviceActivity(userId, userAgent, ip, deviceIdHeader).catch(
+      (error) => {
+        console.error("Failed to persist device activity:", error);
+      },
+    );
   } catch (error) {
-    console.error('Error fetching profile information:', error);
+    console.error("Error fetching profile information:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching profile information',
+      message: "Error fetching profile information",
     });
   }
 };
@@ -129,7 +136,7 @@ export const updateProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: "User not found",
       });
     }
 
@@ -140,7 +147,7 @@ export const updateProfile = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Profile updated successfully',
+      message: "Profile updated successfully",
       profile: {
         username: user.username,
         email: user.email,
@@ -149,10 +156,10 @@ export const updateProfile = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error("Error updating profile:", error);
     res.status(500).json({
       success: false,
-      message: 'Error updating profile information',
+      message: "Error updating profile information",
     });
   }
 };

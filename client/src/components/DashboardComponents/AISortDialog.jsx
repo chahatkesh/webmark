@@ -21,10 +21,10 @@ import {
 } from "lucide-react";
 
 const STAGES = [
-  { label: "Collecting your bookmarks",       icon: BookOpen,   pct: 12 },
-  { label: "Building a smart taxonomy",        icon: Layers,     pct: 38 },
-  { label: "Assigning bookmarks to categories",icon: Tag,        pct: 72 },
-  { label: "Saving changes to your library",   icon: HardDrive,  pct: 92 },
+  { label: "Collecting your bookmarks", icon: BookOpen, pct: 12 },
+  { label: "Building a smart taxonomy", icon: Layers, pct: 38 },
+  { label: "Assigning bookmarks to categories", icon: Tag, pct: 72 },
+  { label: "Saving changes to your library", icon: HardDrive, pct: 92 },
 ];
 
 // Approximate real delays matching server work (Pass 1 ~ 5s, Pass 2 batches ~ 10s+)
@@ -120,7 +120,10 @@ const AISortDialog = ({
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-3 gap-3 text-center">
               <Stat label="Bookmarks" value={results.totalBookmarks} />
-              <Stat label="Categories" value={results.taxonomy?.length ?? "—"} />
+              <Stat
+                label="Categories"
+                value={results.taxonomy?.length ?? "—"}
+              />
               <Stat label="Moved" value={results.bookmarksMoved} />
             </div>
             <p className="text-sm text-gray-500 text-center">
@@ -177,7 +180,8 @@ const AISortDialog = ({
                 setStageIdx(-1);
                 setProgress(0);
                 handleConfirm();
-              }}>
+              }}
+            >
               Retry
             </Button>
           </div>
@@ -192,7 +196,8 @@ const AISortDialog = ({
       <Dialog open={open} onOpenChange={() => {}}>
         <DialogContent
           className="sm:max-w-md [&>button]:hidden"
-          onInteractOutside={(e) => e.preventDefault()}>
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-blue-500 animate-pulse" />
@@ -225,15 +230,17 @@ const AISortDialog = ({
                     key={stage.label}
                     className={`flex items-center gap-3 text-sm transition-opacity duration-300 ${
                       future ? "opacity-30" : "opacity-100"
-                    }`}>
+                    }`}
+                  >
                     <span
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${
                         done
                           ? "border-green-200 bg-green-50 text-green-600"
                           : active
-                          ? "border-blue-200 bg-blue-50 text-blue-600"
-                          : "border-gray-200 bg-gray-50 text-gray-400"
-                      }`}>
+                            ? "border-blue-200 bg-blue-50 text-blue-600"
+                            : "border-gray-200 bg-gray-50 text-gray-400"
+                      }`}
+                    >
                       {done ? (
                         <CheckCircle2 className="h-4 w-4" />
                       ) : (
@@ -247,9 +254,10 @@ const AISortDialog = ({
                         done
                           ? "text-gray-400 line-through"
                           : active
-                          ? "font-medium text-gray-900"
-                          : "text-gray-400"
-                      }>
+                            ? "font-medium text-gray-900"
+                            : "text-gray-400"
+                      }
+                    >
                       {stage.label}
                     </span>
                   </li>
@@ -312,19 +320,25 @@ const AISortDialog = ({
                   option.disabled
                     ? "cursor-not-allowed border-gray-100 bg-gray-50 opacity-60"
                     : selected
-                    ? "border-blue-300 bg-blue-50 ring-2 ring-blue-200"
-                    : "border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50/40"
-                }`}>
+                      ? "border-blue-300 bg-blue-50 ring-2 ring-blue-200"
+                      : "border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50/40"
+                }`}
+              >
                 <div className="flex items-start gap-3">
                   <span
                     className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                      selected ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-500"
-                    }`}>
+                      selected
+                        ? "bg-blue-100 text-blue-600"
+                        : "bg-gray-100 text-gray-500"
+                    }`}
+                  >
                     <Icon className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">
                     <p className="font-medium text-gray-900">{option.title}</p>
-                    <p className="mt-1 text-sm text-gray-500">{option.description}</p>
+                    <p className="mt-1 text-sm text-gray-500">
+                      {option.description}
+                    </p>
                   </div>
                 </div>
               </button>
@@ -340,7 +354,7 @@ const AISortDialog = ({
 
         <div className="flex justify-between items-center pt-1">
           <div>
-            {localStorage.getItem('canRevertAISort') === 'true' && (
+            {localStorage.getItem("canRevertAISort") === "true" && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -362,8 +376,11 @@ const AISortDialog = ({
             </Button>
             <Button
               onClick={handleConfirm}
-              disabled={sortMode === "uncategorized" && uncategorizedCount === 0}
-              className="gap-2">
+              disabled={
+                sortMode === "uncategorized" && uncategorizedCount === 0
+              }
+              className="gap-2"
+            >
               <Sparkles className="h-4 w-4" />
               Start sorting
             </Button>

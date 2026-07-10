@@ -18,7 +18,9 @@ const verifyCronRequest = (req, res, next) => {
 
   const expected = `Bearer ${cronSecret}`;
   if (req.headers.authorization !== expected) {
-    return res.status(401).json({ success: false, message: "Unauthorized cron request" });
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized cron request" });
   }
 
   return next();

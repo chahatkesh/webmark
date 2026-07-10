@@ -32,9 +32,13 @@ export async function generateTaxonomy(titles, existingCategories = []) {
   _totalCalls++;
   const callNum = _totalCalls;
 
-  logAI(`Pass 1 (call #${callNum}) — generating taxonomy from ${titles.length} bookmark titles`);
+  logAI(
+    `Pass 1 (call #${callNum}) — generating taxonomy from ${titles.length} bookmark titles`,
+  );
   if (existingCategories.length > 0) {
-    logAI(`  existing categories (${existingCategories.length}): ${existingCategories.slice(0, 6).join(", ")}${existingCategories.length > 6 ? "..." : ""}`);
+    logAI(
+      `  existing categories (${existingCategories.length}): ${existingCategories.slice(0, 6).join(", ")}${existingCategories.length > 6 ? "..." : ""}`,
+    );
   }
 
   const t0 = Date.now();
@@ -44,7 +48,10 @@ export async function generateTaxonomy(titles, existingCategories = []) {
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: taxonomySystemPrompt(existingCategories) },
-      { role: "user", content: titles.map((t, i) => `${i + 1}. ${t}`).join("\n") },
+      {
+        role: "user",
+        content: titles.map((t, i) => `${i + 1}. ${t}`).join("\n"),
+      },
     ],
     max_tokens: 500,
   });
@@ -54,7 +61,7 @@ export async function generateTaxonomy(titles, existingCategories = []) {
   const usage = response.usage || {};
   logAI(
     `  done in ${Date.now() - t0}ms | tokens in:${usage.prompt_tokens ?? "?"} out:${usage.completion_tokens ?? "?"} | ` +
-    `taxonomy (${taxonomy.length}): ${taxonomy.join(", ")}`
+      `taxonomy (${taxonomy.length}): ${taxonomy.join(", ")}`,
   );
 
   return taxonomy;
@@ -71,7 +78,7 @@ export async function assignToCategories(bookmarks, taxonomy) {
   const results = [];
 
   logAI(
-    `Pass 2 — assigning ${bookmarks.length} bookmarks in ${totalBatches} batch${totalBatches !== 1 ? "es" : ""} of ≤${BATCH_SIZE}`
+    `Pass 2 — assigning ${bookmarks.length} bookmarks in ${totalBatches} batch${totalBatches !== 1 ? "es" : ""} of ≤${BATCH_SIZE}`,
   );
 
   for (let i = 0; i < bookmarks.length; i += BATCH_SIZE) {
@@ -80,7 +87,9 @@ export async function assignToCategories(bookmarks, taxonomy) {
     _totalCalls++;
     const callNum = _totalCalls;
 
-    logAI(`  batch ${batchNum}/${totalBatches} (call #${callNum}) — ${batch.length} bookmarks`);
+    logAI(
+      `  batch ${batchNum}/${totalBatches} (call #${callNum}) — ${batch.length} bookmarks`,
+    );
 
     const batchItems = batch.map((b, idx) => ({
       index: i + idx,
@@ -103,13 +112,15 @@ export async function assignToCategories(bookmarks, taxonomy) {
     const parsed = JSON.parse(response.choices[0].message.content);
     const usage = response.usage || {};
     logAI(
-      `  batch ${batchNum} done in ${Date.now() - t0}ms | tokens in:${usage.prompt_tokens ?? "?"} out:${usage.completion_tokens ?? "?"} | ${parsed.assignments.length} assignments`
+      `  batch ${batchNum} done in ${Date.now() - t0}ms | tokens in:${usage.prompt_tokens ?? "?"} out:${usage.completion_tokens ?? "?"} | ${parsed.assignments.length} assignments`,
     );
 
     results.push(...parsed.assignments);
   }
 
-  logAI(`Pass 2 complete — ${results.length} total assignments across ${_totalCalls} total AI calls this session`);
+  logAI(
+    `Pass 2 complete — ${results.length} total assignments across ${_totalCalls} total AI calls this session`,
+  );
   return results;
 }
 
@@ -123,7 +134,7 @@ export async function categorizeSingle(title, url, existingCategories) {
   const callNum = _totalCalls;
 
   logAI(
-    `Bookmarklet single (call #${callNum}) — 1 bookmark: "${title.slice(0, 60)}" → pick from ${existingCategories.length} categories`
+    `Bookmarklet single (call #${callNum}) — 1 bookmark: "${title.slice(0, 60)}" → pick from ${existingCategories.length} categories`,
   );
 
   const t0 = Date.now();
@@ -132,7 +143,10 @@ export async function categorizeSingle(title, url, existingCategories) {
     temperature: 0,
     response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: singleCategorizationSystemPrompt(existingCategories) },
+      {
+        role: "system",
+        content: singleCategorizationSystemPrompt(existingCategories),
+      },
       { role: "user", content: `Title: ${title}\nURL: ${url}` },
     ],
     max_tokens: 100,
@@ -141,7 +155,7 @@ export async function categorizeSingle(title, url, existingCategories) {
   const parsed = JSON.parse(response.choices[0].message.content);
   const usage = response.usage || {};
   logAI(
-    `  done in ${Date.now() - t0}ms | tokens in:${usage.prompt_tokens ?? "?"} out:${usage.completion_tokens ?? "?"} | result: "${parsed.category ?? "null (no match)"}"` 
+    `  done in ${Date.now() - t0}ms | tokens in:${usage.prompt_tokens ?? "?"} out:${usage.completion_tokens ?? "?"} | result: "${parsed.category ?? "null (no match)"}"`,
   );
 
   return parsed.category;

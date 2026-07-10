@@ -1,6 +1,6 @@
 /**
  * URL Canonicalization Utility
- * 
+ *
  * This utility helps prevent duplicate content issues by enforcing consistent URL patterns
  * for improved SEO. It can:
  * 1. Create canonical URLs
@@ -10,7 +10,7 @@
 
 /**
  * Generate a canonical URL for the current page
- * 
+ *
  * @param {Object} options - Options for URL generation
  * @param {string} options.path - The current path (without domain)
  * @param {boolean} options.useTrailingSlash - Whether to enforce trailing slashes (default: false)
@@ -22,18 +22,34 @@ export function getCanonicalUrl({
   path = window.location.pathname,
   useTrailingSlash = false,
   queryParams = {},
-  ignoreParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid']
+  ignoreParams = [
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_term",
+    "utm_content",
+    "fbclid",
+    "gclid",
+  ],
 }) {
   // Base domain
-  const domain = 'https://webmark.chahatkesh.me';
+  const domain = "https://webmark.chahatkesh.me";
 
   // Normalize path
   let normalizedPath = path;
 
   // Enforce trailing slash policy
-  if (useTrailingSlash && !normalizedPath.endsWith('/') && !normalizedPath.includes('.')) {
+  if (
+    useTrailingSlash &&
+    !normalizedPath.endsWith("/") &&
+    !normalizedPath.includes(".")
+  ) {
     normalizedPath = `${normalizedPath}/`;
-  } else if (!useTrailingSlash && normalizedPath.endsWith('/') && normalizedPath !== '/') {
+  } else if (
+    !useTrailingSlash &&
+    normalizedPath.endsWith("/") &&
+    normalizedPath !== "/"
+  ) {
     normalizedPath = normalizedPath.slice(0, -1);
   }
 
@@ -70,13 +86,13 @@ export function getCanonicalUrl({
 /**
  * Check if the current URL matches its canonical form, and redirect if it doesn't
  * Should be used in top-level components to enforce canonical URLs
- * 
+ *
  * @param {Object} options - Options as defined in getCanonicalUrl
  * @returns {boolean} Whether a redirect was performed
  */
 export function enforceCanonicalUrl(options = {}) {
   const canonical = getCanonicalUrl(options);
-  const current = window.location.href.split('#')[0]; // Ignore hash fragments
+  const current = window.location.href.split("#")[0]; // Ignore hash fragments
 
   if (current !== canonical) {
     // Preserve hash fragment if present
@@ -90,5 +106,5 @@ export function enforceCanonicalUrl(options = {}) {
 
 export default {
   getCanonicalUrl,
-  enforceCanonicalUrl
+  enforceCanonicalUrl,
 };

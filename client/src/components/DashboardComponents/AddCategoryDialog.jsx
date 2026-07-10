@@ -220,7 +220,8 @@ const AddCategoryDialog = ({ open, onClose }) => {
               <button
                 type="button"
                 className="w-12 h-12 flex items-center justify-center text-md rounded-md border border-gray-200 bg-white hover:bg-gray-50"
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              >
                 {formData.emoji}
               </button>
               {showEmojiPicker && (
@@ -243,7 +244,8 @@ const AddCategoryDialog = ({ open, onClose }) => {
                 <span
                   className={`text-xs ${
                     error ? "text-red-500" : "text-gray-500"
-                  }`}>
+                  }`}
+                >
                   {formData.category.length}/{MAX_CATEGORY_LENGTH}
                 </span>
               </div>
@@ -287,12 +289,14 @@ const AddCategoryDialog = ({ open, onClose }) => {
                           ? "ring-2 ring-blue-500 ring-offset-2"
                           : "hover:scale-110"
                       }`}
-                              style={{ backgroundColor: theme.h }}></button>
+                              style={{ backgroundColor: theme.h }}
+                            ></button>
                             {/* Updated subtle tooltip */}
                             <span
                               className="absolute hidden group-hover:block whitespace-nowrap 
                              left-1/2 -translate-x-1/2 -bottom-[13px] text-[10px] text-gray-600
-                             pointer-events-none transition-opacity">
+                             pointer-events-none transition-opacity"
+                            >
                               {theme.name}
                             </span>
                           </div>
@@ -318,12 +322,14 @@ const AddCategoryDialog = ({ open, onClose }) => {
             <div className="p-4">
               <div
                 className="p-3 rounded-lg flex items-center space-x-2 max-w-full"
-                style={{ backgroundColor: formData.bgcolor }}>
+                style={{ backgroundColor: formData.bgcolor }}
+              >
                 <span className="text-xl flex-shrink-0">{formData.emoji}</span>
                 <span
                   className="font-medium truncate flex-1 min-w-0"
                   style={{ color: formData.hcolor }}
-                  title={formData.category || "Category Name"}>
+                  title={formData.category || "Category Name"}
+                >
                   {formData.category || "Category Name"}
                 </span>
               </div>
@@ -337,9 +343,10 @@ const AddCategoryDialog = ({ open, onClose }) => {
                 "bg-blue-500 hover:bg-blue-600 text-white",
                 "transition-colors",
                 "relative",
-                isSubmitting && "pl-9"
+                isSubmitting && "pl-9",
               )}
-              disabled={isSubmitting || !formData.category.trim() || !!error}>
+              disabled={isSubmitting || !formData.category.trim() || !!error}
+            >
               {isSubmitting && (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               )}

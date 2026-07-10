@@ -1,5 +1,5 @@
-import useSWR from 'swr';
-import { apiRequest } from '../utils/apiClient';
+import useSWR from "swr";
+import { apiRequest } from "../utils/apiClient";
 
 export const useTweet = (tweetId) =>
   useSWR(
@@ -8,5 +8,5 @@ export const useTweet = (tweetId) =>
     {
       revalidateOnFocus: false,
       dedupingInterval: 60_000,
-    }
+    },
   );

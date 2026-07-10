@@ -42,7 +42,8 @@ const ConfirmDeleteDialog = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
         className="rounded-xl p-6 bg-white w-full max-w-[95vw] sm:max-w-md"
-        onKeyDown={handleKeyDown}>
+        onKeyDown={handleKeyDown}
+      >
         <DialogHeader className="space-y-4">
           {/* Title with warning icon */}
           <DialogTitle className="flex gap-3 items-center text-red-600">
@@ -62,7 +63,8 @@ const ConfirmDeleteDialog = ({
             onClick={onClose}
             disabled={isDeleting}
             ref={cancelRef}
-            className="h-11 px-5 font-medium">
+            className="h-11 px-5 font-medium"
+          >
             Cancel
           </Button>
           <Button
@@ -74,8 +76,9 @@ const ConfirmDeleteDialog = ({
               "bg-red-500 hover:bg-red-600 text-white",
               "transition-colors",
               "relative",
-              isDeleting && "pl-9"
-            )}>
+              isDeleting && "pl-9",
+            )}
+          >
             {isDeleting && (
               <Loader2 className="h-4 w-4 absolute left-3 animate-spin" />
             )}

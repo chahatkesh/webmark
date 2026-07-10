@@ -10,20 +10,21 @@
 export const formatError = (error, additionalInfo = {}) => {
   // Extract useful information from the error
   const formattedError = {
-    message: error.message || 'Unknown error',
+    message: error.message || "Unknown error",
     name: error.name,
     stack: import.meta.env.DEV ? error.stack : undefined,
     timestamp: new Date().toISOString(),
     url: window.location.href,
     userAgent: navigator.userAgent,
-    ...additionalInfo
+    ...additionalInfo,
   };
 
   // Filter out sensitive information
   if (formattedError.stack) {
     formattedError.stack = formattedError.stack.replace(
       /\b(?:password|token|key|secret|auth)\b[:=]["'][^"']+["']/gi,
-      match => match.replace(/[:=]["'][^"']+["']/, _match => ':"[REDACTED]"')
+      (match) =>
+        match.replace(/[:=]["'][^"']+["']/, (_match) => ':"[REDACTED]"'),
     );
   }
 
@@ -39,7 +40,7 @@ export const reportError = (error, additionalInfo = {}) => {
   const formattedError = formatError(error, additionalInfo);
 
   // Log to console in development
-  console.error('Webmark Error:', formattedError);
+  console.error("Webmark Error:", formattedError);
 
   // In production, you could send this to a backend API
   if (import.meta.env.PROD) {
@@ -49,7 +50,6 @@ export const reportError = (error, additionalInfo = {}) => {
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify(formattedError)
     // }).catch(err => console.error('Failed to report error:', err));
-
     // Or use a service like Sentry
     // Sentry.captureException(error, { extra: additionalInfo });
   }
@@ -69,11 +69,11 @@ export const withErrorHandling = (fn, additionalInfo = {}) => {
       return await fn(...args);
     } catch (error) {
       reportError(error, {
-        functionName: fn.name || 'anonymous function',
-        arguments: JSON.stringify(args.map(arg =>
-          typeof arg === 'object' ? '[Object]' : arg
-        )),
-        ...additionalInfo
+        functionName: fn.name || "anonymous function",
+        arguments: JSON.stringify(
+          args.map((arg) => (typeof arg === "object" ? "[Object]" : arg)),
+        ),
+        ...additionalInfo,
       });
       throw error; // Re-throw so it can be handled by React Error Boundary
     }

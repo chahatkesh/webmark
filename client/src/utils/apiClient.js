@@ -1,4 +1,5 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 let refreshPromise = null;
 
@@ -55,7 +56,11 @@ export const refreshSession = async () => {
         const data = await readJson(response);
 
         if (!response.ok || data?.success === false) {
-          throw new ApiError(data?.message || "Session refresh failed", response, data);
+          throw new ApiError(
+            data?.message || "Session refresh failed",
+            response,
+            data,
+          );
         }
 
         if (data?.accessToken) {
@@ -89,11 +94,19 @@ export const apiRequest = async (path, options = {}) => {
   const requestHeaders = new Headers(headers);
   const legacyToken = localStorage.getItem("token");
 
-  if (legacyToken && !requestHeaders.has("Authorization") && !requestHeaders.has("token")) {
+  if (
+    legacyToken &&
+    !requestHeaders.has("Authorization") &&
+    !requestHeaders.has("token")
+  ) {
     requestHeaders.set("Authorization", `Bearer ${legacyToken}`);
   }
 
-  if (body !== undefined && !(body instanceof FormData) && !requestHeaders.has("Content-Type")) {
+  if (
+    body !== undefined &&
+    !(body instanceof FormData) &&
+    !requestHeaders.has("Content-Type")
+  ) {
     requestHeaders.set("Content-Type", "application/json");
   }
 
@@ -123,7 +136,11 @@ export const apiRequest = async (path, options = {}) => {
 
   if (!parseJson) {
     if (!response.ok) {
-      throw new ApiError(response.statusText || "Request failed", response, null);
+      throw new ApiError(
+        response.statusText || "Request failed",
+        response,
+        null,
+      );
     }
     return response;
   }
@@ -131,7 +148,11 @@ export const apiRequest = async (path, options = {}) => {
   const data = await readJson(response);
 
   if (!response.ok || data?.success === false) {
-    throw new ApiError(data?.message || response.statusText || "Request failed", response, data);
+    throw new ApiError(
+      data?.message || response.statusText || "Request failed",
+      response,
+      data,
+    );
   }
 
   return data;

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -15,49 +15,55 @@ const userSchema = new mongoose.Schema({
   refreshTokenHash: { type: String },
   previousRefreshTokenHash: { type: String },
   previousRefreshTokenExpiresAt: { type: Date },
-  loginDevices: [{
-    deviceId: { type: String },
-    userAgent: { type: String },
-    lastActive: { type: Date, default: Date.now },
-    deviceName: { type: String },
-    isActive: { type: Boolean, default: true }
-  }],
+  loginDevices: [
+    {
+      deviceId: { type: String },
+      userAgent: { type: String },
+      lastActive: { type: Date, default: Date.now },
+      deviceName: { type: String },
+      isActive: { type: Boolean, default: true },
+    },
+  ],
   stats: {
     totalClicks: { type: Number, default: 0 },
     timeSaved: { type: Number, default: 0 }, // in seconds
     lastClickedBookmark: {
       timestamp: { type: Date },
-      bookmarkId: { type: mongoose.Schema.Types.ObjectId, ref: 'Bookmark' },
-      name: { type: String }
-    }
+      bookmarkId: { type: mongoose.Schema.Types.ObjectId, ref: "Bookmark" },
+      name: { type: String },
+    },
   },
   // AI Sort usage limits
   aiSortsRemaining: { type: Number, default: 5 },
   importBonusUsedThisMonth: { type: Number, default: 0 },
-  importBonusMonthKey: { type: String, default: '' },
+  importBonusMonthKey: { type: String, default: "" },
   // Snapshot for AI Sort revert (stores the state before last sort)
   aiSortSnapshot: {
-    bookmarks: [{
-      bookmarkId: { type: mongoose.Schema.Types.ObjectId },
-      categoryId: { type: mongoose.Schema.Types.ObjectId },
-      order: { type: Number },
-    }],
-    categories: [{
-      categoryId: { type: mongoose.Schema.Types.ObjectId },
-      category: { type: String },
-      emoji: { type: String },
-      bgcolor: { type: String },
-      hcolor: { type: String },
-      order: { type: Number },
-    }],
+    bookmarks: [
+      {
+        bookmarkId: { type: mongoose.Schema.Types.ObjectId },
+        categoryId: { type: mongoose.Schema.Types.ObjectId },
+        order: { type: Number },
+      },
+    ],
+    categories: [
+      {
+        categoryId: { type: mongoose.Schema.Types.ObjectId },
+        category: { type: String },
+        emoji: { type: String },
+        bgcolor: { type: String },
+        hcolor: { type: String },
+        order: { type: Number },
+      },
+    ],
     createdAt: { type: Date },
   },
-})
+});
 
 userSchema.index({ joinedAt: -1 });
 userSchema.index({ refreshTokenHash: 1 }, { sparse: true });
 userSchema.index({ previousRefreshTokenHash: 1 }, { sparse: true });
 
-const userModel = mongoose.model.user || mongoose.model("user", userSchema)
+const userModel = mongoose.model.user || mongoose.model("user", userSchema);
 
 export default userModel;

@@ -90,7 +90,7 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
       setSearchResults(results);
     } catch (error) {
       setSearchError(
-        "Failed to fetch logos. Please try a different search or enter URL manually."
+        "Failed to fetch logos. Please try a different search or enter URL manually.",
       );
     } finally {
       setIsSearching(false);
@@ -185,7 +185,8 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
                     setSearchQuery(formData.link);
                     searchLogos(formData.link);
                   }
-                }}>
+                }}
+              >
                 {showLogoSearch ? "Hide Search" : "Search Logos"}
               </Button>
             </div>
@@ -204,7 +205,8 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
                     type="button"
                     size="sm"
                     disabled={isSubmitting}
-                    onClick={handleLogoSearch}>
+                    onClick={handleLogoSearch}
+                  >
                     <Search className="h-4 w-4" />
                   </Button>
                 </div>
@@ -228,7 +230,8 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
                         type="button"
                         onClick={() => selectLogo(logo.url)}
                         disabled={isSubmitting}
-                        className="p-2 border rounded hover:bg-gray-100 flex flex-col items-center gap-2">
+                        className="p-2 border rounded hover:bg-gray-100 flex flex-col items-center gap-2"
+                      >
                         <div className="w-12 h-12 flex items-center justify-center border rounded bg-white">
                           <img
                             src={logo.url}
@@ -266,7 +269,8 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
                     size="icon"
                     disabled={isSubmitting}
                     onClick={() => setFormData({ ...formData, logo: "" })}
-                    className="shrink-0">
+                    className="shrink-0"
+                  >
                     <X className="h-4 w-4" />
                   </Button>
                 )}

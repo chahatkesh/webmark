@@ -21,7 +21,8 @@ const Navbar = () => {
                 width="110"
                 height="26"
                 viewBox="0 0 123 29"
-                fill="none">
+                fill="none"
+              >
                 <path
                   d="M3.28222 28.3282L0.42334 4.82263H5.23829L6.81493 17.4423L8.16259 4.82263H13.0757L14.6785 17.4423L15.9934 4.82263H21.2925L18.2766 28.3282H12.657L10.9888 14.9694L9.51026 28.3282H3.28222Z"
                   fill={logoColour}
@@ -64,27 +65,32 @@ const Navbar = () => {
             <ul className="flex flex-grow flex-wrap justify-center items-center gap-4 lg:gap-8 text-sm">
               <li
                 onClick={() => scrollToSection("home")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
+              >
                 home
               </li>
               <li
                 onClick={() => scrollToSection("features")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
+              >
                 features
               </li>
               <li
                 onClick={() => scrollToSection("how-to-use")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
+              >
                 how to use
               </li>
               <li
                 onClick={() => scrollToSection("about-us")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
+              >
                 about us
               </li>
               <li
                 onClick={() => scrollToSection("contact")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3">
+                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
+              >
                 contact
               </li>
             </ul>
@@ -94,7 +100,8 @@ const Navbar = () => {
               <li>
                 <a
                   className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
-                  href="/user/dashboard">
+                  href="/user/dashboard"
+                >
                   Dashboard
                 </a>
               </li>
@@ -102,7 +109,8 @@ const Navbar = () => {
               <li>
                 <a
                   className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-4 pr-4 pt-[6px] pb-[6px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
-                  href="/auth">
+                  href="/auth"
+                >
                   Get Started
                 </a>
               </li>

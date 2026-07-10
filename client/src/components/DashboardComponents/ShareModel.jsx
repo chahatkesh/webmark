@@ -12,7 +12,7 @@ const ShareModal = ({ isOpen, onClose }) => {
       name: "WhatsApp",
       color: "#25D366",
       url: `https://wa.me/?text=${encodeURIComponent(
-        `${shareMessage}\n${shareUrl}`
+        `${shareMessage}\n${shareUrl}`,
       )}`,
       icon: (
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
@@ -25,7 +25,7 @@ const ShareModal = ({ isOpen, onClose }) => {
       name: "Twitter",
       color: "#1DA1F2",
       url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-        `${shareMessage}\n${shareUrl}`
+        `${shareMessage}\n${shareUrl}`,
       )}`,
       icon: (
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
@@ -37,7 +37,7 @@ const ShareModal = ({ isOpen, onClose }) => {
       name: "LinkedIn",
       color: "#0A66C2",
       url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-        shareUrl
+        shareUrl,
       )}`,
       icon: (
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
@@ -49,7 +49,7 @@ const ShareModal = ({ isOpen, onClose }) => {
       name: "Facebook",
       color: "#1877F2",
       url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-        shareUrl
+        shareUrl,
       )}`,
       icon: (
         <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
@@ -110,7 +110,8 @@ const ShareModal = ({ isOpen, onClose }) => {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="text-blue-500">
+              className="text-blue-500"
+            >
               <circle cx="18" cy="5" r="3"></circle>
               <circle cx="6" cy="12" r="3"></circle>
               <circle cx="18" cy="19" r="3"></circle>
@@ -122,7 +123,8 @@ const ShareModal = ({ isOpen, onClose }) => {
           <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-gray-100"
-            aria-label="Close dialog">
+            aria-label="Close dialog"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -132,7 +134,8 @@ const ShareModal = ({ isOpen, onClose }) => {
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
-              strokeLinejoin="round">
+              strokeLinejoin="round"
+            >
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -148,7 +151,8 @@ const ShareModal = ({ isOpen, onClose }) => {
             </div>
             <button
               onClick={handleCopyLink}
-              className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded transition-colors flex items-center gap-1.5">
+              className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded transition-colors flex items-center gap-1.5"
+            >
               {copied ? (
                 <>
                   <svg
@@ -159,7 +163,8 @@ const ShareModal = ({ isOpen, onClose }) => {
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
-                    strokeLinejoin="round">
+                    strokeLinejoin="round"
+                  >
                     <path d="M20 6L9 17l-5-5"></path>
                   </svg>
                   Copied
@@ -174,14 +179,16 @@ const ShareModal = ({ isOpen, onClose }) => {
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
-                    strokeLinejoin="round">
+                    strokeLinejoin="round"
+                  >
                     <rect
                       x="9"
                       y="9"
                       width="13"
                       height="13"
                       rx="2"
-                      ry="2"></rect>
+                      ry="2"
+                    ></rect>
                     <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
                   </svg>
                   Copy
@@ -211,7 +218,8 @@ const ShareModal = ({ isOpen, onClose }) => {
                 className="p-2 rounded-full hover:bg-gray-100 transition-all flex items-center justify-center"
                 title={platform.name}
                 aria-label={`Share to ${platform.name}`}
-                style={{ color: platform.color }}>
+                style={{ color: platform.color }}
+              >
                 {platform.icon}
               </button>
             ))}

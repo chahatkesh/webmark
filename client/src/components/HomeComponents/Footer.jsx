@@ -7,7 +7,8 @@ const Footer = () => {
       {/* BIG TEXT - Move it to the top of the component but behind other content */}
       <div
         className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none"
-        style={{ zIndex: 0 }}>
+        style={{ zIndex: 0 }}
+      >
         <div className="relative w-full h-60 top-[75%] sm:top-[65%] lg:top-[45%] opacity-65">
           {/* Text */}
           <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-[352px] font-bold leading-none text-gray-100">
@@ -34,7 +35,8 @@ const Footer = () => {
                     width="26"
                     height="27"
                     viewBox="0 0 26 27"
-                    fill="none">
+                    fill="none"
+                  >
                     <path
                       fillRule="evenodd"
                       clipRule="evenodd"

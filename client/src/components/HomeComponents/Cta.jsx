@@ -27,7 +27,8 @@ const Cta = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full sm:w-auto sm:mb-0 mb-4 shadow text-white bg-blue-500 hover:bg-blue-600 hover:font-[600] pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem]"
-              href="/auth">
+              href="/auth"
+            >
               <span className="inline-flex items-center relative">
                 Get Started
                 <span className="tracking-[0rem] ml-1 text-[#93c5fd]">

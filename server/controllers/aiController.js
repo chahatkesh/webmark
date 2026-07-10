@@ -89,7 +89,8 @@ export const aiSortBookmarks = async (req, res) => {
     if (sortsLeft <= 0) {
       return res.json({
         success: false,
-        message: "You've used all your AI Sort credits. Import bookmarks to earn more (up to 2 per month).",
+        message:
+          "You've used all your AI Sort credits. Import bookmarks to earn more (up to 2 per month).",
         aiSortsRemaining: 0,
       });
     }
@@ -325,7 +326,9 @@ export const aiSortBookmarks = async (req, res) => {
 
     // 6.5 Reorder split siblings (full sort only)
     if (sortMode === "all") {
-      const finalCats = await Category.find({ userId }).lean().sort({ order: 1 });
+      const finalCats = await Category.find({ userId })
+        .lean()
+        .sort({ order: 1 });
       const splitChildPattern = /^(.+)\s(\d+)$/;
       const baseNames = new Set(finalCats.map((c) => c.category.toLowerCase()));
       const baseCats = [];
@@ -400,11 +403,17 @@ export const revertAISort = async (req, res) => {
 
     const snapshot = user.aiSortSnapshot;
     if (!snapshot || !snapshot.bookmarks || snapshot.bookmarks.length === 0) {
-      return res.json({ success: false, message: "No sort to revert. You can only revert the most recent AI sort." });
+      return res.json({
+        success: false,
+        message:
+          "No sort to revert. You can only revert the most recent AI sort.",
+      });
     }
 
     // 1. Restore categories that existed before the sort
-    const snapshotCatIds = new Set(snapshot.categories.map((c) => c.categoryId.toString()));
+    const snapshotCatIds = new Set(
+      snapshot.categories.map((c) => c.categoryId.toString()),
+    );
     const currentCats = await Category.find({ userId }).lean();
     const currentCatIds = new Set(currentCats.map((c) => c._id.toString()));
 

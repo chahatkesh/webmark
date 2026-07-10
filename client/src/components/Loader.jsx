@@ -136,7 +136,8 @@ const Loader = (props) => {
                 repeat: Infinity,
                 repeatType: "loop",
                 delay: index * 0.1,
-              }}>
+              }}
+            >
               {letter === " " ? "\u00A0" : letter}
             </motion.div>
           ))}
@@ -187,6 +188,13 @@ Loader.defaultProps = {
   fullScreen: false,
   text: "Webmark",
 };
+
+/** Centered loader for the main content area below the fixed header */
+export const PageContentLoader = () => (
+  <div className="flex min-h-[60vh] items-center justify-center pt-11">
+    <Loader type="spinner" size="lg" />
+  </div>
+);
 
 // Export component
 export default Loader;

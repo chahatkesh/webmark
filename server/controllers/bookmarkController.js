@@ -21,7 +21,9 @@ const saveBookmarkToCategory = async ({
     return { success: false, message: "Category not found" };
   }
 
-  const lastBookmark = await Bookmark.findOne({ categoryId: category._id }).sort("-order");
+  const lastBookmark = await Bookmark.findOne({
+    categoryId: category._id,
+  }).sort("-order");
   const order = lastBookmark ? lastBookmark.order + 1 : 0;
 
   const bookmark = await Bookmark.create({
@@ -71,7 +73,9 @@ const saveBookmarkViaBookmarklet = async ({ userId, name, link, logo }) => {
     targetCategory = fallbackCategory;
   }
 
-  const lastBookmark = await Bookmark.findOne({ categoryId: targetCategory._id }).sort("-order");
+  const lastBookmark = await Bookmark.findOne({
+    categoryId: targetCategory._id,
+  }).sort("-order");
   const order = lastBookmark ? lastBookmark.order + 1 : 0;
 
   const bookmark = await Bookmark.create({
@@ -98,15 +102,14 @@ export const getBookmarks = async (req, res) => {
     // Verify category belongs to user
     const category = await Category.findOne({
       _id: categoryId,
-      userId: req.body.userId
+      userId: req.body.userId,
     });
 
     if (!category) {
       return res.json({ success: false, message: "Category not found" });
     }
 
-    const bookmarks = await Bookmark.find({ categoryId })
-      .sort('order');
+    const bookmarks = await Bookmark.find({ categoryId }).sort("order");
     res.json({ success: true, bookmarks });
   } catch (error) {
     res.json({ success: false, message: "Error fetching bookmarks" });
@@ -154,18 +157,15 @@ export const bookmarkletSave = async (req, res) => {
 
     const link = decodeURIComponent(rawUrl);
     const title = req.query.title ? decodeURIComponent(req.query.title) : link;
-    const logo =
-      req.query.logo
-        ? decodeURIComponent(req.query.logo)
-        : `https://www.google.com/s2/favicons?domain=${
-            (() => {
-              try {
-                return new URL(link).hostname;
-              } catch {
-                return "";
-              }
-            })()
-          }&sz=128`;
+    const logo = req.query.logo
+      ? decodeURIComponent(req.query.logo)
+      : `https://www.google.com/s2/favicons?domain=${(() => {
+          try {
+            return new URL(link).hostname;
+          } catch {
+            return "";
+          }
+        })()}&sz=128`;
 
     const result = await saveBookmarkViaBookmarklet({
       userId: req.body.userId,
@@ -214,7 +214,7 @@ export const updateBookmark = async (req, res) => {
     // Verify category belongs to user
     const category = await Category.findOne({
       _id: bookmark.categoryId,
-      userId: req.body.userId
+      userId: req.body.userId,
     });
 
     if (!category) {
@@ -224,7 +224,7 @@ export const updateBookmark = async (req, res) => {
     const updatedBookmark = await Bookmark.findByIdAndUpdate(
       bookmarkId,
       { name, link, logo, notes },
-      { new: true }
+      { new: true },
     );
 
     res.json({ success: true, bookmark: updatedBookmark });
@@ -246,7 +246,7 @@ export const deleteBookmark = async (req, res) => {
     // Verify category belongs to user
     const category = await Category.findOne({
       _id: bookmark.categoryId,
-      userId: req.body.userId
+      userId: req.body.userId,
     });
 
     if (!category) {
@@ -267,7 +267,7 @@ export const reorderBookmarks = async (req, res) => {
     // Verify category belongs to user
     const category = await Category.findOne({
       _id: categoryId,
-      userId: req.body.userId
+      userId: req.body.userId,
     });
 
     if (!category) {
@@ -281,7 +281,7 @@ export const reorderBookmarks = async (req, res) => {
           filter: { _id: id, categoryId },
           update: { $set: { order } },
         },
-      }))
+      })),
     );
 
     res.json({ success: true, message: "Bookmark order updated successfully" });
@@ -309,7 +309,10 @@ export const reorderBookmarkLayout = async (req, res) => {
       }
 
       if (!Array.isArray(bookmarks)) {
-        return res.json({ success: false, message: "Invalid bookmarks payload" });
+        return res.json({
+          success: false,
+          message: "Invalid bookmarks payload",
+        });
       }
 
       await Bookmark.bulkWrite(
@@ -322,7 +325,10 @@ export const reorderBookmarkLayout = async (req, res) => {
       );
     }
 
-    res.json({ success: true, message: "Bookmark layout updated successfully" });
+    res.json({
+      success: true,
+      message: "Bookmark layout updated successfully",
+    });
   } catch (error) {
     res.json({ success: false, message: "Error updating bookmark layout" });
   }
@@ -353,7 +359,8 @@ export const importBookmarks = async (req, res) => {
     if (user.importBonusUsedThisMonth >= 2) {
       return res.json({
         success: false,
-        message: "You can only import bookmarks 2 times per month. Your limit resets at the start of next month.",
+        message:
+          "You can only import bookmarks 2 times per month. Your limit resets at the start of next month.",
         aiSortsRemaining: user.aiSortsRemaining ?? 5,
       });
     }
@@ -361,7 +368,11 @@ export const importBookmarks = async (req, res) => {
     const results = { categoriesCreated: 0, bookmarksCreated: 0, skipped: 0 };
 
     for (const folder of folders) {
-      if (!folder.name || !Array.isArray(folder.bookmarks) || folder.bookmarks.length === 0) {
+      if (
+        !folder.name ||
+        !Array.isArray(folder.bookmarks) ||
+        folder.bookmarks.length === 0
+      ) {
         results.skipped++;
         continue;
       }
@@ -380,16 +391,20 @@ export const importBookmarks = async (req, res) => {
       }
 
       // Find current max order in this category
-      const lastBm = await Bookmark.findOne({ categoryId: category._id }).sort("-order");
+      const lastBm = await Bookmark.findOne({ categoryId: category._id }).sort(
+        "-order",
+      );
       let order = lastBm ? lastBm.order + 1 : 0;
 
       const docs = folder.bookmarks
-        .filter(bm => bm.link && bm.name)
-        .map(bm => ({
+        .filter((bm) => bm.link && bm.name)
+        .map((bm) => ({
           categoryId: category._id,
           name: bm.name,
           link: bm.link,
-          logo: bm.logo || `https://www.google.com/s2/favicons?domain=${new URL(bm.link).hostname}&sz=128`,
+          logo:
+            bm.logo ||
+            `https://www.google.com/s2/favicons?domain=${new URL(bm.link).hostname}&sz=128`,
           order: order++,
         }));
 
@@ -418,6 +433,10 @@ export const importBookmarks = async (req, res) => {
     });
   } catch (error) {
     console.error("Import error:", error);
-    res.json({ success: false, message: "Import failed", error: error.message });
+    res.json({
+      success: false,
+      message: "Import failed",
+      error: error.message,
+    });
   }
 };

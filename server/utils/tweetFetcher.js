@@ -1,13 +1,11 @@
-const SYNDICATION_URL = 'https://cdn.syndication.twimg.com/tweet-result';
+const SYNDICATION_URL = "https://cdn.syndication.twimg.com/tweet-result";
 const TWEET_ID_PATTERN = /^[0-9]+$/;
 
 const getSyndicationToken = (id) =>
-  ((Number(id) / 1e15) * Math.PI)
-    .toString(36)
-    .replace(/(0+|\.)/g, '');
+  ((Number(id) / 1e15) * Math.PI).toString(36).replace(/(0+|\.)/g, "");
 
 const getDisplayText = (tweet) => {
-  const text = tweet.text || '';
+  const text = tweet.text || "";
   const range = tweet.display_text_range;
 
   if (Array.isArray(range) && range.length === 2) {
@@ -28,10 +26,10 @@ const getMediaUrl = (tweet) => {
 };
 
 const normalizeTweet = (id, tweet) => {
-  const screenName = tweet.user?.screen_name || '';
+  const screenName = tweet.user?.screen_name || "";
   const avatar = tweet.user?.profile_image_url_https?.replace(
-    '_normal',
-    '_400x400'
+    "_normal",
+    "_400x400",
   );
 
   return {
@@ -40,8 +38,8 @@ const normalizeTweet = (id, tweet) => {
     createdAt: tweet.created_at || null,
     url: screenName ? `https://x.com/${screenName}/status/${id}` : null,
     user: {
-      name: tweet.user?.name || 'Unknown',
-      handle: screenName ? `@${screenName}` : '',
+      name: tweet.user?.name || "Unknown",
+      handle: screenName ? `@${screenName}` : "",
       avatar: avatar || null,
       verified: Boolean(tweet.user?.verified || tweet.user?.is_blue_verified),
     },
@@ -51,34 +49,34 @@ const normalizeTweet = (id, tweet) => {
 
 export const fetchTweetById = async (id) => {
   if (!id || id.length > 40 || !TWEET_ID_PATTERN.test(id)) {
-    const error = new Error('Invalid tweet id');
+    const error = new Error("Invalid tweet id");
     error.status = 400;
     throw error;
   }
 
   const url = new URL(SYNDICATION_URL);
-  url.searchParams.set('id', id);
-  url.searchParams.set('lang', 'en');
-  url.searchParams.set('token', getSyndicationToken(id));
+  url.searchParams.set("id", id);
+  url.searchParams.set("lang", "en");
+  url.searchParams.set("token", getSyndicationToken(id));
 
   const response = await fetch(url.toString());
 
   if (response.status === 404) {
-    const error = new Error('Tweet not found');
+    const error = new Error("Tweet not found");
     error.status = 404;
     throw error;
   }
 
   if (!response.ok) {
-    const error = new Error('Failed to fetch tweet');
+    const error = new Error("Failed to fetch tweet");
     error.status = response.status;
     throw error;
   }
 
   const data = await response.json();
 
-  if (data?.__typename === 'TweetTombstone') {
-    const error = new Error('Tweet unavailable');
+  if (data?.__typename === "TweetTombstone") {
+    const error = new Error("Tweet unavailable");
     error.status = 410;
     throw error;
   }

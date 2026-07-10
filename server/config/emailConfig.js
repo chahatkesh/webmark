@@ -1,33 +1,34 @@
 // emailConfig.js
 import nodemailer from "nodemailer";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 // Ensure environment variables are loaded
 dotenv.config();
 
 // Validate required environment variables
-const requiredEnvVars = [
-  'ZOHO_EMAIL_USERNAME',
-  'ZOHO_EMAIL_PASSWORD'
-];
+const requiredEnvVars = ["ZOHO_EMAIL_USERNAME", "ZOHO_EMAIL_PASSWORD"];
 
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+const missingEnvVars = requiredEnvVars.filter(
+  (varName) => !process.env[varName],
+);
 
 if (missingEnvVars.length > 0) {
-  throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  throw new Error(
+    `Missing required environment variables: ${missingEnvVars.join(", ")}`,
+  );
 }
 
 // Create transporter with Zoho configuration
 const createTransporter = () => {
   // Enable detailed debug logging
   const debugLog = (info) => {
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('SMTP Debug:', info);
+    if (process.env.NODE_ENV !== "production") {
+      console.log("SMTP Debug:", info);
     }
   };
 
   const transporter = nodemailer.createTransport({
-    host: 'smtp.zoho.in', // Use .in domain for better reliability in India
+    host: "smtp.zoho.in", // Use .in domain for better reliability in India
     port: 465,
     secure: true, // Use SSL
     auth: {
@@ -40,28 +41,28 @@ const createTransporter = () => {
       // Do not fail on invalid certificates
       rejectUnauthorized: false,
       // Specify minimum TLS version
-      minVersion: 'TLSv1.2',
-    }
+      minVersion: "TLSv1.2",
+    },
   });
 
   // Add debug event listeners
-  transporter.on('token', token => {
-    debugLog('Token updated');
+  transporter.on("token", (token) => {
+    debugLog("Token updated");
     debugLog(token);
   });
 
   // Verify transporter with detailed logging
   return new Promise((resolve, reject) => {
-    debugLog('Attempting to verify transporter...');
+    debugLog("Attempting to verify transporter...");
     debugLog(`Using email: ${process.env.ZOHO_EMAIL_USERNAME}`);
 
     transporter.verify((error, success) => {
       if (error) {
-        debugLog('Transporter verification failed:');
+        debugLog("Transporter verification failed:");
         debugLog(error);
         reject(error);
       } else {
-        debugLog('Transporter verified successfully');
+        debugLog("Transporter verified successfully");
         resolve(transporter);
       }
     });
@@ -73,7 +74,7 @@ export const getTransporter = async () => {
   try {
     return await createTransporter();
   } catch (error) {
-    console.error('Failed to create email transporter:', error);
+    console.error("Failed to create email transporter:", error);
     throw error;
   }
 };
@@ -89,10 +90,10 @@ export const sendEmail = async (options) => {
     };
 
     const info = await transporter.sendMail(emailOptions);
-    console.log('Email sent successfully:', info.messageId);
+    console.log("Email sent successfully:", info.messageId);
     return info;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     throw error;
   }
 };

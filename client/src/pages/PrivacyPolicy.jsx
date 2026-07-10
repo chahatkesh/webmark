@@ -25,7 +25,8 @@ const PrivacyPolicy = () => {
             </Link>
             <Link
               to="/auth"
-              className="flex items-center text-sm text-blue-600 hover:text-blue-800">
+              className="flex items-center text-sm text-blue-600 hover:text-blue-800"
+            >
               <ChevronLeft className="h-4 w-4 mr-1" />
               Back to Sign In
             </Link>
@@ -195,7 +196,8 @@ const PrivacyPolicy = () => {
             <div className="mt-2 flex justify-center space-x-4">
               <Link
                 to="/privacy-policy"
-                className="text-blue-600 hover:text-blue-800">
+                className="text-blue-600 hover:text-blue-800"
+              >
                 Privacy Policy
               </Link>
               <span>•</span>

@@ -65,14 +65,16 @@ const NotFoundPage = () => {
             <Button
               onClick={() => navigate(-1)}
               variant="outline"
-              className="w-full sm:w-auto flex gap-2 items-center">
+              className="w-full sm:w-auto flex gap-2 items-center"
+            >
               <ArrowLeft className="h-4 w-4" />
               Go Back
             </Button>
 
             <Button
               asChild
-              className="w-full sm:w-auto flex gap-2 items-center">
+              className="w-full sm:w-auto flex gap-2 items-center"
+            >
               <Link to={isAuthenticated ? "/user/dashboard" : "/"}>
                 <Home className="h-4 w-4" />
                 {isAuthenticated ? "Go to Dashboard" : "Return Home"}

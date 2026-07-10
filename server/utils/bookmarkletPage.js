@@ -60,20 +60,23 @@ const baseStyles = `
   }
 `;
 
-export const sendBookmarkletPage = (res, { status, title, message, autoCloseMs = 0, syncUrl = null }) => {
+export const sendBookmarkletPage = (
+  res,
+  { status, title, message, autoCloseMs = 0, syncUrl = null },
+) => {
   const icon = status === "success" ? "✓" : status === "error" ? "✕" : "…";
-  const iconClass = status === "success" ? "success" : status === "error" ? "error" : "";
-  const autoCloseScript = autoCloseMs > 0
-    ? `<script>setTimeout(function(){try{window.close()}catch(e){}},${autoCloseMs});</script>`
-    : "";
-  const syncIframe = status === "success" && syncUrl
-    ? `<iframe src="${escapeHtml(syncUrl)}" style="display:none" title="" tabindex="-1"></iframe>`
-    : "";
+  const iconClass =
+    status === "success" ? "success" : status === "error" ? "error" : "";
+  const autoCloseScript =
+    autoCloseMs > 0
+      ? `<script>setTimeout(function(){try{window.close()}catch(e){}},${autoCloseMs});</script>`
+      : "";
+  const syncIframe =
+    status === "success" && syncUrl
+      ? `<iframe src="${escapeHtml(syncUrl)}" style="display:none" title="" tabindex="-1"></iframe>`
+      : "";
 
-  res
-    .status(status === "error" ? 400 : 200)
-    .type("html")
-    .send(`<!DOCTYPE html>
+  res.status(status === "error" ? 400 : 200).type("html").send(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">

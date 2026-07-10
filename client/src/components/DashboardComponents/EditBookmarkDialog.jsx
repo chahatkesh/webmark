@@ -62,7 +62,7 @@ const EditBookmarkDialog = ({ open, onClose, bookmark }) => {
       setSearchResults(results);
     } catch (error) {
       setSearchError(
-        "Failed to fetch logos. Please try a different search or enter URL manually."
+        "Failed to fetch logos. Please try a different search or enter URL manually.",
       );
     } finally {
       setIsSearching(false);
@@ -147,7 +147,8 @@ const EditBookmarkDialog = ({ open, onClose, bookmark }) => {
                 size="sm"
                 className="text-blue-600 hover:text-blue-700"
                 disabled={isSubmitting}
-                onClick={() => setShowLogoSearch(!showLogoSearch)}>
+                onClick={() => setShowLogoSearch(!showLogoSearch)}
+              >
                 {showLogoSearch ? "Hide Search" : "Search Logos"}
               </Button>
             </div>
@@ -166,7 +167,8 @@ const EditBookmarkDialog = ({ open, onClose, bookmark }) => {
                     type="button"
                     size="sm"
                     disabled={isSubmitting}
-                    onClick={handleLogoSearch}>
+                    onClick={handleLogoSearch}
+                  >
                     <Search className="h-4 w-4" />
                   </Button>
                 </div>
@@ -187,7 +189,8 @@ const EditBookmarkDialog = ({ open, onClose, bookmark }) => {
                         type="button"
                         onClick={() => selectLogo(logo.url)}
                         disabled={isSubmitting}
-                        className="p-2 border rounded hover:bg-gray-100 flex flex-col items-center gap-2">
+                        className="p-2 border rounded hover:bg-gray-100 flex flex-col items-center gap-2"
+                      >
                         <div className="w-12 h-12 flex items-center justify-center border rounded bg-white">
                           <img
                             src={logo.url}
@@ -225,7 +228,8 @@ const EditBookmarkDialog = ({ open, onClose, bookmark }) => {
                     size="icon"
                     disabled={isSubmitting}
                     onClick={() => setFormData({ ...formData, logo: "" })}
-                    className="shrink-0">
+                    className="shrink-0"
+                  >
                     <X className="h-4 w-4" />
                   </Button>
                 )}
@@ -273,7 +277,8 @@ const EditBookmarkDialog = ({ open, onClose, bookmark }) => {
               type="button"
               variant="outline"
               disabled={isSubmitting}
-              onClick={onClose}>
+              onClick={onClose}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

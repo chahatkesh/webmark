@@ -77,7 +77,7 @@ FAQ.propTypes = {
     PropTypes.shape({
       question: PropTypes.string.isRequired,
       answer: PropTypes.string.isRequired,
-    })
+    }),
   ).isRequired,
   title: PropTypes.string,
   categoryId: PropTypes.string,

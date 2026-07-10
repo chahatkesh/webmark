@@ -62,7 +62,8 @@ const HowToUse = () => {
                 <div className="bg-white rounded-xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                   {/* Icon */}
                   <div
-                    className={`mb-6 w-16 h-16 rounded-full ${step.color} p-4 mx-auto transform transition-transform duration-300 group-hover:scale-110`}>
+                    className={`mb-6 w-16 h-16 rounded-full ${step.color} p-4 mx-auto transform transition-transform duration-300 group-hover:scale-110`}
+                  >
                     <step.icon className="w-full h-full text-white" />
                   </div>
 
@@ -79,7 +80,8 @@ const HowToUse = () => {
                     {step.details.map((detail, detailIndex) => (
                       <li
                         key={detailIndex}
-                        className="flex items-center text-gray-700">
+                        className="flex items-center text-gray-700"
+                      >
                         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                           <Check className="w-3 h-3 text-blue-600" />
                         </span>
@@ -96,7 +98,8 @@ const HowToUse = () => {
           <div className="mt-12 text-center">
             <a
               href="/auth"
-              className="inline-flex items-center gap-2 px-6 py-3 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-full hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+              className="inline-flex items-center gap-2 px-6 py-3 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-full hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
               Get Started Now
               <ArrowRight className="w-5 h-5" />
             </a>

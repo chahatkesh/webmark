@@ -36,7 +36,7 @@ const ErrorPage = () => {
       // Filter out sensitive error information
       const cleanMessage = error.message.replace(
         /\b(?:password|token|key|secret)\b/gi,
-        "***"
+        "***",
       );
       return cleanMessage;
     } else {
@@ -103,7 +103,8 @@ const ErrorPage = () => {
             <div className="w-full max-w-md mx-auto mt-4">
               <button
                 onClick={() => setShowDetails(!showDetails)}
-                className="text-sm flex items-center justify-center gap-1 text-gray-500 hover:text-gray-700 mx-auto">
+                className="text-sm flex items-center justify-center gap-1 text-gray-500 hover:text-gray-700 mx-auto"
+              >
                 {showDetails ? (
                   <ChevronUp size={16} />
                 ) : (
@@ -147,7 +148,8 @@ const ErrorPage = () => {
             <Button
               onClick={() => navigate(-1)}
               variant="outline"
-              className="w-full sm:w-auto flex gap-2 items-center">
+              className="w-full sm:w-auto flex gap-2 items-center"
+            >
               <ArrowLeft className="h-4 w-4" />
               Go Back
             </Button>
@@ -155,14 +157,16 @@ const ErrorPage = () => {
             <Button
               onClick={() => window.location.reload()}
               variant="outline"
-              className="w-full sm:w-auto flex gap-2 items-center">
+              className="w-full sm:w-auto flex gap-2 items-center"
+            >
               <RefreshCw className="h-4 w-4" />
               Reload Page
             </Button>
 
             <Button
               asChild
-              className="w-full sm:w-auto flex gap-2 items-center">
+              className="w-full sm:w-auto flex gap-2 items-center"
+            >
               <Link to={isAuthenticated ? "/user/dashboard" : "/"}>
                 <Home className="h-4 w-4" />
                 {isAuthenticated ? "Go to Dashboard" : "Go Home"}
@@ -175,7 +179,8 @@ const ErrorPage = () => {
             If you continue to see this error, please{" "}
             <Link
               to="/user/report-problem"
-              className="text-blue-600 hover:text-blue-800 font-medium">
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
               report the problem
             </Link>{" "}
             or contact support.

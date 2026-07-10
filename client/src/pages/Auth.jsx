@@ -49,7 +49,7 @@ const Auth = () => {
   const handleGoogleLogin = () => {
     if (!agreedToTerms) {
       toast.error(
-        "Please agree to the Terms and Conditions and Privacy Policy to continue"
+        "Please agree to the Terms and Conditions and Privacy Policy to continue",
       );
       return;
     }
@@ -74,7 +74,8 @@ const Auth = () => {
           <Button
             onClick={handleGoogleLogin}
             type="button"
-            className="flex w-full justify-center items-center gap-3 rounded-md bg-white px-3 py-6 text-base font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            className="flex w-full justify-center items-center gap-3 rounded-md bg-white px-3 py-6 text-base font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+          >
             <FcGoogle className="h-6 w-6" />
             Continue with Google
           </Button>
@@ -93,13 +94,15 @@ const Auth = () => {
                 I agree to the{" "}
                 <Link
                   to="/terms"
-                  className="font-semibold text-blue-600 hover:text-blue-500">
+                  className="font-semibold text-blue-600 hover:text-blue-500"
+                >
                   Terms and Conditions
                 </Link>{" "}
                 and{" "}
                 <Link
                   to="/privacy-policy"
-                  className="font-semibold text-blue-600 hover:text-blue-500">
+                  className="font-semibold text-blue-600 hover:text-blue-500"
+                >
                   Privacy Policy
                 </Link>
               </label>

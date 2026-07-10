@@ -1,7 +1,14 @@
 import { useState, useContext } from "react";
 import { StoreContext } from "../../context/StoreContext";
 import { useCategories } from "../../hooks/useBookmarks";
-import { Copy, Check, GripHorizontal, Zap, Download, Sparkles } from "lucide-react";
+import {
+  Copy,
+  Check,
+  GripHorizontal,
+  Zap,
+  Download,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "react-toastify";
 import {
@@ -13,7 +20,8 @@ import {
 
 const BookmarkletWidget = () => {
   const { url: apiUrl } = useContext(StoreContext);
-  const appUrl = typeof window !== "undefined" ? window.location.origin : apiUrl;
+  const appUrl =
+    typeof window !== "undefined" ? window.location.origin : apiUrl;
   const { data: categories, isLoading } = useCategories();
   const [copied, setCopied] = useState(false);
 
@@ -32,7 +40,9 @@ const BookmarkletWidget = () => {
     if (!bookmarkletHref) return;
     try {
       await downloadBookmarkletFile(bookmarkletHref, appUrl);
-      toast.success("Bookmark file downloaded — import it via Chrome Bookmark Manager");
+      toast.success(
+        "Bookmark file downloaded — import it via Chrome Bookmark Manager",
+      );
     } catch (error) {
       console.error("Failed to export bookmarklet:", error);
       toast.error("Failed to download bookmark file");
@@ -54,7 +64,9 @@ const BookmarkletWidget = () => {
           <Zap className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h3 className="font-semibold text-white leading-tight">Bookmarklet</h3>
+          <h3 className="font-semibold text-white leading-tight">
+            Bookmarklet
+          </h3>
           <p className="text-blue-100 text-xs mt-0.5">
             Save any page in one click — AI picks the category
           </p>
@@ -102,9 +114,13 @@ const BookmarkletWidget = () => {
                 title="Copy bookmarklet code"
               >
                 {copied ? (
-                  <><Check className="h-3.5 w-3.5 text-green-500" /> Copied</>
+                  <>
+                    <Check className="h-3.5 w-3.5 text-green-500" /> Copied
+                  </>
                 ) : (
-                  <><Copy className="h-3.5 w-3.5" /> Copy</>
+                  <>
+                    <Copy className="h-3.5 w-3.5" /> Copy
+                  </>
                 )}
               </Button>
             </div>
@@ -113,23 +129,35 @@ const BookmarkletWidget = () => {
 
         {!isLoading && (!categories || categories.length === 0) && (
           <p className="text-xs text-gray-500">
-            No categories yet? Saves will go into an auto-created Uncategorized folder.
+            No categories yet? Saves will go into an auto-created Uncategorized
+            folder.
           </p>
         )}
 
         <div className="rounded-lg bg-gray-50 border border-gray-100 px-4 py-3 space-y-1.5">
           <p className="text-xs font-semibold text-gray-700">How to use</p>
           <ol className="text-xs text-gray-500 space-y-1 list-decimal list-inside">
-            <li>Make sure your browser bookmarks bar is visible (Ctrl/Cmd + Shift + B).</li>
             <li>
-              Drag <span className="font-medium text-blue-600">{BOOKMARKLET_TITLE}</span> into your bookmarks bar,
-              or download and import the bookmark file for the Webmark icon.
+              Make sure your browser bookmarks bar is visible (Ctrl/Cmd + Shift
+              + B).
+            </li>
+            <li>
+              Drag{" "}
+              <span className="font-medium text-blue-600">
+                {BOOKMARKLET_TITLE}
+              </span>{" "}
+              into your bookmarks bar, or download and import the bookmark file
+              for the Webmark icon.
             </li>
             <li>Visit any page you want to save and click the bookmark.</li>
-            <li>AI places it in the best matching category, or Uncategorized if none fit.</li>
+            <li>
+              AI places it in the best matching category, or Uncategorized if
+              none fit.
+            </li>
           </ol>
           <p className="text-xs text-amber-600 mt-1.5">
-            If you log out of Webmark, sign in again before using the bookmarklet.
+            If you log out of Webmark, sign in again before using the
+            bookmarklet.
           </p>
         </div>
       </div>

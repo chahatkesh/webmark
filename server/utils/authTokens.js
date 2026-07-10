@@ -22,22 +22,29 @@ const numberFromEnv = (name, fallback) => {
 };
 
 export const getAccessCookieMaxAgeMs = () =>
-  numberFromEnv("ACCESS_COOKIE_MAX_AGE_SECONDS", DEFAULT_ACCESS_COOKIE_SECONDS) * 1000;
+  numberFromEnv(
+    "ACCESS_COOKIE_MAX_AGE_SECONDS",
+    DEFAULT_ACCESS_COOKIE_SECONDS,
+  ) * 1000;
 
 export const getSessionMaxAgeMs = () =>
-  numberFromEnv("SESSION_MAX_AGE_DAYS", DEFAULT_SESSION_DAYS) * 24 * 60 * 60 * 1000;
+  numberFromEnv("SESSION_MAX_AGE_DAYS", DEFAULT_SESSION_DAYS) *
+  24 *
+  60 *
+  60 *
+  1000;
 
 export const getRefreshReuseWindowMs = () =>
-  numberFromEnv("REFRESH_REUSE_WINDOW_SECONDS", DEFAULT_REFRESH_REUSE_SECONDS) * 1000;
+  numberFromEnv("REFRESH_REUSE_WINDOW_SECONDS", DEFAULT_REFRESH_REUSE_SECONDS) *
+  1000;
 
-export const getSessionExpiresAt = () => new Date(Date.now() + getSessionMaxAgeMs());
+export const getSessionExpiresAt = () =>
+  new Date(Date.now() + getSessionMaxAgeMs());
 
 export const createAccessToken = (id, options = {}) =>
-  jwt.sign(
-    { id: String(id), typ: options.type || "access" },
-    getJwtSecret(),
-    { expiresIn: process.env.ACCESS_TOKEN_TTL || DEFAULT_ACCESS_TOKEN_TTL }
-  );
+  jwt.sign({ id: String(id), typ: options.type || "access" }, getJwtSecret(), {
+    expiresIn: process.env.ACCESS_TOKEN_TTL || DEFAULT_ACCESS_TOKEN_TTL,
+  });
 
 export const createRefreshToken = () => crypto.randomBytes(64).toString("hex");
 
@@ -48,7 +55,10 @@ export const tokenHashMatches = (token, expectedHash) => {
   if (!token || !expectedHash) return false;
   const actual = Buffer.from(hashToken(token));
   const expected = Buffer.from(expectedHash);
-  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+  return (
+    actual.length === expected.length &&
+    crypto.timingSafeEqual(actual, expected)
+  );
 };
 
 export const parseCookies = (req) => {
@@ -93,7 +103,8 @@ const getCookieOptions = (maxAge) => {
   const secure = process.env.COOKIE_SECURE
     ? process.env.COOKIE_SECURE === "true"
     : isProduction;
-  const sameSite = process.env.COOKIE_SAMESITE || (isProduction ? "none" : "lax");
+  const sameSite =
+    process.env.COOKIE_SAMESITE || (isProduction ? "none" : "lax");
   const domain = process.env.COOKIE_DOMAIN;
 
   return {
@@ -107,8 +118,16 @@ const getCookieOptions = (maxAge) => {
 };
 
 export const setAuthCookies = (res, { accessToken, refreshToken }) => {
-  res.cookie(ACCESS_COOKIE_NAME, accessToken, getCookieOptions(getAccessCookieMaxAgeMs()));
-  res.cookie(REFRESH_COOKIE_NAME, refreshToken, getCookieOptions(getSessionMaxAgeMs()));
+  res.cookie(
+    ACCESS_COOKIE_NAME,
+    accessToken,
+    getCookieOptions(getAccessCookieMaxAgeMs()),
+  );
+  res.cookie(
+    REFRESH_COOKIE_NAME,
+    refreshToken,
+    getCookieOptions(getSessionMaxAgeMs()),
+  );
   res.setHeader("x-auth-token", accessToken);
 };
 

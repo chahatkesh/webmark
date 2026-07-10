@@ -1,5 +1,5 @@
 import userModel from "../models/userModel.js";
-import createDefaultBookmarks from '../utils/defaultBookmarks.js';
+import createDefaultBookmarks from "../utils/defaultBookmarks.js";
 import {
   clearAuthCookies,
   getRefreshTokenFromRequest,
@@ -13,13 +13,15 @@ const googleAuthCallback = async (req, res) => {
     const { user } = req;
 
     // Get user agent for device tracking
-    const userAgent = req.headers['user-agent'];
+    const userAgent = req.headers["user-agent"];
 
     // Update login information
     user.lastLogin = new Date();
     user.lastLoginDevice = userAgent;
 
-    const { accessToken } = await issueUserSession(user, res, { preservePrevious: false });
+    const { accessToken } = await issueUserSession(user, res, {
+      preservePrevious: false,
+    });
 
     // Check if the user has completed onboarding (has a proper username)
     if (!user.hasCompletedOnboarding) {
@@ -29,13 +31,17 @@ const googleAuthCallback = async (req, res) => {
 
     // Regular login - redirect to dashboard
     if (process.env.AUTH_REDIRECT_TOKEN === "true") {
-      return res.redirect(`${process.env.FRONTEND_URL}/auth?token=${accessToken}`);
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/auth?token=${accessToken}`,
+      );
     }
 
     return res.redirect(`${process.env.FRONTEND_URL}/auth`);
   } catch (error) {
     console.error("Google auth callback error:", error);
-    return res.redirect(`${process.env.FRONTEND_URL}/auth?error=Authentication failed`);
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/auth?error=Authentication failed`,
+    );
   }
 };
 
@@ -73,7 +79,9 @@ const refreshSession = async (req, res) => {
       });
     }
 
-    const session = await issueUserSession(user, res, { preservePrevious: true });
+    const session = await issueUserSession(user, res, {
+      preservePrevious: true,
+    });
     return res.json({
       success: true,
       accessToken: session.accessToken,
@@ -101,12 +109,16 @@ const completeOnboarding = async (req, res) => {
     if (!usernameRegex.test(username)) {
       return res.json({
         success: false,
-        message: "Username must start with a lowercase letter or number, followed by 29(max) lowercase letters, numbers, underscores, or hyphens"
+        message:
+          "Username must start with a lowercase letter or number, followed by 29(max) lowercase letters, numbers, underscores, or hyphens",
       });
     }
 
     // Check if username is already in use
-    const existingUser = await userModel.findOne({ username, _id: { $ne: userId } });
+    const existingUser = await userModel.findOne({
+      username,
+      _id: { $ne: userId },
+    });
     if (existingUser) {
       return res.json({ success: false, message: "Username already in use" });
     }
@@ -120,7 +132,10 @@ const completeOnboarding = async (req, res) => {
     // Create default bookmarks for new user
     await createDefaultBookmarks(userId);
 
-    return res.json({ success: true, message: "Onboarding completed successfully" });
+    return res.json({
+      success: true,
+      message: "Onboarding completed successfully",
+    });
   } catch (error) {
     console.error("Complete onboarding error:", error);
     return res.json({ success: false, message: "Error completing onboarding" });
@@ -141,15 +156,15 @@ const getUserData = async (req, res) => {
       return res.json({
         success: false,
         requiresOnboarding: true,
-        message: "Please complete onboarding"
+        message: "Please complete onboarding",
       });
     }
 
     // Ensure profile picture is a valid URL
-    if (user.profilePicture && !user.profilePicture.startsWith('http')) {
+    if (user.profilePicture && !user.profilePicture.startsWith("http")) {
       user.profilePicture = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.username)}`;
       user.save().catch((saveError) => {
-        console.error('Failed to update profile picture URL:', saveError);
+        console.error("Failed to update profile picture URL:", saveError);
       });
     }
 
@@ -197,5 +212,5 @@ export {
   refreshSession,
   completeOnboarding,
   getUserData,
-  logoutUser
+  logoutUser,
 };

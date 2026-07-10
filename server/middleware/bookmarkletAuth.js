@@ -73,7 +73,7 @@ const bookmarkletAuthMiddleware = async (req, res, next) => {
       clearAuthCookies(res);
       return authError(
         res,
-        "Please log in to Webmark first, then try the bookmarklet again."
+        "Please log in to Webmark first, then try the bookmarklet again.",
       );
     }
 
@@ -83,7 +83,10 @@ const bookmarkletAuthMiddleware = async (req, res, next) => {
     return next();
   } catch (error) {
     console.error("Bookmarklet auth error:", error);
-    return authError(res, "Authentication failed. Please log in and try again.");
+    return authError(
+      res,
+      "Authentication failed. Please log in and try again.",
+    );
   }
 };
 

@@ -15,10 +15,8 @@ export const stripCategoryId = (dragId) =>
 export const stripContainerId = (dragId) =>
   String(dragId).replace(CONTAINER_PREFIX, "");
 
-export const isBookmarkDragId = (id) =>
-  String(id).startsWith(BOOKMARK_PREFIX);
-export const isCategoryDragId = (id) =>
-  String(id).startsWith(CATEGORY_PREFIX);
+export const isBookmarkDragId = (id) => String(id).startsWith(BOOKMARK_PREFIX);
+export const isCategoryDragId = (id) => String(id).startsWith(CATEGORY_PREFIX);
 export const isContainerDragId = (id) =>
   String(id).startsWith(CONTAINER_PREFIX);
 
@@ -89,13 +87,9 @@ export const moveBookmarkInState = (itemsByCategory, activeId, overId) => {
 
   if (activeContainer === overContainer && isBookmarkDragId(overId)) {
     const items = [...itemsByCategory[activeContainer]];
-    const oldIndex = items.findIndex(
-      (b) => String(b._id) === activeBookmarkId,
-    );
+    const oldIndex = items.findIndex((b) => String(b._id) === activeBookmarkId);
     const overBookmarkId = stripBookmarkId(overId);
-    const newIndex = items.findIndex(
-      (b) => String(b._id) === overBookmarkId,
-    );
+    const newIndex = items.findIndex((b) => String(b._id) === overBookmarkId);
     if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
       return itemsByCategory;
     }

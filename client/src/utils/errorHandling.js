@@ -1,5 +1,5 @@
 // Configures global error handling for the Webmark application
-import { reportError } from './errorReporter';
+import { reportError } from "./errorReporter";
 
 /**
  * Sets up global unhandled error listeners
@@ -7,28 +7,33 @@ import { reportError } from './errorReporter';
  */
 export function setupGlobalErrorHandlers() {
   // Handle unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event) => {
-    reportError(event.reason || new Error('Unhandled Promise rejection'), {
+  window.addEventListener("unhandledrejection", (event) => {
+    reportError(event.reason || new Error("Unhandled Promise rejection"), {
       unhandled: true,
       promise: true,
-      stack: event.reason?.stack
+      stack: event.reason?.stack,
     });
   });
 
   // Handle uncaught errors
-  window.addEventListener('error', (event) => {
+  window.addEventListener("error", (event) => {
     // Only report if it's a true error and not a resource loading error
     if (event.error) {
       reportError(event.error, {
         unhandled: true,
         line: event.lineno,
         column: event.colno,
-        source: event.filename
+        source: event.filename,
       });
     }
 
     // Don't report resources loading errors (images, scripts, etc.) as they're usually not actionable
-    if (event.target && (event.target.tagName === 'LINK' || event.target.tagName === 'SCRIPT' || event.target.tagName === 'IMG')) {
+    if (
+      event.target &&
+      (event.target.tagName === "LINK" ||
+        event.target.tagName === "SCRIPT" ||
+        event.target.tagName === "IMG")
+    ) {
       return;
     }
   });
@@ -42,8 +47,8 @@ export function setupGlobalErrorHandlers() {
     // Report the error if it's an Error object
     if (args[0] instanceof Error) {
       reportError(args[0], {
-        source: 'console.error',
-        consoleError: true
+        source: "console.error",
+        consoleError: true,
       });
     }
   };
@@ -56,18 +61,23 @@ export function setupGlobalErrorHandlers() {
 
       // Report failed API calls as errors
       if (!response.ok) {
-        const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || 'unknown';
+        const url =
+          typeof args[0] === "string" ? args[0] : args[0]?.url || "unknown";
         const isExpectedAuthCheck =
           response.status === 401 &&
-          (url.includes('/api/user/userdata') || url.includes('/api/user/refresh'));
+          (url.includes("/api/user/userdata") ||
+            url.includes("/api/user/refresh"));
 
         if (!isExpectedAuthCheck) {
-          reportError(new Error(`API Error: ${response.status} ${response.statusText}`), {
-            source: 'fetch',
-            url,
-            status: response.status,
-            statusText: response.statusText
-          });
+          reportError(
+            new Error(`API Error: ${response.status} ${response.statusText}`),
+            {
+              source: "fetch",
+              url,
+              status: response.status,
+              statusText: response.statusText,
+            },
+          );
         }
       }
 
@@ -75,8 +85,8 @@ export function setupGlobalErrorHandlers() {
     } catch (error) {
       // Report network errors
       reportError(error, {
-        source: 'fetch',
-        request: typeof args[0] === 'string' ? args[0] : 'Request object'
+        source: "fetch",
+        request: typeof args[0] === "string" ? args[0] : "Request object",
       });
       throw error;
     }
@@ -90,41 +100,41 @@ export function getBrowserInfo() {
   const { userAgent } = navigator;
 
   // Extract browser name and version
-  let browser = 'Unknown';
-  let browserVersion = '';
+  let browser = "Unknown";
+  let browserVersion = "";
 
   if (/firefox/i.test(userAgent)) {
-    browser = 'Firefox';
+    browser = "Firefox";
   } else if (/chrome/i.test(userAgent) && !/edg/i.test(userAgent)) {
-    browser = 'Chrome';
+    browser = "Chrome";
   } else if (/safari/i.test(userAgent) && !/chrome/i.test(userAgent)) {
-    browser = 'Safari';
+    browser = "Safari";
   } else if (/edg/i.test(userAgent)) {
-    browser = 'Edge';
+    browser = "Edge";
   } else if (/opera|opr/i.test(userAgent)) {
-    browser = 'Opera';
+    browser = "Opera";
   }
 
   // Determine OS
-  let os = 'Unknown';
+  let os = "Unknown";
   if (/windows/i.test(userAgent)) {
-    os = 'Windows';
+    os = "Windows";
   } else if (/macintosh|mac os/i.test(userAgent)) {
-    os = 'MacOS';
+    os = "MacOS";
   } else if (/android/i.test(userAgent)) {
-    os = 'Android';
+    os = "Android";
   } else if (/iphone|ipad|ipod/i.test(userAgent)) {
-    os = 'iOS';
+    os = "iOS";
   } else if (/linux/i.test(userAgent)) {
-    os = 'Linux';
+    os = "Linux";
   }
 
   // Determine device type
-  let device = 'Desktop';
+  let device = "Desktop";
   if (/mobile|android|iphone|ipod|iemobile|blackberry/i.test(userAgent)) {
-    device = 'Mobile';
+    device = "Mobile";
   } else if (/ipad|tablet|playbook|silk/i.test(userAgent)) {
-    device = 'Tablet';
+    device = "Tablet";
   }
 
   return {
@@ -133,8 +143,8 @@ export function getBrowserInfo() {
     os,
     device,
     userAgent,
-    language: navigator.language || 'Unknown',
+    language: navigator.language || "Unknown",
     screenWidth: window.innerWidth,
-    screenHeight: window.innerHeight
+    screenHeight: window.innerHeight,
   };
 }

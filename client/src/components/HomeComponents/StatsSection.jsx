@@ -103,7 +103,7 @@ const StatsSection = () => {
               <h3 className="flex items-center font-bold text-3xl md:text-4xl mb-2 text-amber-600">
                 {stats?.totalBookmarks && stats?.totalUsers
                   ? Math.round(
-                      stats.totalBookmarks / stats.totalUsers
+                      stats.totalBookmarks / stats.totalUsers,
                     ).toLocaleString()
                   : 0}
               </h3>

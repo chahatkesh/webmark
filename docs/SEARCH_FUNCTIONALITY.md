@@ -27,24 +27,25 @@ The search functionality is implemented across several components:
 #### Header Search Input
 
 The header component includes a search input that:
+
 - Captures user input
 - Saves the search term to sessionStorage
 - Broadcasts a custom event for other components to listen for
 
 ```jsx
 // In Header.jsx
-const [searchTerm, setSearchTerm] = useState('');
+const [searchTerm, setSearchTerm] = useState("");
 
 const handleSearchChange = (e) => {
   const value = e.target.value;
   setSearchTerm(value);
-  
+
   // Store in sessionStorage for persistence across page refreshes
-  sessionStorage.setItem('bookmarkSearchTerm', value);
-  
+  sessionStorage.setItem("bookmarkSearchTerm", value);
+
   // Dispatch custom event for other components to listen for
-  const event = new CustomEvent('searchTermChanged', { 
-    detail: { searchTerm: value } 
+  const event = new CustomEvent("searchTermChanged", {
+    detail: { searchTerm: value },
   });
   window.dispatchEvent(event);
 };
@@ -53,6 +54,7 @@ const handleSearchChange = (e) => {
 #### BookmarkList Search Implementation
 
 The BookmarkList component receives search terms through:
+
 1. Initial load from sessionStorage
 2. Real-time updates from custom events
 
@@ -96,8 +98,8 @@ const filtered = categories
       searchWords.some(
         (word) =>
           (bookmark.name && bookmark.name.toLowerCase().includes(word)) ||
-          (bookmark.link && bookmark.link.toLowerCase().includes(word))
-      )
+          (bookmark.link && bookmark.link.toLowerCase().includes(word)),
+      ),
     );
 
     // Return category with filtered bookmarks if any match found

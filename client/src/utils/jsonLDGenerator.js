@@ -1,13 +1,13 @@
 /**
  * JSON-LD Generator for Structured Data
- * 
+ *
  * This utility helps generate schema.org JSON-LD structured data for different page types
  * to improve search engine understanding and display of content.
  */
 
 /**
  * Generate WebApplication structured data
- * 
+ *
  * @param {Object} options - Configuration options
  * @param {string} options.name - Application name
  * @param {string} options.url - Application URL
@@ -28,33 +28,33 @@ export function generateWebAppSchema({
   return {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": name,
-    "url": url,
-    "description": description,
-    "applicationCategory": applicationCategory,
-    "applicationSubCategory": "BookmarkManager",
-    "operatingSystem": "Web",
-    "offers": {
+    name: name,
+    url: url,
+    description: description,
+    applicationCategory: applicationCategory,
+    applicationSubCategory: "BookmarkManager",
+    operatingSystem: "Web",
+    offers: {
       "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock"
+      price: "0",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
     },
-    "aggregateRating": {
+    aggregateRating: {
       "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "156",
-      "bestRating": "5",
-      "worstRating": "1"
+      ratingValue: "4.8",
+      ratingCount: "156",
+      bestRating: "5",
+      worstRating: "1",
     },
-    "datePublished": publishedDate,
-    "dateModified": modifiedDate,
+    datePublished: publishedDate,
+    dateModified: modifiedDate,
   };
 }
 
 /**
  * Generate BreadcrumbList structured data
- * 
+ *
  * @param {Object[]} items - Array of breadcrumb items
  * @param {string} items[].name - Item name
  * @param {string} items[].url - Item URL
@@ -64,18 +64,18 @@ export function generateBreadcrumbSchema(items) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": items.map((item, index) => ({
+    itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
-      "position": index + 1,
-      "name": item.name,
-      "item": item.url
-    }))
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
   };
 }
 
 /**
  * Generate FAQPage structured data
- * 
+ *
  * @param {Object[]} faqs - Array of FAQ items
  * @param {string} faqs[].question - Question text
  * @param {string} faqs[].answer - Answer text (can include HTML)
@@ -85,20 +85,20 @@ export function generateFAQSchema(faqs) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": faqs.map(faq => ({
+    mainEntity: faqs.map((faq) => ({
       "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
+      name: faq.question,
+      acceptedAnswer: {
         "@type": "Answer",
-        "text": faq.answer
-      }
-    }))
+        text: faq.answer,
+      },
+    })),
   };
 }
 
 /**
  * Generate HowTo structured data (for tutorial pages)
- * 
+ *
  * @param {Object} options - Configuration options
  * @param {string} options.name - Name of the how-to
  * @param {string} options.description - Description of the how-to
@@ -112,27 +112,27 @@ export function generateHowToSchema({
   name,
   description,
   steps,
-  totalTime = "PT10M"
+  totalTime = "PT10M",
 }) {
   return {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    "name": name,
-    "description": description,
-    "totalTime": totalTime,
-    "step": steps.map((step, index) => ({
+    name: name,
+    description: description,
+    totalTime: totalTime,
+    step: steps.map((step, index) => ({
       "@type": "HowToStep",
-      "position": index + 1,
-      "name": step.name,
-      "text": step.text,
-      "url": step.url || undefined
-    }))
+      position: index + 1,
+      name: step.name,
+      text: step.text,
+      url: step.url || undefined,
+    })),
   };
 }
 
 /**
  * Generate Article structured data
- * 
+ *
  * @param {Object} options - Configuration options
  * @param {string} options.headline - Article headline
  * @param {string} options.description - Article description
@@ -150,29 +150,29 @@ export function generateArticleSchema({
   imageUrl,
   datePublished,
   dateModified,
-  authorName = "Webmark Team"
+  authorName = "Webmark Team",
 }) {
   return {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": headline,
-    "description": description,
-    "url": url,
-    "image": imageUrl,
-    "datePublished": datePublished,
-    "dateModified": dateModified,
-    "author": {
+    headline: headline,
+    description: description,
+    url: url,
+    image: imageUrl,
+    datePublished: datePublished,
+    dateModified: dateModified,
+    author: {
       "@type": "Person",
-      "name": authorName
+      name: authorName,
     },
-    "publisher": {
+    publisher: {
       "@type": "Organization",
-      "name": "Webmark",
-      "logo": {
+      name: "Webmark",
+      logo: {
         "@type": "ImageObject",
-        "url": "https://webmark.chahatkesh.me/logo_color.png"
-      }
-    }
+        url: "https://webmark.chahatkesh.me/logo_color.png",
+      },
+    },
   };
 }
 
@@ -181,5 +181,5 @@ export default {
   generateBreadcrumbSchema,
   generateFAQSchema,
   generateHowToSchema,
-  generateArticleSchema
+  generateArticleSchema,
 };

@@ -5,6 +5,7 @@ This document explains the implementation and usage of drag and drop functionali
 ## Overview
 
 Webmark implements an intuitive drag and drop system allowing users to:
+
 1. Reorder bookmarks within categories
 2. (Planned feature) Reorder categories themselves
 3. (Planned feature) Move bookmarks between categories
@@ -36,9 +37,7 @@ The drag and drop implementation is structured across the following components:
 The top-level wrapper from react-beautiful-dnd that coordinates the drag and drop operations:
 
 ```jsx
-<DragDropContext onDragEnd={onDragEnd}>
-  {/* Droppable areas */}
-</DragDropContext>
+<DragDropContext onDragEnd={onDragEnd}>{/* Droppable areas */}</DragDropContext>
 ```
 
 ### Droppable Areas
@@ -51,7 +50,8 @@ Defines an area where items can be dropped:
     <div
       {...provided.droppableProps}
       ref={provided.innerRef}
-      className="grid grid-cols-2 gap-x-2 gap-y-2">
+      className="grid grid-cols-2 gap-x-2 gap-y-2"
+    >
       {/* Draggable items */}
       {provided.placeholder}
     </div>
@@ -71,14 +71,16 @@ Individual items that can be dragged:
       {...provided.draggableProps}
       className={`flex justify-between items-center ${
         snapshot.isDragging ? "shadow-lg" : ""
-      }`}>
+      }`}
+    >
       {/* Drag handle */}
       <div
         {...provided.dragHandleProps}
-        className="cursor-grab active:cursor-grabbing">
+        className="cursor-grab active:cursor-grabbing"
+      >
         <GripVertical className="h-4 w-4 text-gray-400" />
       </div>
-      
+
       {/* Item content */}
     </div>
   )}
@@ -90,6 +92,7 @@ Individual items that can be dragged:
 ### Handling Drag End
 
 When a drag operation completes, the system:
+
 1. Updates the local state
 2. Sends the new order to the backend
 3. Uses optimistic updates to provide a responsive user experience
@@ -119,7 +122,7 @@ const onDragEnd = (result) => {
       onError: (error) => {
         console.error("Error updating bookmark order:", error);
       },
-    }
+    },
   );
 };
 ```
@@ -185,7 +188,7 @@ export const reorderBookmarks = async (req, res) => {
     // Verify category belongs to user
     const category = await Category.findOne({
       _id: categoryId,
-      userId: req.body.userId
+      userId: req.body.userId,
     });
 
     if (!category) {
@@ -194,7 +197,7 @@ export const reorderBookmarks = async (req, res) => {
 
     // Update each bookmark's order
     const updatePromises = bookmarks.map(({ id, order }) =>
-      Bookmark.findByIdAndUpdate(id, { order })
+      Bookmark.findByIdAndUpdate(id, { order }),
     );
 
     await Promise.all(updatePromises);

@@ -54,7 +54,8 @@ const XIcon = () => (
     width="16"
     height="14"
     viewBox="0 0 17 15"
-    aria-hidden="true">
+    aria-hidden="true"
+  >
     <path
       fillRule="evenodd"
       d="M16.928 14.054H11.99L8.125 9.162l-4.427 4.892H1.243L6.98 7.712.928.054H5.99L9.487 4.53 13.53.054h2.454l-5.358 5.932 6.303 8.068Zm-4.26-1.421h1.36L5.251 1.4H3.793l8.875 11.232Z"
@@ -110,7 +111,8 @@ const TweetCard = ({ tweetUrl, className = "" }) => {
         href={tweet.url || tweetUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="tweet-card-surface group">
+        className="tweet-card-surface group"
+      >
         <header className="flex items-center gap-3 mb-5">
           <img
             className="h-11 w-11 rounded-full object-cover ring-1 ring-black/5"
@@ -190,7 +192,8 @@ const Testimonial = () => {
             {columns.map((column, columnIndex) => (
               <div
                 key={`column-${columnIndex}`}
-                className="testimonial-bento-column">
+                className="testimonial-bento-column"
+              >
                 {column.map(({ tweet, index }) => (
                   <TweetCard
                     key={`${tweet.url}-${index}`}

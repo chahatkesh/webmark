@@ -16,6 +16,7 @@ Webmark provides a streamlined onboarding experience to help users quickly set u
 ### Google Authentication
 
 Webmark primarily uses Google OAuth for authentication, providing:
+
 - Single-click login experience
 - Secure authentication without password management
 - Access to basic Google account information
@@ -39,6 +40,7 @@ When a new user signs in for the first time, they experience the following onboa
 ### 1. Welcome Screen
 
 First-time users see a welcome screen that:
+
 - Introduces Webmark's core functionality
 - Explains the benefits of organized bookmarks
 - Offers a guided tour option
@@ -46,34 +48,35 @@ First-time users see a welcome screen that:
 ### 2. Username Selection
 
 New users are prompted to:
+
 - Choose a username for their account
 - Confirm their profile information
 - Set any initial preferences
 
 ```jsx
 // In Onboarding.jsx
-const [username, setUsername] = useState('');
+const [username, setUsername] = useState("");
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-  
+
   try {
     const response = await fetch(`${url}/api/user/complete-profile`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        token: localStorage.getItem('token')
+        "Content-Type": "application/json",
+        token: localStorage.getItem("token"),
       },
-      body: JSON.stringify({ username })
+      body: JSON.stringify({ username }),
     });
-    
+
     const data = await response.json();
-    
+
     if (data.success) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   } catch (error) {
-    console.error('Error completing profile:', error);
+    console.error("Error completing profile:", error);
   }
 };
 ```
@@ -81,6 +84,7 @@ const handleSubmit = async (e) => {
 ### 3. Default Bookmarks Creation
 
 As part of the onboarding, the system:
+
 - Creates default categories for organizing bookmarks
 - Adds sample bookmarks to demonstrate functionality
 - Sets up initial dashboard structure
@@ -99,7 +103,7 @@ export const createDefaultBookmarks = async (userId) => {
         bgcolor: "#f7fee7",
         hcolor: "#4d7c0f",
         emoji: "🚀",
-        order: 0
+        order: 0,
       },
       {
         userId,
@@ -107,20 +111,20 @@ export const createDefaultBookmarks = async (userId) => {
         bgcolor: "#eff6ff",
         hcolor: "#1d4ed8",
         emoji: "⚡",
-        order: 1
+        order: 1,
       },
       // Additional categories...
     ];
-    
+
     // Insert categories and get their IDs
     const createdCategories = await Category.insertMany(categories);
-    
+
     // Create default bookmarks for each category
     for (const category of createdCategories) {
       const bookmarks = getBookmarksForCategory(category._id);
       await Bookmark.insertMany(bookmarks);
     }
-    
+
     return true;
   } catch (error) {
     console.error("Error creating default bookmarks:", error);
@@ -132,6 +136,7 @@ export const createDefaultBookmarks = async (userId) => {
 ### 4. Feature Tour
 
 After initial setup, users are guided through key features:
+
 - How to create new categories
 - Adding and organizing bookmarks
 - Customizing category appearance
@@ -141,6 +146,7 @@ After initial setup, users are guided through key features:
 ## Returning User Experience
 
 For returning users, the system:
+
 1. Validates their JWT token
 2. Redirects directly to the dashboard
 3. Maintains their session across visits
@@ -149,6 +155,7 @@ For returning users, the system:
 ## Progressive Feature Introduction
 
 Webmark introduces advanced features progressively:
+
 1. **Day 1**: Basic bookmark management
 2. **Week 1**: Custom category organization
 3. **Week 2**: Advanced search and filtering

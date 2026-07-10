@@ -5,7 +5,7 @@ const testimonialTweets = [
   },
   {
     url: "https://x.com/chahatkesh/status/1905560061419946341",
-  }
+  },
 ];
 
 export default testimonialTweets;

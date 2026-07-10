@@ -47,6 +47,7 @@ Each bookmark belongs to a specific category:
 ### Category Representation
 
 Categories are displayed as cards with:
+
 - A header containing the emoji icon and category name
 - A customizable background color
 - Action buttons for adding, editing, and deleting
@@ -55,6 +56,7 @@ Categories are displayed as cards with:
 ### Bookmark Representation
 
 Bookmarks are displayed as interactive items with:
+
 - The bookmark name
 - The website favicon/logo
 - Drag handle for reordering
@@ -126,6 +128,7 @@ The categorization system includes a robust search functionality:
 4. **Real-time Results**: Updates as the user types
 
 The search implementation uses the following approach:
+
 1. Search terms are split into individual words
 2. Each word is matched against bookmark names and URLs
 3. Results are filtered to show only matching bookmarks and their parent categories

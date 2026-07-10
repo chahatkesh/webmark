@@ -13,10 +13,12 @@ const Message = () => {
               height="49"
               viewBox="0 0 40 49"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg">
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <path
                 d="M22.7976 -0.000136375L39.9352 23.4746L33.4178 31.7234L13.7686 11.4275L22.7976 -0.000136375ZM9.34947 17.0206L26.4871 40.4953L19.9697 48.7441L0.320491 28.4482L9.34947 17.0206Z"
-                fill="#D1D5DB"></path>
+                fill="#D1D5DB"
+              ></path>
             </svg>
             <img
               className="rounded-full"
@@ -35,7 +37,8 @@ const Message = () => {
               target="_blank"
               rel="noreferrer"
               className="text-blue-500 hover:text-blue-600"
-              href="https://chahatkesh.me/">
+              href="https://chahatkesh.me/"
+            >
               Designed by
             </a>
             <span> Chahat Kesharwani</span>

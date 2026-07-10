@@ -15,7 +15,9 @@ export const issueUserSession = async (user, res, options = {}) => {
 
   if (preservePrevious && user.refreshTokenHash) {
     user.previousRefreshTokenHash = user.refreshTokenHash;
-    user.previousRefreshTokenExpiresAt = new Date(Date.now() + getRefreshReuseWindowMs());
+    user.previousRefreshTokenExpiresAt = new Date(
+      Date.now() + getRefreshReuseWindowMs(),
+    );
   } else {
     user.previousRefreshTokenHash = undefined;
     user.previousRefreshTokenExpiresAt = undefined;

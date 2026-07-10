@@ -16,7 +16,8 @@ export const BookmarkItemSkeleton = () => {
         {[1, 2, 3, 4].map((n) => (
           <div
             key={n}
-            className="flex justify-between items-center p-2.5 bg-gray-200 rounded">
+            className="flex justify-between items-center p-2.5 bg-gray-200 rounded"
+          >
             <div className="h-4 w-24 bg-gray-300 rounded"></div>
             <div className="h-6 w-6 bg-gray-300 rounded"></div>
           </div>

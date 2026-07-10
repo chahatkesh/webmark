@@ -21,7 +21,9 @@ export const connectDB = async () => {
   connectionPromise = mongoose
     .connect(dbUri, {
       maxPoolSize: Number(process.env.MONGO_MAX_POOL_SIZE || 10),
-      serverSelectionTimeoutMS: Number(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || 5000),
+      serverSelectionTimeoutMS: Number(
+        process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || 5000,
+      ),
     })
     .then((connection) => {
       console.log("DB Connected");

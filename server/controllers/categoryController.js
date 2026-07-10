@@ -10,10 +10,12 @@ export const getCategories = async (req, res) => {
       .lean(); // Using lean() for better performance
 
     // Get all bookmarks for these categories in one query
-    const categoryIds = categories.map(cat => cat._id);
-    const allBookmarks = await Bookmark.find({ categoryId: { $in: categoryIds } })
-      .select('categoryId name link logo notes order')
-      .sort('order')
+    const categoryIds = categories.map((cat) => cat._id);
+    const allBookmarks = await Bookmark.find({
+      categoryId: { $in: categoryIds },
+    })
+      .select("categoryId name link logo notes order")
+      .sort("order")
       .lean();
 
     // Group bookmarks by category
@@ -26,9 +28,9 @@ export const getCategories = async (req, res) => {
     }, {});
 
     // Combine categories with their bookmarks
-    const categoriesWithBookmarks = categories.map(category => ({
+    const categoriesWithBookmarks = categories.map((category) => ({
       ...category,
-      bookmarks: bookmarksByCategory[category._id] || []
+      bookmarks: bookmarksByCategory[category._id] || [],
     }));
 
     res.json({ success: true, categories: categoriesWithBookmarks });
@@ -73,7 +75,7 @@ export const updateCategory = async (req, res) => {
     const updatedCategory = await Category.findOneAndUpdate(
       { _id: categoryId, userId: req.body.userId },
       { category, bgcolor, hcolor, emoji },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedCategory) {
@@ -92,7 +94,10 @@ export const reorderCategories = async (req, res) => {
     const { categories } = req.body;
 
     if (!Array.isArray(categories) || categories.length === 0) {
-      return res.json({ success: false, message: "Invalid categories payload" });
+      return res.json({
+        success: false,
+        message: "Invalid categories payload",
+      });
     }
 
     await Category.bulkWrite(
@@ -121,7 +126,9 @@ export const deleteCategory = async (req, res) => {
     });
 
     if (!category) {
-      return res.status(404).json({ success: false, message: "Category not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found" });
     }
 
     // Delete all bookmarks in the category first

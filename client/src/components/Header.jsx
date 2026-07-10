@@ -80,7 +80,8 @@ const Header = () => {
           <div
             className={`relative hidden md:block flex-1 max-w-md ${
               location.pathname.includes("dashboard") ? "visible" : "invisible"
-            }`}>
+            }`}
+          >
             <input
               type="text"
               value={searchTerm}
@@ -94,14 +95,16 @@ const Header = () => {
               <button
                 onClick={() => setSearchTerm("")}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                aria-label="Clear search">
+                aria-label="Clear search"
+              >
                 <X className="h-4 w-4" />
               </button>
             )}
           </div>
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 hover:bg-gray-100 rounded-lg">
+            className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+          >
             {isMobileMenuOpen ? (
               <X className="h-5 w-5" />
             ) : (
@@ -118,9 +121,10 @@ const Header = () => {
                   variant={isActive(item.path) ? "secondary" : "ghost"}
                   className={cn(
                     "gap-2",
-                    isActive(item.path) && "bg-gray-100 text-gray-900"
+                    isActive(item.path) && "bg-gray-100 text-gray-900",
                   )}
-                  onClick={() => navigate(`/user/${item.path}`)}>
+                  onClick={() => navigate(`/user/${item.path}`)}
+                >
                   <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
                 </Button>
@@ -147,7 +151,8 @@ const Header = () => {
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm("")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    >
                       <X className="h-4 w-4 text-gray-400" />
                     </button>
                   )}
@@ -163,12 +168,13 @@ const Header = () => {
                   variant="ghost"
                   className={cn(
                     "w-full justify-start gap-2 rounded-none",
-                    isActive(item.path) && "bg-gray-100 text-gray-900"
+                    isActive(item.path) && "bg-gray-100 text-gray-900",
                   )}
                   onClick={() => {
                     navigate(`/user/${item.path}`);
                     setIsMobileMenuOpen(false);
-                  }}>
+                  }}
+                >
                   <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
                 </Button>

@@ -67,7 +67,7 @@ const Onboarding = () => {
     const usernameRegex = /^[a-z0-9][a-z0-9_-]{2,29}$/;
     if (!usernameRegex.test(username)) {
       setError(
-        "Username must start with a lowercase letter or number, followed by 29(max) lowercase letters, numbers, underscores, or hyphens"
+        "Username must start with a lowercase letter or number, followed by 29(max) lowercase letters, numbers, underscores, or hyphens",
       );
       setIsLoading(false);
       return;
@@ -113,7 +113,8 @@ const Onboarding = () => {
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium leading-6 text-gray-900">
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
                 Username
               </label>
               <div className="mt-2">
@@ -137,7 +138,8 @@ const Onboarding = () => {
                 type="submit"
                 isLoading={isLoading}
                 loadingText="Setting up..."
-                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              >
                 Complete Setup
               </LoaderButton>
             </div>

@@ -1,7 +1,15 @@
 import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Upload, FolderOpen, Loader2, CheckSquare, Square, AlertCircle, FileText } from "lucide-react";
+import {
+  Upload,
+  FolderOpen,
+  Loader2,
+  CheckSquare,
+  Square,
+  AlertCircle,
+  FileText,
+} from "lucide-react";
 import { useImportBookmarks } from "../../hooks/useBookmarks";
 
 // ─── Parser ────────────────────────────────────────────────────────────────
@@ -35,9 +43,18 @@ const parseBookmarksHTML = (htmlString) => {
         (children.folders || []).forEach((f) => folders.push(f));
       } else if (anchor) {
         const href = anchor.getAttribute("href") || "";
-        if (!href || href.startsWith("javascript:") || href.startsWith("place:")) continue;
+        if (
+          !href ||
+          href.startsWith("javascript:") ||
+          href.startsWith("place:")
+        )
+          continue;
         let hostname = "";
-        try { hostname = new URL(href).hostname; } catch { /* skip invalid URLs */ }
+        try {
+          hostname = new URL(href).hostname;
+        } catch {
+          /* skip invalid URLs */
+        }
         looseBookmarks.push({
           name: anchor.textContent.trim() || hostname || href,
           link: href,
@@ -63,7 +80,11 @@ const parseBookmarksHTML = (htmlString) => {
 };
 
 // ─── Component ─────────────────────────────────────────────────────────────
-const ImportBookmarksDialog = ({ open, onClose, importMutation: importMutationProp }) => {
+const ImportBookmarksDialog = ({
+  open,
+  onClose,
+  importMutation: importMutationProp,
+}) => {
   const [folders, setFolders] = useState([]); // parsed folders
   const [selected, setSelected] = useState({}); // { folderName: bool }
   const [fileName, setFileName] = useState("");
@@ -96,7 +117,9 @@ const ImportBookmarksDialog = ({ open, onClose, importMutation: importMutationPr
       try {
         const parsed = parseBookmarksHTML(ev.target.result);
         if (parsed.length === 0) {
-          setParseError("No bookmarks found in this file. Make sure you exported a bookmarks HTML file from Chrome or Firefox.");
+          setParseError(
+            "No bookmarks found in this file. Make sure you exported a bookmarks HTML file from Chrome or Firefox.",
+          );
           setFolders([]);
           setSelected({});
           return;
@@ -104,10 +127,14 @@ const ImportBookmarksDialog = ({ open, onClose, importMutation: importMutationPr
         setFolders(parsed);
         // Pre-select all folders
         const initial = {};
-        parsed.forEach((f) => { initial[f.name] = true; });
+        parsed.forEach((f) => {
+          initial[f.name] = true;
+        });
         setSelected(initial);
       } catch {
-        setParseError("Could not read this file. Please export your bookmarks as HTML from your browser.");
+        setParseError(
+          "Could not read this file. Please export your bookmarks as HTML from your browser.",
+        );
       }
     };
     reader.readAsText(file);
@@ -118,7 +145,9 @@ const ImportBookmarksDialog = ({ open, onClose, importMutation: importMutationPr
   const toggleAll = () => {
     const allSelected = folders.every((f) => selected[f.name]);
     const next = {};
-    folders.forEach((f) => { next[f.name] = !allSelected; });
+    folders.forEach((f) => {
+      next[f.name] = !allSelected;
+    });
     setSelected(next);
   };
 
@@ -127,8 +156,12 @@ const ImportBookmarksDialog = ({ open, onClose, importMutation: importMutationPr
   };
 
   const selectedFolders = folders.filter((f) => selected[f.name]);
-  const totalBookmarks = selectedFolders.reduce((sum, f) => sum + f.bookmarks.length, 0);
-  const allSelected = folders.length > 0 && folders.every((f) => selected[f.name]);
+  const totalBookmarks = selectedFolders.reduce(
+    (sum, f) => sum + f.bookmarks.length,
+    0,
+  );
+  const allSelected =
+    folders.length > 0 && folders.every((f) => selected[f.name]);
 
   const handleImport = async () => {
     if (selectedFolders.length === 0) return;
@@ -149,12 +182,16 @@ const ImportBookmarksDialog = ({ open, onClose, importMutation: importMutationPr
         <div className="flex flex-col gap-4 overflow-hidden">
           {/* Instructions */}
           <div className="text-sm text-gray-600 bg-blue-50 border border-blue-100 rounded-lg p-3 space-y-1">
-            <p className="font-medium text-blue-800">How to export your bookmarks:</p>
-            <p>
-              <span className="font-medium">Chrome:</span> Bookmarks menu → Bookmark manager → ⋮ → Export bookmarks
+            <p className="font-medium text-blue-800">
+              How to export your bookmarks:
             </p>
             <p>
-              <span className="font-medium">Firefox:</span> Bookmarks → Manage Bookmarks → Import and Backup → Export Bookmarks to HTML
+              <span className="font-medium">Chrome:</span> Bookmarks menu →
+              Bookmark manager → ⋮ → Export bookmarks
+            </p>
+            <p>
+              <span className="font-medium">Firefox:</span> Bookmarks → Manage
+              Bookmarks → Import and Backup → Export Bookmarks to HTML
             </p>
           </div>
 
@@ -192,7 +229,8 @@ const ImportBookmarksDialog = ({ open, onClose, importMutation: importMutationPr
             <div className="flex flex-col gap-2 overflow-hidden">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-gray-700">
-                  Select folders to import ({selectedFolders.length} of {folders.length})
+                  Select folders to import ({selectedFolders.length} of{" "}
+                  {folders.length})
                 </p>
                 <button
                   onClick={toggleAll}
@@ -223,7 +261,8 @@ const ImportBookmarksDialog = ({ open, onClose, importMutation: importMutationPr
                       {folder.name}
                     </span>
                     <span className="text-xs text-gray-500 shrink-0">
-                      {folder.bookmarks.length} bookmark{folder.bookmarks.length !== 1 ? "s" : ""}
+                      {folder.bookmarks.length} bookmark
+                      {folder.bookmarks.length !== 1 ? "s" : ""}
                     </span>
                   </button>
                 ))}

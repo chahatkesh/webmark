@@ -26,8 +26,15 @@ import ShareModal from "../components/DashboardComponents/ShareModel";
 
 const Profile = () => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const { profile, clickStats, loading, error, fetchProfileData, updateProfile, formatTimeSaved } =
-    useProfile();
+  const {
+    profile,
+    clickStats,
+    loading,
+    error,
+    fetchProfileData,
+    updateProfile,
+    formatTimeSaved,
+  } = useProfile();
   const { logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -125,7 +132,7 @@ const Profile = () => {
   const getAccountAge = () => {
     if (!profile?.joinedAt) return "0 days";
     return `${Math.floor(
-      (new Date() - new Date(profile.joinedAt)) / (1000 * 60 * 60 * 24)
+      (new Date() - new Date(profile.joinedAt)) / (1000 * 60 * 60 * 24),
     )} days`;
   };
 
@@ -154,7 +161,8 @@ const Profile = () => {
           </h2>
           <Button
             className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-all shadow-sm"
-            onClick={fetchProfileData}>
+            onClick={fetchProfileData}
+          >
             Retry
           </Button>
         </div>
@@ -188,11 +196,13 @@ const Profile = () => {
       className="max-w-7xl mx-auto px-4 py-20 mt-4 mb-20"
       initial="hidden"
       animate="visible"
-      variants={staggerContainer}>
+      variants={staggerContainer}
+    >
       {/* Header Section */}
       <motion.div
         className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10"
-        variants={fadeIn}>
+        variants={fadeIn}
+      >
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">
             My Profile
@@ -205,14 +215,16 @@ const Profile = () => {
           <Button
             variant="ghost"
             onClick={handleShareClick}
-            className="bg-blue-50 text-blue-600 hover:text-blue-700 hover:bg-blue-100">
+            className="bg-blue-50 text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+          >
             <Share className="h-4 w-4 mr-2" />
             Share
           </Button>
           <Button
             onClick={handleLogout}
             className="mt-4 md:mt-0 bg-red-50 hover:bg-red-100 text-red-600 px-5 py-2.5 rounded-md transition-all duration-200 shadow-sm flex items-center gap-2 font-medium"
-            aria-label="Logout">
+            aria-label="Logout"
+          >
             <LogOut className="h-4 w-4" />
             <span className="hidden sm:inline">Logout</span>
           </Button>
@@ -226,7 +238,8 @@ const Profile = () => {
           {/* Profile Card */}
           <motion.div
             variants={scaleUp}
-            className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+            className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100"
+          >
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-24" />
             <div className="px-6 py-6 relative">
               {/* Profile Image */}
@@ -259,7 +272,8 @@ const Profile = () => {
                   <button
                     onClick={handleEditClick}
                     className="absolute right-0 top-0 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                    title="Edit Profile">
+                    title="Edit Profile"
+                  >
                     <Edit className="h-4 w-4 text-gray-600" />
                   </button>
                 )}
@@ -268,7 +282,8 @@ const Profile = () => {
                     <div>
                       <label
                         htmlFor="name"
-                        className="block text-sm font-medium text-gray-700 mb-1">
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Full Name
                       </label>
                       <Input
@@ -283,7 +298,8 @@ const Profile = () => {
                       <LoaderButton
                         type="submit"
                         isLoading={submitting}
-                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white shadow-sm">
+                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
+                      >
                         Save
                       </LoaderButton>
                       <Button
@@ -291,7 +307,8 @@ const Profile = () => {
                         variant="outline"
                         onClick={handleCancel}
                         className="flex-1"
-                        disabled={submitting}>
+                        disabled={submitting}
+                      >
                         Cancel
                       </Button>
                     </div>
@@ -323,7 +340,8 @@ const Profile = () => {
           <motion.div
             whileHover="hover"
             variants={scaleUp}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 text-white shadow-sm">
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 text-white shadow-sm"
+          >
             <h3 className="text-lg font-medium mb-2 flex items-center">
               <Clock className="h-5 w-5 mr-2" />
               Time Saved with Webmark
@@ -345,14 +363,13 @@ const Profile = () => {
             <div className="mt-6 pt-4 border-t border-blue-400 border-opacity-30">
               <div className="flex items-center justify-between">
                 <span className="text-sm">
-                  Based on {statsLoading ? "..." : (clickStats?.totalClicks || 0)} total clicks
+                  Based on {statsLoading ? "..." : clickStats?.totalClicks || 0}{" "}
+                  total clicks
                 </span>
                 <Award className="h-5 w-5" />
               </div>
             </div>
           </motion.div>
-
-
         </div>
 
         {/* Right Column - Statistics */}
@@ -360,7 +377,8 @@ const Profile = () => {
           {/* Usage Statistics Card */}
           <motion.div
             variants={scaleUp}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
+          >
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
               <BarChart3 className="h-5 w-5 mr-2 text-blue-500" />
               Usage Statistics
@@ -371,7 +389,8 @@ const Profile = () => {
               <motion.div
                 whileHover="hover"
                 variants={cardHover}
-                className="bg-blue-50 rounded-xl p-4 text-center">
+                className="bg-blue-50 rounded-xl p-4 text-center"
+              >
                 <Bookmark className="h-6 w-6 text-blue-500 mx-auto mb-2" />
                 <p className="text-xs text-gray-500 mb-1">Total Bookmarks</p>
                 <h4 className="text-2xl font-bold text-gray-900">
@@ -383,7 +402,8 @@ const Profile = () => {
               <motion.div
                 whileHover="hover"
                 variants={cardHover}
-                className="bg-indigo-50 rounded-xl p-4 text-center">
+                className="bg-indigo-50 rounded-xl p-4 text-center"
+              >
                 <FolderOpen className="h-6 w-6 text-indigo-500 mx-auto mb-2" />
                 <p className="text-xs text-gray-500 mb-1">Categories</p>
                 <h4 className="text-2xl font-bold text-gray-900">
@@ -395,7 +415,8 @@ const Profile = () => {
               <motion.div
                 whileHover="hover"
                 variants={cardHover}
-                className="bg-purple-50 rounded-xl p-4 text-center">
+                className="bg-purple-50 rounded-xl p-4 text-center"
+              >
                 <MousePointer className="h-6 w-6 text-purple-500 mx-auto mb-2" />
                 <p className="text-xs text-gray-500 mb-1">Total Clicks</p>
                 <h4 className="text-2xl font-bold text-gray-900">
@@ -407,7 +428,8 @@ const Profile = () => {
               <motion.div
                 whileHover="hover"
                 variants={cardHover}
-                className="bg-rose-50 rounded-xl p-4 text-center">
+                className="bg-rose-50 rounded-xl p-4 text-center"
+              >
                 <Calendar className="h-6 w-6 text-rose-500 mx-auto mb-2" />
                 <p className="text-xs text-gray-500 mb-1">Account Age</p>
                 <h4 className="text-2xl font-bold text-gray-900">
@@ -421,7 +443,8 @@ const Profile = () => {
               <motion.div
                 whileHover="hover"
                 variants={cardHover}
-                className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4">
+                className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-500">
@@ -440,7 +463,8 @@ const Profile = () => {
               <motion.div
                 whileHover="hover"
                 variants={cardHover}
-                className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4">
+                className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl p-4"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-500">Last Bookmark Click</p>
@@ -455,7 +479,7 @@ const Profile = () => {
                 {clickStats?.lastClickedBookmark?.timestamp && (
                   <p className="text-xs text-gray-500 mt-2">
                     {formatRelativeTime(
-                      clickStats.lastClickedBookmark.timestamp
+                      clickStats.lastClickedBookmark.timestamp,
                     )}
                   </p>
                 )}
@@ -467,7 +491,8 @@ const Profile = () => {
           {clickStats?.topBookmarks && clickStats.topBookmarks.length > 0 && (
             <motion.div
               variants={scaleUp}
-              className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+              className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
+            >
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                 <Award className="h-5 w-5 mr-2 text-blue-500" />
                 Most Clicked Bookmarks
@@ -479,7 +504,8 @@ const Profile = () => {
                     key={bookmark.id}
                     whileHover=""
                     variants={cardHover}
-                    className="flex items-center p-3 hover:bg-slate-50 rounded-lg transition-colors">
+                    className="flex items-center p-3 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
                     <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-md flex items-center justify-center text-blue-800 font-bold mr-4">
                       #{index + 1}
                     </div>
@@ -506,7 +532,8 @@ const Profile = () => {
           {/* Active Devices */}
           <motion.div
             variants={scaleUp}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
+          >
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
               <Monitor className="h-5 w-5 mr-2 text-blue-500" />
               Active Devices
@@ -524,12 +551,14 @@ const Profile = () => {
                     key={device.deviceId || index}
                     whileHover=""
                     variants={cardHover}
-                    className="py-3 px-4 flex items-center justify-between">
+                    className="py-3 px-4 flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-3">
                       <div
                         className={`rounded-full p-1.5 ${
                           device.isCurrent ? "bg-green-100" : "bg-gray-100"
-                        }`}>
+                        }`}
+                      >
                         <Monitor
                           className={`h-4 w-4 ${
                             device.isCurrent
@@ -560,9 +589,10 @@ const Profile = () => {
                         className="text-xs text-red-600 hover:text-red-800 hover:bg-red-50"
                         onClick={() => {
                           toast.info(
-                            "Logout from other devices will be available in the next update."
+                            "Logout from other devices will be available in the next update.",
                           );
-                        }}>
+                        }}
+                      >
                         <LogOut className="h-3 w-3 mr-1" />
                         Logout
                       </Button>
@@ -582,7 +612,8 @@ const Profile = () => {
       {/* Footer Section */}
       <motion.div
         variants={fadeIn}
-        className="mt-10 text-center text-sm text-gray-500">
+        className="mt-10 text-center text-sm text-gray-500"
+      >
         <p>Webmark - Simplifying Bookmark Management</p>
       </motion.div>
       <ShareModal

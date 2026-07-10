@@ -1,4 +1,4 @@
-import { fetchTweetById } from '../utils/tweetFetcher.js';
+import { fetchTweetById } from "../utils/tweetFetcher.js";
 
 const tweetCache = new Map();
 const TWEET_CACHE_TTL_MS = 60 * 60 * 1000;
@@ -20,7 +20,7 @@ export const getTweet = async (req, res) => {
     const status = error.status || 500;
     return res.status(status).json({
       success: false,
-      message: error.message || 'Failed to fetch tweet',
+      message: error.message || "Failed to fetch tweet",
     });
   }
 };

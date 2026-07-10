@@ -74,7 +74,8 @@ export const ErrorFallback = ({ error, errorInfo, resetError }) => {
         <div className="w-full max-w-md mx-auto mt-4">
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="text-sm flex items-center justify-center gap-1 text-gray-500 hover:text-gray-700 mx-auto">
+            className="text-sm flex items-center justify-center gap-1 text-gray-500 hover:text-gray-700 mx-auto"
+          >
             {showDetails ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             {showDetails ? "Hide technical details" : "Show technical details"}
           </button>
@@ -104,7 +105,8 @@ export const ErrorFallback = ({ error, errorInfo, resetError }) => {
           <Button
             variant="outline"
             onClick={() => navigate("/user/report-problem")}
-            className="w-full sm:w-auto">
+            className="w-full sm:w-auto"
+          >
             Report issue
           </Button>
         </div>
