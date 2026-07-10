@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "node src/utils/sitemapGenerator.js && vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives",
+    "type-check": "tsc -p tsconfig.app.json --noEmit",
     "preview": "vite preview",
     "generate-sitemap": "node --experimental-modules src/utils/sitemapGenerator.js",
     "update-sitemaps": "node --experimental-modules src/utils/sitemapGenerator.js && echo 'All sitemaps updated with current date'",
@@ -62,6 +63,7 @@
     "eslint-plugin-react-refresh": "^0.4.7",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
+    "typescript": "^5.8.3",
     "vite": "^5.3.1"
   },
   "packageManager": "pnpm@10.34.4+sha512.8768be55200ae3f2226b6527fcca2687e14bc4e5f12d7721a0f25da3df47915177058648db4177baf348120fa0ba2752d8d8d93f6beaf1fe64ae18da8de961af"

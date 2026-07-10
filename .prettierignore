@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+coverage
+.pnpm-store
+pnpm-lock.yaml
+package-lock.json
+client/dist
+client/seo-reports
+client/public
+.husky

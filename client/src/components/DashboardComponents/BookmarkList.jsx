@@ -1,4 +1,12 @@
-import { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from "react";
+import {
+  lazy,
+  Suspense,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import {
   useCategories,
   useAISort,
@@ -29,10 +37,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
-  bookmarkDragId,
   categoryDragId,
   stripBookmarkId,
-  stripCategoryId,
   buildItemsByCategory,
   getLayoutUpdates,
   moveBookmarkInState,
@@ -91,7 +97,8 @@ const CategoryColumns = ({
         {sortable ? (
           <SortableContext
             items={items.map((item) => categoryDragId(item._id))}
-            strategy={verticalListSortingStrategy}>
+            strategy={verticalListSortingStrategy}
+          >
             {content}
           </SortableContext>
         ) : (
@@ -108,11 +115,13 @@ const CategoryColumns = ({
         return (
           <div
             key={colIndex}
-            className="flex min-w-0 flex-1 flex-col gap-y-4 md:gap-y-6">
+            className="flex min-w-0 flex-1 flex-col gap-y-4 md:gap-y-6"
+          >
             {sortable ? (
               <SortableContext
                 items={colItems.map((item) => categoryDragId(item._id))}
-                strategy={verticalListSortingStrategy}>
+                strategy={verticalListSortingStrategy}
+              >
                 {columnContent}
               </SortableContext>
             ) : (
@@ -125,10 +134,7 @@ const CategoryColumns = ({
   );
 };
 
-const SortableCategory = ({
-  categoryItem,
-  bookmarks,
-}) => {
+const SortableCategory = ({ categoryItem, bookmarks }) => {
   const {
     attributes,
     listeners,
@@ -150,7 +156,11 @@ const SortableCategory = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="min-w-0 outline-none focus:outline-none">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="min-w-0 outline-none focus:outline-none"
+    >
       <BookmarkItem
         category={categoryItem.category}
         categoryId={categoryItem._id}
@@ -178,9 +188,12 @@ const filterCategories = (categories, searchTerm) => {
           ? category.bookmarks.filter((bookmark) =>
               searchWords.some(
                 (word) =>
-                  (bookmark.name && bookmark.name.toLowerCase().includes(word)) ||
-                  (bookmark.link && bookmark.link.toLowerCase().includes(word)) ||
-                  (bookmark.notes && bookmark.notes.toLowerCase().includes(word)),
+                  (bookmark.name &&
+                    bookmark.name.toLowerCase().includes(word)) ||
+                  (bookmark.link &&
+                    bookmark.link.toLowerCase().includes(word)) ||
+                  (bookmark.notes &&
+                    bookmark.notes.toLowerCase().includes(word)),
               ),
             )
           : [];
@@ -194,7 +207,9 @@ const filterCategories = (categories, searchTerm) => {
 
         if (
           category.category &&
-          searchWords.some((word) => category.category.toLowerCase().includes(word))
+          searchWords.some((word) =>
+            category.category.toLowerCase().includes(word),
+          )
         ) {
           return category;
         }
@@ -223,13 +238,19 @@ const BookmarkList = () => {
   const isDraggingCategoryRef = useRef(false);
   const isDraggingBookmarkRef = useRef(false);
   const columnCount = useCategoryColumnCount();
-  const [sortsLeft, setSortsLeft] = useState(
-    () => parseInt(localStorage.getItem("aiSortsRemaining") ?? "5", 10),
+  const [sortsLeft, setSortsLeft] = useState(() =>
+    parseInt(localStorage.getItem("aiSortsRemaining") ?? "5", 10),
   );
-  const [importsLeft, setImportsLeft] = useState(
-    () => parseInt(localStorage.getItem("importsRemainingThisMonth") ?? "2", 10),
+  const [importsLeft, setImportsLeft] = useState(() =>
+    parseInt(localStorage.getItem("importsRemainingThisMonth") ?? "2", 10),
   );
-  const { mutate: aiSort, isPending: isSorting, data: sortResults, error: sortError, reset: resetSort } = useAISort();
+  const {
+    mutate: aiSort,
+    isPending: isSorting,
+    data: sortResults,
+    error: sortError,
+    reset: resetSort,
+  } = useAISort();
   const { mutate: revertSort, isPending: isReverting } = useRevertAISort();
   const importMutation = useImportBookmarks();
 
@@ -407,8 +428,14 @@ const BookmarkList = () => {
   }, [categories]);
 
   const syncLimitsFromStorage = () => {
-    const storedSorts = parseInt(localStorage.getItem("aiSortsRemaining") ?? "5", 10);
-    const storedImports = parseInt(localStorage.getItem("importsRemainingThisMonth") ?? "2", 10);
+    const storedSorts = parseInt(
+      localStorage.getItem("aiSortsRemaining") ?? "5",
+      10,
+    );
+    const storedImports = parseInt(
+      localStorage.getItem("importsRemainingThisMonth") ?? "2",
+      10,
+    );
     setSortsLeft(storedSorts);
     setImportsLeft(storedImports);
   };
@@ -452,11 +479,16 @@ const BookmarkList = () => {
   if (!categories || categories.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
-        <h2 className="text-lg font-semibold text-gray-900">No categories yet</h2>
-        <p className="mt-2 text-sm text-gray-500">Create your first category to start organizing bookmarks.</p>
+        <h2 className="text-lg font-semibold text-gray-900">
+          No categories yet
+        </h2>
+        <p className="mt-2 text-sm text-gray-500">
+          Create your first category to start organizing bookmarks.
+        </p>
         <Button
           onClick={() => setIsAddingCategory(true)}
-          className="mt-6 h-10 bg-blue-500 px-4 text-white hover:bg-blue-600">
+          className="mt-6 h-10 bg-blue-500 px-4 text-white hover:bg-blue-600"
+        >
           <PlusCircle className="mr-2 h-5 w-5" />
           Add Category
         </Button>
@@ -488,7 +520,8 @@ const BookmarkList = () => {
                 <span>No bookmarks found</span>
               ) : (
                 <span>
-                  {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""} found
+                  {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""}{" "}
+                  found
                 </span>
               )}
             </div>
@@ -500,37 +533,56 @@ const BookmarkList = () => {
             onClick={() => setIsAISortOpen(true)}
             variant="outline"
             disabled={sortsLeft <= 0 || isSorting}
-            title={sortsLeft <= 0 ? "No AI Sort credits left. Import bookmarks to earn more." : `${sortsLeft} credit${sortsLeft !== 1 ? 's' : ''} remaining`}
-            className="h-10 gap-2 whitespace-nowrap px-4">
+            title={
+              sortsLeft <= 0
+                ? "No AI Sort credits left. Import bookmarks to earn more."
+                : `${sortsLeft} credit${sortsLeft !== 1 ? "s" : ""} remaining`
+            }
+            className="h-10 gap-2 whitespace-nowrap px-4"
+          >
             <Wand2 className="h-5 w-5" />
             <span>AI Sort</span>
-            <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
-              sortsLeft <= 0
-                ? "bg-red-100 text-red-600"
-                : sortsLeft <= 2
-                ? "bg-amber-100 text-amber-700"
-                : "bg-blue-100 text-blue-700"
-            }`}>{sortsLeft}</span>
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                sortsLeft <= 0
+                  ? "bg-red-100 text-red-600"
+                  : sortsLeft <= 2
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-blue-100 text-blue-700"
+              }`}
+            >
+              {sortsLeft}
+            </span>
           </Button>
           <Button
             onClick={() => setIsImporting(true)}
             variant="outline"
             disabled={importMutation.isPending || importsLeft <= 0}
-            title={importsLeft <= 0 ? "Import limit reached for this month (2/month). Resets next month." : `${importsLeft} import${importsLeft !== 1 ? 's' : ''} remaining this month`}
-            className="h-10 gap-2 whitespace-nowrap px-4">
+            title={
+              importsLeft <= 0
+                ? "Import limit reached for this month (2/month). Resets next month."
+                : `${importsLeft} import${importsLeft !== 1 ? "s" : ""} remaining this month`
+            }
+            className="h-10 gap-2 whitespace-nowrap px-4"
+          >
             <Upload className="h-5 w-5" />
             <span>Import</span>
-            <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
-              importsLeft <= 0
-                ? "bg-red-100 text-red-600"
-                : importsLeft <= 1
-                ? "bg-amber-100 text-amber-700"
-                : "bg-blue-100 text-blue-700"
-            }`}>{importsLeft}</span>
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                importsLeft <= 0
+                  ? "bg-red-100 text-red-600"
+                  : importsLeft <= 1
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-blue-100 text-blue-700"
+              }`}
+            >
+              {importsLeft}
+            </span>
           </Button>
           <Button
             onClick={() => setIsAddingCategory(true)}
-            className="h-10 gap-2 whitespace-nowrap bg-blue-500 px-4 text-white hover:bg-blue-600">
+            className="h-10 gap-2 whitespace-nowrap bg-blue-500 px-4 text-white hover:bg-blue-600"
+          >
             <PlusCircle className="h-5 w-5" />
             <span>Add Category</span>
           </Button>
@@ -542,7 +594,8 @@ const BookmarkList = () => {
             <p>No bookmarks found for &quot;{searchTerm}&quot;</p>
           ) : (
             <p>
-              Found {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""} for &quot;{searchTerm}&quot;
+              Found {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""}{" "}
+              for &quot;{searchTerm}&quot;
             </p>
           )}
         </div>
@@ -575,7 +628,8 @@ const BookmarkList = () => {
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}>
+          onDragCancel={handleDragCancel}
+        >
           <CategoryColumns
             items={categoryItems}
             columnCount={columnCount}

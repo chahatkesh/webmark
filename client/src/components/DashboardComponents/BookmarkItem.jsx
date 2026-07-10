@@ -1,10 +1,4 @@
-import React, {
-  lazy,
-  Suspense,
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { lazy, Suspense, useState, useMemo, useCallback } from "react";
 import {
   useBookmarks,
   useDeleteCategory,
@@ -61,9 +55,10 @@ export const BookmarkCard = ({
       isOverlay
         ? "shadow-lg scale-[1.01] cursor-grabbing"
         : isPreview
-        ? ""
-        : "hover:bg-blue-100 cursor-pointer"
-    }`}>
+          ? ""
+          : "hover:bg-blue-100 cursor-pointer"
+    }`}
+  >
     <div
       {...(dragHandleProps || {})}
       data-drag-handle
@@ -71,7 +66,8 @@ export const BookmarkCard = ({
         dragHandleProps
           ? "cursor-grab active:cursor-grabbing"
           : "cursor-default"
-      }`}>
+      }`}
+    >
       <GripVertical className="h-4 w-4 text-gray-400" />
     </div>
 
@@ -86,7 +82,8 @@ export const BookmarkCard = ({
           href={item.link}
           className="block"
           onClick={(e) => onBookmarkClick(item._id, e)}
-          draggable={false}>
+          draggable={false}
+        >
           <h2 className="text-[13px] md:text-[16px] font-[400] truncate">
             {item.name}
           </h2>
@@ -110,22 +107,30 @@ export const BookmarkCard = ({
             <Button
               variant="ghost"
               size="menu"
-              className="hover:bg-blue-200 py-1">
+              className="hover:bg-blue-200 py-1"
+            >
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem onClick={() => onNotes(item)} className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => onNotes(item)}
+              className="cursor-pointer"
+            >
               <StickyNote className="h-4 w-4 mr-2" />
               Notes
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(item)} className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => onEdit(item)}
+              className="cursor-pointer"
+            >
               <Pencil className="h-4 w-4 mr-2" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onDelete(item)}
-              className="cursor-pointer text-red-600">
+              className="cursor-pointer text-red-600"
+            >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </DropdownMenuItem>
@@ -151,11 +156,13 @@ export const CategoryCard = ({
       isOverlay
         ? "shadow-lg scale-[1.01] cursor-grabbing pointer-events-none"
         : ""
-    }`}>
+    }`}
+  >
     <div className="flex justify-between items-center mb-4">
       <h1
         style={{ color: hcolor }}
-        className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2 min-w-0">
+        className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2 min-w-0"
+      >
         {showCategoryGrip && (
           <div className="shrink-0">
             <GripVertical className="h-4 w-4 opacity-60" />
@@ -235,7 +242,11 @@ export const SortableBookmark = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="min-w-0 outline-none focus:outline-none">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="min-w-0 outline-none focus:outline-none"
+    >
       <BookmarkCard
         item={item}
         onBookmarkClick={onBookmarkClick}
@@ -301,6 +312,11 @@ const BookmarkItem = ({
     [trackClick],
   );
 
+  const bookmarkIds = useMemo(
+    () => (displayBookmarks || []).map((item) => bookmarkDragId(item._id)),
+    [displayBookmarks],
+  );
+
   if (isLoading) return <BookmarkItemSkeleton />;
 
   const handleDeleteCategory = () => {
@@ -341,11 +357,6 @@ const BookmarkItem = ({
       />
     );
 
-  const bookmarkIds = useMemo(
-    () => (displayBookmarks || []).map((item) => bookmarkDragId(item._id)),
-    [displayBookmarks],
-  );
-
   const bookmarkGrid = (
     <div className="grid grid-cols-2 mt-2 md:mt-4 gap-x-2 gap-y-2 md:gap-x-3 md:gap-y-3 min-h-[2.5rem]">
       {displayBookmarks?.map(renderBookmark)}
@@ -356,7 +367,8 @@ const BookmarkItem = ({
     <SortableContext
       id={String(categoryId)}
       items={bookmarkIds}
-      strategy={rectSortingStrategy}>
+      strategy={rectSortingStrategy}
+    >
       <CategoryDropZone categoryId={categoryId}>
         {bookmarkGrid}
       </CategoryDropZone>
@@ -369,16 +381,19 @@ const BookmarkItem = ({
     <>
       <div
         style={{ backgroundColor: color }}
-        className="px-2 md:px-4 pt-3 md:pt-6 pb-4 md:pb-8 rounded relative">
+        className="px-2 md:px-4 pt-3 md:pt-6 pb-4 md:pb-8 rounded relative"
+      >
         <div className="flex justify-between items-center mb-4">
           <h1
             style={{ color: hcolor }}
-            className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2 min-w-0">
+            className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2 min-w-0"
+          >
             {categoryDragHandleProps && (
               <div
                 {...categoryDragHandleProps}
                 data-category-drag-handle
-                className="touch-none shrink-0 cursor-grab active:cursor-grabbing outline-none focus:outline-none">
+                className="touch-none shrink-0 cursor-grab active:cursor-grabbing outline-none focus:outline-none"
+              >
                 <GripVertical className="h-4 w-4 opacity-60" />
               </div>
             )}
@@ -391,21 +406,24 @@ const BookmarkItem = ({
               variant="ghost2"
               size="sm"
               onClick={() => setIsAddingBookmark(true)}
-              aria-label="Add bookmark">
+              aria-label="Add bookmark"
+            >
               <PlusCircle size={20} />
             </Button>
             <Button
               variant="ghost2"
               size="sm"
               onClick={() => setIsEditingCategory(true)}
-              aria-label="Edit category">
+              aria-label="Edit category"
+            >
               <Pencil size={18} />
             </Button>
             <Button
               variant="ghost2"
               size="sm"
               onClick={() => setIsConfirmDeleteOpen(true)}
-              aria-label="Delete category">
+              aria-label="Delete category"
+            >
               <Trash2 size={18} />
             </Button>
           </div>
@@ -489,7 +507,8 @@ const BookmarkItem = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelectedBookmarkForNotes(null)}
-                className="hover:bg-gray-100 rounded-full h-8 w-8 p-0">
+                className="hover:bg-gray-100 rounded-full h-8 w-8 p-0"
+              >
                 ✕
               </Button>
             </div>
@@ -507,7 +526,8 @@ const BookmarkItem = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setSelectedBookmarkForNotes(null)}
-                className="text-gray-600">
+                className="text-gray-600"
+              >
                 Close
               </Button>
               <Button
@@ -516,7 +536,8 @@ const BookmarkItem = ({
                   setSelectedBookmarkForNotes(null);
                 }}
                 size="sm"
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+              >
                 <Pencil className="h-3.5 w-3.5" />
                 Edit Notes
               </Button>
