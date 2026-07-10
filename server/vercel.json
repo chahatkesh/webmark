@@ -6,12 +6,6 @@
       "use": "@vercel/node"
     }
   ],
-  "functions": {
-    "server.js": {
-      "maxDuration": 30,
-      "memory": 1024
-    }
-  },
   "crons": [
     {
       "path": "/api/cron/stats",
