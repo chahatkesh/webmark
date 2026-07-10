@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useProfile from "../hooks/useProfile";
-import useClicks from "../hooks/useClicks";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../context/AuthContext";
 import {
   CalendarDays,
   Mail,
@@ -17,7 +16,6 @@ import {
   Share,
   LogOut,
 } from "lucide-react";
-import Loader from "../components/Loader";
 import LoaderButton from "../components/ui/LoaderButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,15 +26,8 @@ import ShareModal from "../components/DashboardComponents/ShareModel";
 
 const Profile = () => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const { profile, loading, error, fetchProfileData, updateProfile } =
+  const { profile, clickStats, loading, error, fetchProfileData, updateProfile, formatTimeSaved } =
     useProfile();
-  const {
-    clickStats,
-    loading: clickStatsLoading,
-    error: clickStatsError,
-    getClickStats,
-    formatTimeSaved,
-  } = useClicks();
   const { logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -88,11 +79,6 @@ const Profile = () => {
       transition: { type: "spring", stiffness: 400, damping: 10 },
     },
   };
-
-  // Fetch click statistics when component mounts
-  useEffect(() => {
-    getClickStats();
-  }, [getClickStats]);
 
   // Enable editing mode
   const handleEditClick = () => {
@@ -159,31 +145,39 @@ const Profile = () => {
     }
   };
 
-  if (loading || clickStatsLoading) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-120px)]">
-        <div className="flex flex-col items-center gap-3">
-          <Loader type="spinner" size="lg" />
-          <p className="text-sm text-gray-500 animate-pulse">
-            Loading your profile data...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || clickStatsError) {
+  if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-12 mt-8">
         <div className="text-center py-10 bg-red-50 rounded-2xl">
           <h2 className="text-xl font-medium text-red-500 mb-3">
-            {error || clickStatsError || "Error loading data"}
+            {error || "Error loading data"}
           </h2>
           <Button
             className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-all shadow-sm"
             onClick={fetchProfileData}>
             Retry
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const statsLoading = loading && !clickStats;
+  const profileLoading = loading && !profile;
+
+  if (profileLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 mt-4 mb-20">
+        <div className="mb-10 h-10 w-48 animate-pulse rounded-lg bg-gray-200" />
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="space-y-6">
+            <div className="h-72 animate-pulse rounded-xl bg-gray-100" />
+            <div className="h-40 animate-pulse rounded-xl bg-gray-100" />
+          </div>
+          <div className="space-y-6 lg:col-span-2">
+            <div className="h-56 animate-pulse rounded-xl bg-gray-100" />
+            <div className="h-48 animate-pulse rounded-xl bg-gray-100" />
+          </div>
         </div>
       </div>
     );
@@ -340,14 +334,18 @@ const Profile = () => {
               </p>
               <div className="flex items-baseline mt-1">
                 <h4 className="text-3xl font-bold">
-                  {formatTimeSaved(clickStats?.timeSaved || 0)}
+                  {statsLoading ? (
+                    <span className="inline-block h-8 w-24 animate-pulse rounded bg-blue-400/40" />
+                  ) : (
+                    formatTimeSaved(clickStats?.timeSaved || 0)
+                  )}
                 </h4>
               </div>
             </div>
             <div className="mt-6 pt-4 border-t border-blue-400 border-opacity-30">
               <div className="flex items-center justify-between">
                 <span className="text-sm">
-                  Based on {clickStats?.totalClicks || 0} total clicks
+                  Based on {statsLoading ? "..." : (clickStats?.totalClicks || 0)} total clicks
                 </span>
                 <Award className="h-5 w-5" />
               </div>

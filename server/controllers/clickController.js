@@ -78,49 +78,57 @@ export const trackBookmarkClick = async (req, res) => {
 // Get click statistics for a user
 export const getUserClickStats = async (req, res) => {
   try {
-    const userId = req.body.userId;
-
-    // Get user data
-    const user = await User.findById(userId);
+    const user = req.user;
     if (!user) {
       return res.json({ success: false, message: 'User not found' });
     }
 
-    // Get all categories for this user
-    const categories = await Category.find({ userId });
-    const categoryIds = categories.map(category => category._id);
+    const categories = await Category.find({ userId: user._id }).select('_id').lean();
+    const categoryIds = categories.map((category) => category._id);
 
-    // Get all bookmarks for this user
-    const bookmarks = await Bookmark.find({ categoryId: { $in: categoryIds } });
+    if (categoryIds.length === 0) {
+      return res.json({
+        success: true,
+        stats: {
+          totalClicks: user.stats?.totalClicks || 0,
+          timeSaved: user.stats?.timeSaved || 0,
+          topBookmarks: [],
+          lastClickedBookmark: user.stats?.lastClickedBookmark || null,
+        },
+      });
+    }
 
-    // Calculate total clicks across all bookmarks
-    const bookmarkTotalClicks = bookmarks.reduce((total, bookmark) => total + (bookmark.clickCount || 0), 0);
+    const [topBookmarks, bookmarkTotalClicks] = await Promise.all([
+      Bookmark.find({ categoryId: { $in: categoryIds }, clickCount: { $gt: 0 } })
+        .select('name link logo clickCount lastClicked')
+        .sort({ clickCount: -1 })
+        .limit(5)
+        .lean(),
+      Bookmark.aggregate([
+        { $match: { categoryId: { $in: categoryIds } } },
+        { $group: { _id: null, total: { $sum: { $ifNull: ['$clickCount', 0] } } } },
+      ]),
+    ]);
 
-    // Get top clicked bookmarks
-    const topBookmarks = bookmarks
-      .filter(bookmark => (bookmark.clickCount || 0) > 0)
-      .sort((a, b) => (b.clickCount || 0) - (a.clickCount || 0))
-      .slice(0, 5)
-      .map(bookmark => ({
-        id: bookmark._id,
-        name: bookmark.name,
-        link: bookmark.link,
-        logo: bookmark.logo,
-        clickCount: bookmark.clickCount || 0,
-        lastClicked: bookmark.lastClicked
-      }));
-
-    // Get total time saved (from user stats or calculate)
-    const timeSaved = user.stats?.timeSaved || bookmarkTotalClicks * AVERAGE_TIME_SAVED_PER_CLICK;
+    const aggregatedClicks = bookmarkTotalClicks[0]?.total || 0;
+    const totalClicks = user.stats?.totalClicks || aggregatedClicks;
+    const timeSaved = user.stats?.timeSaved || aggregatedClicks * AVERAGE_TIME_SAVED_PER_CLICK;
 
     res.json({
       success: true,
       stats: {
-        totalClicks: user.stats?.totalClicks || bookmarkTotalClicks,
+        totalClicks,
         timeSaved,
-        topBookmarks,
-        lastClickedBookmark: user.stats?.lastClickedBookmark
-      }
+        topBookmarks: topBookmarks.map((bookmark) => ({
+          id: bookmark._id,
+          name: bookmark.name,
+          link: bookmark.link,
+          logo: bookmark.logo,
+          clickCount: bookmark.clickCount || 0,
+          lastClicked: bookmark.lastClicked,
+        })),
+        lastClickedBookmark: user.stats?.lastClickedBookmark,
+      },
     });
   } catch (error) {
     console.error('Error getting click statistics:', error);

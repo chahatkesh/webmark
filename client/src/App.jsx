@@ -1,11 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./hooks/useAuth";
+import { useAuth, AuthProvider } from "./context/AuthContext";
 import { Helmet } from "react-helmet";
 import { lazy, Suspense } from "react";
 // Import core components directly
 import Home from "./pages/Home";
 import Loader from "./components/Loader";
 import Prefetcher from "./components/Prefetcher"; // Prefetcher component for performance
+import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
 import { ToastContainer, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 // Use the enhanced error components
@@ -20,7 +21,6 @@ const Profile = lazy(() => import("./pages/Profile"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const BookmarkletSave = lazy(() => import("./pages/BookmarkletSave"));
-const AuthenticatedLayout = lazy(() => import("./layouts/AuthenticatedLayout"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 const ProtectedRoute = ({ children }) => {
@@ -35,7 +35,8 @@ const ProtectedRoute = ({ children }) => {
 
 const App = () => {
   return (
-    <ErrorBoundary>
+    <AuthProvider>
+      <ErrorBoundary>
       <div className="app bg-white overflow-hidden flex flex-col min-h-[100vh]">
         {/* Global SEO defaults */}
         <Helmet>
@@ -178,6 +179,7 @@ const App = () => {
         closeButton={false}
       />
     </ErrorBoundary>
+    </AuthProvider>
   );
 };
 

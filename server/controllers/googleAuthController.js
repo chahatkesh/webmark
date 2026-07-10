@@ -130,8 +130,7 @@ const completeOnboarding = async (req, res) => {
 // Get user data for authenticated user
 const getUserData = async (req, res) => {
   try {
-    const userId = req.body.userId;
-    const user = await userModel.findById(userId);
+    const user = req.user;
 
     if (!user) {
       return res.json({ success: false, message: "User not found" });
@@ -148,9 +147,10 @@ const getUserData = async (req, res) => {
 
     // Ensure profile picture is a valid URL
     if (user.profilePicture && !user.profilePicture.startsWith('http')) {
-      // If it's not a valid URL, update to use a default avatar service
       user.profilePicture = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.username)}`;
-      await user.save();
+      user.save().catch((saveError) => {
+        console.error('Failed to update profile picture URL:', saveError);
+      });
     }
 
     return res.json({

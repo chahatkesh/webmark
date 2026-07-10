@@ -12,6 +12,7 @@ export const getCategories = async (req, res) => {
     // Get all bookmarks for these categories in one query
     const categoryIds = categories.map(cat => cat._id);
     const allBookmarks = await Bookmark.find({ categoryId: { $in: categoryIds } })
+      .select('categoryId name link logo notes order')
       .sort('order')
       .lean();
 

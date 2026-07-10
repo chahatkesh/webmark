@@ -69,12 +69,19 @@ const authMiddleware = async (req, res, next) => {
       const userAgent = req.headers['user-agent'];
       const oneHourAgo = new Date(currentTime.getTime() - 60 * 60 * 1000);
       if (!user.lastLogin || new Date(user.lastLogin) < oneHourAgo) {
-        user.lastLogin = currentTime;
-        user.lastLoginDevice = userAgent;
-        await user.save();
+        User.updateOne(
+          {
+            _id: user._id,
+            $or: [{ lastLogin: { $lt: oneHourAgo } }, { lastLogin: { $exists: false } }],
+          },
+          { $set: { lastLogin: currentTime, lastLoginDevice: userAgent } },
+        ).catch((updateError) => {
+          console.error('Failed to update last login:', updateError);
+        });
       }
     }
 
+    req.user = user;
     req.userId = decoded.id;
     req.body = req.body || {};
     req.body.userId = decoded.id;
