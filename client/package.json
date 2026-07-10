@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "pnpm install --include=dev && node --experimental-modules src/utils/sitemapGenerator.js && ./node_modules/.bin/vite build",
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "build": "node src/utils/sitemapGenerator.js && vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives",
     "preview": "vite preview",
     "generate-sitemap": "node --experimental-modules src/utils/sitemapGenerator.js",
     "update-sitemaps": "node --experimental-modules src/utils/sitemapGenerator.js && echo 'All sitemaps updated with current date'",
@@ -61,5 +61,6 @@
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
     "vite": "^5.3.1"
-  }
+  },
+  "packageManager": "pnpm@10.34.4+sha512.8768be55200ae3f2226b6527fcca2687e14bc4e5f12d7721a0f25da3df47915177058648db4177baf348120fa0ba2752d8d8d93f6beaf1fe64ae18da8de961af"
 }

@@ -3,7 +3,6 @@ import { Button } from "./ui/button";
 import {
   RefreshCcw,
   AlertTriangle,
-  XCircle,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";

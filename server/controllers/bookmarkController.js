@@ -142,12 +142,15 @@ export const reorderBookmarks = async (req, res) => {
       return res.json({ success: false, message: "Category not found" });
     }
 
-    // Update each bookmark's order
-    const updatePromises = bookmarks.map(({ id, order }) =>
-      Bookmark.findByIdAndUpdate(id, { order })
+    // Update each bookmark's order, scoped to the verified category.
+    await Bookmark.bulkWrite(
+      bookmarks.map(({ id, order }) => ({
+        updateOne: {
+          filter: { _id: id, categoryId },
+          update: { $set: { order } },
+        },
+      }))
     );
-
-    await Promise.all(updatePromises);
 
     res.json({ success: true, message: "Bookmark order updated successfully" });
   } catch (error) {

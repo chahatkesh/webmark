@@ -57,12 +57,18 @@ export function setupGlobalErrorHandlers() {
       // Report failed API calls as errors
       if (!response.ok) {
         const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || 'unknown';
-        reportError(new Error(`API Error: ${response.status} ${response.statusText}`), {
-          source: 'fetch',
-          url,
-          status: response.status,
-          statusText: response.statusText
-        });
+        const isExpectedAuthCheck =
+          response.status === 401 &&
+          (url.includes('/api/user/userdata') || url.includes('/api/user/refresh'));
+
+        if (!isExpectedAuthCheck) {
+          reportError(new Error(`API Error: ${response.status} ${response.statusText}`), {
+            source: 'fetch',
+            url,
+            status: response.status,
+            statusText: response.statusText
+          });
+        }
       }
 
       return response;

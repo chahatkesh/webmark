@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { StoreContext } from "../context/StoreContext";
+import { apiRequest, clearLocalSession } from '../utils/apiClient';
 
 export const useAuth = () => {
   const { url, setUser } = useContext(StoreContext);
@@ -15,42 +15,39 @@ export const useAuth = () => {
   }, [url]);
 
   const fetchUserData = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setIsLoading(false);
-      setIsAuthenticated(false);
-      setUser(null);
-      return false;
-    }
-
     try {
-      const response = await axios.post(
-        `${url}/api/user/userdata`,
-        {},
-        { headers: { token } }
-      );
+      const data = await apiRequest('/api/user/userdata', {
+        method: 'POST',
+      });
 
-      // Check for new token in headers (token refresh)
-      const newToken = response.headers['x-auth-token'];
-      if (newToken) {
-        localStorage.setItem('token', newToken);
-      }
-
-      if (response.data.success) {
+      if (data.success) {
         const userData = {
-          username: response.data.username,
-          email: response.data.email,
-          name: response.data.name,
-          profilePicture: response.data.profilePicture,
-          joinedAt: response.data.joinedAt
+          username: data.username,
+          email: data.email,
+          name: data.name,
+          profilePicture: data.profilePicture,
+          joinedAt: data.joinedAt
         };
+
+        let limitsUpdated = false;
+        if (data.aiSortsRemaining !== undefined) {
+          localStorage.setItem('aiSortsRemaining', String(data.aiSortsRemaining));
+          limitsUpdated = true;
+        }
+        if (data.importsRemainingThisMonth !== undefined) {
+          localStorage.setItem('importsRemainingThisMonth', String(data.importsRemainingThisMonth));
+          limitsUpdated = true;
+        }
+        if (limitsUpdated) {
+          window.dispatchEvent(new Event('limitsUpdated'));
+        }
 
         setUser(userData);
         setIsAuthenticated(true);
         return true;
       } else {
         // Handle onboarding required
-        if (response.data.requiresOnboarding) {
+        if (data.requiresOnboarding) {
           setIsAuthenticated(true); // They are authenticated but need to complete onboarding
           navigate('/onboarding');
           return true;
@@ -58,58 +55,61 @@ export const useAuth = () => {
         throw new Error('Failed to fetch user data');
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
-      localStorage.removeItem('token');
+      if (error.status !== 401 && !error.data?.requiresOnboarding) {
+        console.error('Error fetching user data:', error);
+      }
+      if (error.data?.requiresOnboarding) {
+        setIsAuthenticated(true);
+        navigate('/onboarding');
+        return true;
+      }
+      if (error.status === 401) {
+        clearLocalSession();
+      }
       setUser(null);
       setIsAuthenticated(false);
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [url, setUser, navigate]);
+  }, [setUser, navigate]);
 
   const logout = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        await axios.post(
-          `${url}/api/user/logout`,
-          {},
-          { headers: { token } }
-        );
-      }
+      await apiRequest('/api/user/logout', {
+        method: 'POST',
+        skipAuthRefresh: true,
+      });
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('token');
+      clearLocalSession();
       setUser(null);
       setIsAuthenticated(false);
       navigate('/auth');
     }
-  }, [navigate, setUser, url]);
+  }, [navigate, setUser]);
 
   // For completing onboarding (setting username)
   const completeOnboarding = async (username) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `${url}/api/user/complete-onboarding`,
-        { username },
-        { headers: { token } }
-      );
+      const data = await apiRequest('/api/user/complete-onboarding', {
+        method: 'POST',
+        body: { username },
+      });
 
-      if (response.data.success) {
+      if (data.success) {
         await fetchUserData();
         navigate('/user/dashboard');
         return { success: true };
       }
 
-      return { success: false, message: response.data.message };
+      return { success: false, message: data.message };
     } catch (error) {
       console.error('Onboarding error:', error);
       return {
         success: false,
-        message: error.response?.data?.message || 'An error occurred during onboarding'
+        message: error.data?.message || 'An error occurred during onboarding'
       };
     }
   };

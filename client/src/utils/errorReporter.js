@@ -12,7 +12,7 @@ export const formatError = (error, additionalInfo = {}) => {
   const formattedError = {
     message: error.message || 'Unknown error',
     name: error.name,
-    stack: process.env.NODE_ENV !== 'production' ? error.stack : undefined,
+    stack: import.meta.env.DEV ? error.stack : undefined,
     timestamp: new Date().toISOString(),
     url: window.location.href,
     userAgent: navigator.userAgent,
@@ -23,7 +23,7 @@ export const formatError = (error, additionalInfo = {}) => {
   if (formattedError.stack) {
     formattedError.stack = formattedError.stack.replace(
       /\b(?:password|token|key|secret|auth)\b[:=]["'][^"']+["']/gi,
-      match => match.replace(/[:=]["'][^"']+["']/, match => ':"[REDACTED]"')
+      match => match.replace(/[:=]["'][^"']+["']/, _match => ':"[REDACTED]"')
     );
   }
 
@@ -42,7 +42,7 @@ export const reportError = (error, additionalInfo = {}) => {
   console.error('Webmark Error:', formattedError);
 
   // In production, you could send this to a backend API
-  if (process.env.NODE_ENV === 'production') {
+  if (import.meta.env.PROD) {
     // Example: Send to a backend endpoint
     // fetch('/api/error-reporting', {
     //   method: 'POST',

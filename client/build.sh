@@ -1,12 +1,9 @@
 #!/bin/bash
 
-echo "Installing all dependencies including dev dependencies..."
-npm install --include=dev
-
 echo "Running sitemap generator..."
-node --experimental-modules src/utils/sitemapGenerator.js
+node src/utils/sitemapGenerator.js
 
 echo "Building the application..."
-./node_modules/.bin/vite build
+pnpm exec vite build
 
 echo "Build completed successfully."

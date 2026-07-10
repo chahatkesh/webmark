@@ -3,6 +3,9 @@ import Category from '../models/categoryModel.js';
 import Bookmark from '../models/bookmarkModel.js';
 import Stats from '../models/statsModel.js';
 
+const PUBLIC_STATS_CACHE_TTL_MS = Number(process.env.PUBLIC_STATS_CACHE_TTL_SECONDS || 300) * 1000;
+const publicStatsCache = new Map();
+
 const getDateRanges = (range) => {
   const now = new Date();
   let startDate, previousStartDate, endDate;
@@ -198,6 +201,7 @@ export const getHistoricalStats = async (req, res) => {
 
     const stats = await aggregateHistoricalStats(startDate, now, type);
 
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=1800');
     res.status(200).json({
       success: true,
       data: stats
@@ -215,7 +219,16 @@ export const getHistoricalStats = async (req, res) => {
 export const getPublicStats = async (req, res) => {
   try {
     const { range = 'month' } = req.query;
-    const { startDate, previousStartDate, endDate } = getDateRanges(range);
+    const safeRange = ['week', 'month', 'year', 'all'].includes(range) ? range : 'month';
+    const cached = publicStatsCache.get(safeRange);
+
+    if (cached && cached.expiresAt > Date.now()) {
+      res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=1800');
+      res.set('X-Cache', 'HIT');
+      return res.status(200).json(cached.payload);
+    }
+
+    const { startDate, previousStartDate, endDate } = getDateRanges(safeRange);
 
     const [
       totalUsers,
@@ -229,9 +242,10 @@ export const getPublicStats = async (req, res) => {
       Category.countDocuments(),
       Bookmark.countDocuments(),
       User.find()
-        .select('username email joinedAt -_id')
+        .select('username joinedAt -_id')
         .sort({ joinedAt: -1 })
-        .limit(6),
+        .limit(6)
+        .lean(),
       Promise.all([
         User.countDocuments({
           joinedAt: {
@@ -305,12 +319,19 @@ export const getPublicStats = async (req, res) => {
         bookmarks: previousBookmarks
       },
       growth: {
-        users: calculateGrowth(currentUsers, previousUsers, range),
-        categories: calculateGrowth(currentCategories, previousCategories, range),
-        bookmarks: calculateGrowth(currentBookmarks, previousBookmarks, range)
+        users: calculateGrowth(currentUsers, previousUsers, safeRange),
+        categories: calculateGrowth(currentCategories, previousCategories, safeRange),
+        bookmarks: calculateGrowth(currentBookmarks, previousBookmarks, safeRange)
       }
     };
 
+    publicStatsCache.set(safeRange, {
+      expiresAt: Date.now() + PUBLIC_STATS_CACHE_TTL_MS,
+      payload: stats,
+    });
+
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=1800');
+    res.set('X-Cache', 'MISS');
     res.status(200).json(stats);
   } catch (error) {
     console.error('Stats error:', error);
@@ -352,6 +373,7 @@ export const trackDailyStats = async () => {
       { upsert: true, new: true }
     );
 
+    publicStatsCache.clear();
     return true;
   } catch (error) {
     console.error('Error tracking daily stats:', error);
@@ -390,6 +412,7 @@ export const trackWeeklyStats = async () => {
       { upsert: true, new: true }
     );
 
+    publicStatsCache.clear();
     return true;
   } catch (error) {
     console.error('Error tracking weekly stats:', error);
@@ -426,6 +449,7 @@ export const trackMonthlyStats = async () => {
       { upsert: true, new: true }
     );
 
+    publicStatsCache.clear();
     return true;
   } catch (error) {
     console.error('Error tracking monthly stats:', error);

@@ -20,6 +20,7 @@ const router = express.Router();
 
 // Category routes
 router.get("/categories", authMiddleware, getCategories);
+router.get("/categories-with-bookmarks", authMiddleware, getCategories);
 router.post("/category", authMiddleware, createCategory);
 router.put("/category", authMiddleware, updateCategory);
 router.delete("/category", authMiddleware, deleteCategory);

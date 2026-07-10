@@ -7,7 +7,6 @@ import {
   FolderOpen,
   GripHorizontal,
   Zap,
-  BookmarkPlus,
   MousePointerClick,
   ShieldCheck,
   RefreshCw,
@@ -15,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 
-const buildBookmarklet = (appUrl, token, categoryId) => {
+const buildBookmarklet = (appUrl, categoryId) => {
   const code =
     `(function(){` +
     `var t=encodeURIComponent(document.title||location.hostname),` +
@@ -24,7 +23,7 @@ const buildBookmarklet = (appUrl, token, categoryId) => {
     `w=420,h=300,` +
     `x=Math.round(screen.width/2-210),` +
     `y=Math.round(screen.height/2-150),` +
-    `dest='${appUrl}/save?url='+u+'&title='+t+'&logo='+fav+'&catId=${categoryId}&token=${token}';` +
+    `dest='${appUrl}/save?url='+u+'&title='+t+'&logo='+fav+'&catId=${categoryId}';` +
     `window.open(dest,'_webmark','width='+w+',height='+h+',top='+y+',left='+x+',noopener=no');` +
     `})();`;
   return `javascript:${encodeURIComponent(code)}`;
@@ -56,7 +55,6 @@ const steps = [
 const Bookmarklet = () => {
   const { url } = useContext(StoreContext);
   const appUrl = typeof window !== "undefined" ? window.location.origin : url;
-  const token = localStorage.getItem("token") || "";
   const { data: categories, isLoading } = useCategories();
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [copied, setCopied] = useState(false);
@@ -66,8 +64,8 @@ const Bookmarklet = () => {
     (categories && categories.length > 0 ? categories[0]._id : "");
 
   const bookmarkletHref =
-    token && effectiveCategoryId
-      ? buildBookmarklet(appUrl, token, effectiveCategoryId)
+    effectiveCategoryId
+      ? buildBookmarklet(appUrl, effectiveCategoryId)
       : null;
 
   const handleCopy = () => {

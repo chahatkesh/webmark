@@ -12,6 +12,9 @@ const userSchema = new mongoose.Schema({
   tokenExpiresAt: { type: Date },
   lastLogin: { type: Date },
   lastLoginDevice: { type: String },
+  refreshTokenHash: { type: String },
+  previousRefreshTokenHash: { type: String },
+  previousRefreshTokenExpiresAt: { type: Date },
   loginDevices: [{
     deviceId: { type: String },
     userAgent: { type: String },
@@ -50,6 +53,10 @@ const userSchema = new mongoose.Schema({
     createdAt: { type: Date },
   },
 })
+
+userSchema.index({ joinedAt: -1 });
+userSchema.index({ refreshTokenHash: 1 }, { sparse: true });
+userSchema.index({ previousRefreshTokenHash: 1 }, { sparse: true });
 
 const userModel = mongoose.model.user || mongoose.model("user", userSchema)
 

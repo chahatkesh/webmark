@@ -1,5 +1,5 @@
 import useSWR, { mutate as globalMutate } from 'swr';
-import { useState, useCallback, useContext, useEffect } from 'react';
+import { useState, useCallback, useContext } from 'react';
 import { StoreContext } from '../context/StoreContext';
 
 const statsFetcher = (url) =>
@@ -24,26 +24,16 @@ export const useStats = () => {
     swrKey,
     statsFetcher,
     {
-      refreshInterval: 30000,
-      dedupingInterval: 25000,
-      errorRetryCount: 2,
-      revalidateOnFocus: true,
+      refreshInterval: 0,
+      dedupingInterval: 10 * 60 * 1000,
+      errorRetryCount: 1,
+      revalidateOnFocus: false,
       revalidateOnMount: true,
       onError: (err) => setError(err.message),
     },
   );
 
   const isError = !!swrError;
-
-  // Prefetch other ranges
-  const prefetchOtherRanges = useCallback(() => {
-    const ranges = ['week', 'month', 'year', 'all'];
-    ranges.forEach((range) => {
-      if (range !== timeRange) {
-        globalMutate(`${url}/api/stats/public?range=${range}`, statsFetcher(`${url}/api/stats/public?range=${range}`), { revalidate: false });
-      }
-    });
-  }, [timeRange, url]);
 
   const refreshStats = useCallback(() => {
     globalMutate((key) => typeof key === 'string' && key.includes('/api/stats/'));
@@ -54,22 +44,6 @@ export const useStats = () => {
     if (!stats?.growth?.[type]) return 0;
     return stats.growth[type];
   }, [stats]);
-
-  useEffect(() => {
-    if (stats) {
-      console.log('Stats updated:', {
-        timeRange,
-        totalUsers: stats.totalUsers,
-        totalBookmarks: stats.totalBookmarks,
-        totalCategories: stats.totalCategories,
-        growth: stats.growth,
-      });
-    }
-  }, [stats, timeRange]);
-
-  useEffect(() => {
-    prefetchOtherRanges();
-  }, [prefetchOtherRanges, timeRange]);
 
   return {
     stats,

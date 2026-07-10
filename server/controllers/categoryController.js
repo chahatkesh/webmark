@@ -90,13 +90,19 @@ export const deleteCategory = async (req, res) => {
   try {
     const { categoryId } = req.body;
 
-    // Delete all bookmarks in the category first
-    await Bookmark.deleteMany({ categoryId });
-
-    await Category.findOneAndDelete({
+    const category = await Category.findOne({
       _id: categoryId,
       userId: req.body.userId,
     });
+
+    if (!category) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
+
+    // Delete all bookmarks in the category first
+    await Bookmark.deleteMany({ categoryId });
+
+    await Category.findByIdAndDelete(categoryId);
 
     res.json({ success: true, message: "Category deleted successfully" });
   } catch (error) {

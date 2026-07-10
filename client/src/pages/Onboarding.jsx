@@ -28,16 +28,18 @@ const Onboarding = () => {
       localStorage.setItem("token", token);
     }
 
+    if (authLoading) {
+      return;
+    }
+
     // Check if user is already authenticated and has a username (completed onboarding)
-    if (isAuthenticated && !authLoading && user?.username) {
+    if (isAuthenticated && user?.username) {
       // User already has a username, redirect to dashboard
       navigate("/user/dashboard");
       return;
     }
 
-    // Check if user already has a token (should be authenticated)
-    const existingToken = localStorage.getItem("token");
-    if (!existingToken) {
+    if (!isAuthenticated && !localStorage.getItem("token")) {
       navigate("/auth");
     }
   }, [token, navigate, isAuthenticated, authLoading, user]);
