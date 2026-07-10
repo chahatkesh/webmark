@@ -45,17 +45,11 @@ export const useBookmarkSync = () => {
       if (event.key === SYNC_STORAGE_KEY) refresh();
     };
 
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") refresh();
-    };
-
     window.addEventListener("storage", onStorage);
-    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
       channel?.close();
       window.removeEventListener("storage", onStorage);
-      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [url]);
 };

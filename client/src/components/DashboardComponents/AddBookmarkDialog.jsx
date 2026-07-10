@@ -4,6 +4,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Search, X, AlertCircle, Loader2 } from "lucide-react";
 import { useCreateBookmark } from "../../hooks/useBookmarks";
+import { applyFaviconFallback } from "../../utils/faviconFallback";
 
 const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
   const createBookmark = useCreateBookmark();
@@ -237,10 +238,7 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
                             src={logo.url}
                             alt={logo.name}
                             className="w-8 h-8 object-contain"
-                            onError={(e) => {
-                              e.target.src = "/api/placeholder/32/32";
-                              e.target.onerror = null;
-                            }}
+                            onError={applyFaviconFallback}
                           />
                         </div>
                         <span className="text-xs text-gray-600">
@@ -284,10 +282,7 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
                     src={formData.logo}
                     alt="Selected logo"
                     className="w-6 h-6 object-contain"
-                    onError={(e) => {
-                      e.target.src = "/api/placeholder/24/24";
-                      e.target.onerror = null;
-                    }}
+                    onError={applyFaviconFallback}
                   />
                 </div>
                 <span className="text-sm text-gray-500">

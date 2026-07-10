@@ -28,6 +28,7 @@ import {
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { bookmarkDragId } from "../../utils/bookmarkDnd";
+import { applyFaviconFallback } from "../../utils/faviconFallback";
 import { BookmarkItemSkeleton } from "./LoadingSkeletons";
 
 const AddBookmarkDialog = lazy(() => import("./AddBookmarkDialog"));
@@ -94,12 +95,11 @@ export const BookmarkCard = ({
     <div className="flex items-center gap-2 shrink-0">
       <img
         className="h-4 md:h-6 rounded"
-        src={item.logo}
+        src={item.logo || undefined}
         alt=""
-        onError={(e) => {
-          e.target.src = "/api/placeholder/24/24";
-          e.target.onerror = null;
-        }}
+        loading="lazy"
+        decoding="async"
+        onError={applyFaviconFallback}
       />
       {!isOverlay && !isPreview && (
         <DropdownMenu>
@@ -492,12 +492,11 @@ const BookmarkItem = ({
               <div className="flex items-center gap-2">
                 <img
                   className="h-6 w-6 rounded"
-                  src={selectedBookmarkForNotes.logo}
+                  src={selectedBookmarkForNotes.logo || undefined}
                   alt=""
-                  onError={(e) => {
-                    e.target.src = "/api/placeholder/24/24";
-                    e.target.onerror = null;
-                  }}
+                  loading="lazy"
+                  decoding="async"
+                  onError={applyFaviconFallback}
                 />
                 <h3 className="text-lg font-semibold text-gray-800">
                   Notes for {selectedBookmarkForNotes.name}
