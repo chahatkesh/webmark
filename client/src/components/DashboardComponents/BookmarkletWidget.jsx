@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { StoreContext } from "../../context/StoreContext";
 import { useCategories } from "../../hooks/useBookmarks";
-import { Copy, Check, FolderOpen, GripHorizontal, Zap, Download } from "lucide-react";
+import { Copy, Check, GripHorizontal, Zap, Download, Sparkles } from "lucide-react";
 import { Button } from "../ui/button";
 import { toast } from "react-toastify";
 import {
@@ -12,18 +12,13 @@ import {
 } from "../../utils/bookmarklet";
 
 const BookmarkletWidget = () => {
-  const { url } = useContext(StoreContext);
-  const appUrl = typeof window !== "undefined" ? window.location.origin : url;
+  const { url: apiUrl } = useContext(StoreContext);
+  const appUrl = typeof window !== "undefined" ? window.location.origin : apiUrl;
   const { data: categories, isLoading } = useCategories();
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const effectiveCategoryId =
-    selectedCategoryId || (categories && categories.length > 0 ? categories[0]._id : "");
-
-  const bookmarkletHref = effectiveCategoryId
-    ? buildBookmarklet(appUrl, effectiveCategoryId)
-    : null;
+  const hasCategories = categories && categories.length > 0;
+  const bookmarkletHref = hasCategories ? buildBookmarklet(apiUrl) : null;
 
   const handleCopy = () => {
     if (!bookmarkletHref) return;
@@ -62,41 +57,18 @@ const BookmarkletWidget = () => {
         <div>
           <h3 className="font-semibold text-white leading-tight">Bookmarklet</h3>
           <p className="text-blue-100 text-xs mt-0.5">
-            Save any page in one click from your browser toolbar
+            Save any page in one click — AI picks the category
           </p>
         </div>
       </div>
 
       <div className="bg-white p-5 space-y-4">
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-600 flex items-center gap-1.5">
-            <FolderOpen className="h-3.5 w-3.5" />
-            Default category for new saves
-          </label>
-          {isLoading ? (
-            <div className="h-9 w-full rounded-md bg-gray-100 animate-pulse" />
-          ) : categories && categories.length > 0 ? (
-            <select
-              value={selectedCategoryId || (categories[0]?._id ?? "")}
-              onChange={(e) => setSelectedCategoryId(e.target.value)}
-              className="w-full h-9 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              {categories.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.emoji} {cat.category}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <p className="text-sm text-amber-600 bg-amber-50 rounded-md px-3 py-2">
-              Create at least one category on your dashboard first.
-            </p>
-          )}
-        </div>
-
-        {bookmarkletHref ? (
+        {isLoading ? (
+          <div className="h-9 w-full rounded-md bg-gray-100 animate-pulse" />
+        ) : bookmarkletHref ? (
           <div className="space-y-2">
-            <p className="text-xs font-medium text-gray-500">
+            <p className="text-xs font-medium text-gray-500 flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-blue-500" />
               Drag this button to your bookmarks bar:
             </p>
             <div className="flex flex-wrap items-center gap-3">
@@ -139,11 +111,9 @@ const BookmarkletWidget = () => {
             </div>
           </div>
         ) : (
-          !isLoading && (
-            <p className="text-sm text-gray-400 italic">
-              Select a category above to generate your bookmarklet.
-            </p>
-          )
+          <p className="text-sm text-amber-600 bg-amber-50 rounded-md px-3 py-2">
+            Create at least one category on your dashboard first — AI needs categories to sort into.
+          </p>
         )}
 
         <div className="rounded-lg bg-gray-50 border border-gray-100 px-4 py-3 space-y-1.5">
@@ -155,7 +125,7 @@ const BookmarkletWidget = () => {
               or download and import the bookmark file for the Webmark icon.
             </li>
             <li>Visit any page you want to save and click the bookmark.</li>
-            <li>A small popup confirms the save — AI sorts it automatically.</li>
+            <li>AI places it in the best matching category automatically.</li>
           </ol>
           <p className="text-xs text-amber-600 mt-1.5">
             If you log out of Webmark, sign in again before using the bookmarklet.

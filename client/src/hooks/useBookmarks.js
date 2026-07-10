@@ -11,7 +11,11 @@ const authFetcher = (url) => apiRequest(url);
 // ── Category cache key helper ─────────────────────────────────────────────────
 // All bookmark mutations patch the categories cache directly because the
 // /categories endpoint already embeds bookmarks inside each category.
-const catKey = (url) => `${url}/api/bookmarks/categories`;
+export const categoriesCacheKey = (url) => `${url}/api/bookmarks/categories`;
+
+const catKey = categoriesCacheKey;
+
+export const revalidateCategories = (url) => globalMutate(categoriesCacheKey(url));
 
 // Optimistically update the categories SWR cache, returns the previous snapshot
 function updateCatCache(url, updater) {

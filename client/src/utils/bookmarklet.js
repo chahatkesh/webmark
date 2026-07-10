@@ -7,7 +7,7 @@ export const BOOKMARKLET_TITLE = "Save to Webmark";
  *
  * The leading block comment gives Chrome a readable title on drag-and-drop.
  */
-export const buildBookmarklet = (appUrl, categoryId) => {
+export const buildBookmarklet = (apiUrl) => {
   const code =
     `/*/Save to Webmark*/` +
     `(function(){` +
@@ -17,7 +17,7 @@ export const buildBookmarklet = (appUrl, categoryId) => {
     `w=420,h=300,` +
     `x=Math.round(screen.width/2-210),` +
     `y=Math.round(screen.height/2-150),` +
-    `dest='${appUrl}/save?url='+u+'&title='+t+'&logo='+fav+'&catId=${categoryId}';` +
+    `dest='${apiUrl}/api/bookmarks/save?url='+u+'&title='+t+'&logo='+fav;` +
     `window.open(dest,'_webmark','width='+w+',height='+h+',top='+y+',left='+x+',noopener=no');` +
     `})();`;
 

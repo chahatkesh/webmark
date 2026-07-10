@@ -4,13 +4,13 @@ import { useCategories } from "../hooks/useBookmarks";
 import {
   Copy,
   Check,
-  FolderOpen,
   GripHorizontal,
   Zap,
   MousePointerClick,
   ShieldCheck,
   RefreshCw,
   Download,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
@@ -23,11 +23,6 @@ import {
 
 const steps = [
   {
-    icon: FolderOpen,
-    title: "Pick a category",
-    description: "Choose where new saves will land by default. You can always move them later.",
-  },
-  {
     icon: GripHorizontal,
     title: "Drag to bookmarks bar",
     description: `Drag the "${BOOKMARKLET_TITLE}" button into your browser's bookmarks bar.`,
@@ -38,26 +33,25 @@ const steps = [
     description: "Visit any page and click the bookmarklet. A small popup confirms the save.",
   },
   {
+    icon: Sparkles,
+    title: "AI picks the category",
+    description: "Webmark's AI places the bookmark in the most relevant category from your library.",
+  },
+  {
     icon: Zap,
-    title: "AI sorts it automatically",
-    description: "Webmark's AI places the bookmark in the most relevant category.",
+    title: "Done in one click",
+    description: "No extension needed — save from any site straight to the right folder.",
   },
 ];
 
 const Bookmarklet = () => {
-  const { url } = useContext(StoreContext);
-  const appUrl = typeof window !== "undefined" ? window.location.origin : url;
+  const { url: apiUrl } = useContext(StoreContext);
+  const appUrl = typeof window !== "undefined" ? window.location.origin : apiUrl;
   const { data: categories, isLoading } = useCategories();
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const effectiveCategoryId =
-    selectedCategoryId ||
-    (categories && categories.length > 0 ? categories[0]._id : "");
-
-  const bookmarkletHref = effectiveCategoryId
-    ? buildBookmarklet(appUrl, effectiveCategoryId)
-    : null;
+  const hasCategories = categories && categories.length > 0;
+  const bookmarkletHref = hasCategories ? buildBookmarklet(apiUrl) : null;
 
   const handleCopy = () => {
     if (!bookmarkletHref) return;
@@ -99,37 +93,13 @@ const Bookmarklet = () => {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8">
-
-          <div className="px-8 py-6 border-b border-gray-100">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
-              Step 1 — Choose default category
-            </p>
-            {isLoading ? (
-              <div className="h-10 w-full rounded-lg bg-gray-100 animate-pulse" />
-            ) : categories && categories.length > 0 ? (
-              <select
-                value={selectedCategoryId || (categories[0]?._id ?? "")}
-                onChange={(e) => setSelectedCategoryId(e.target.value)}
-                className="w-full h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-colors"
-              >
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>
-                    {cat.emoji} {cat.category}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <p className="text-sm text-amber-600 bg-amber-50 rounded-lg px-4 py-3">
-                Create at least one category on your dashboard first.
-              </p>
-            )}
-          </div>
-
           <div className="px-8 py-6 bg-gradient-to-b from-white to-blue-50/40">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-              Step 2 — Add to your bookmarks bar
+              Add to your bookmarks bar
             </p>
-            {bookmarkletHref ? (
+            {isLoading ? (
+              <div className="h-12 w-48 rounded-xl bg-gray-100 animate-pulse" />
+            ) : bookmarkletHref ? (
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                   <a
@@ -177,11 +147,9 @@ const Bookmarklet = () => {
                 </p>
               </div>
             ) : (
-              !isLoading && (
-                <p className="text-sm text-gray-400 italic">
-                  Select a category above to generate your bookmarklet.
-                </p>
-              )
+              <p className="text-sm text-amber-600 bg-amber-50 rounded-lg px-4 py-3">
+                Create at least one category on your dashboard first — AI needs categories to sort into.
+              </p>
             )}
             <p className="mt-3 text-xs text-gray-400">
               Chrome may still show a generic globe icon for JavaScript bookmarklets — look for

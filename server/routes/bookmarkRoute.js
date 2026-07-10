@@ -12,11 +12,16 @@ import {
   deleteBookmark,
   reorderBookmarks,
   importBookmarks,
+  bookmarkletSave,
 } from "../controllers/bookmarkController.js";
 import { aiSortBookmarks, revertAISort } from "../controllers/aiController.js";
 import authMiddleware from "../middleware/authmiddleware.js";
+import bookmarkletAuthMiddleware from "../middleware/bookmarkletAuth.js";
 
 const router = express.Router();
+
+// Bookmarklet popup save — handled entirely on the server
+router.get("/save", bookmarkletAuthMiddleware, bookmarkletSave);
 
 // Category routes
 router.get("/categories", authMiddleware, getCategories);

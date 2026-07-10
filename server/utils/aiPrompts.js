@@ -42,14 +42,16 @@ export const assignmentSystemPrompt = (taxonomy) =>
   `Return JSON only: { "assignments": [{ "index": <number>, "category": "<name>" }] }`;
 
 /**
- * Single bookmark — find best fit among existing categories (for bookmarklet).
+ * Single bookmark — pick best category for bookmarklet saves only.
+ * Makes exactly ONE OpenAI call for ONE bookmark. Never touches other bookmarks.
  * @param {string[]} existingCategories - user's current category names
  */
 export const singleCategorizationSystemPrompt = (existingCategories) =>
-  `You are a bookmark classifier. Given a user's existing bookmark categories, ` +
-  `pick the single best fit for a new bookmark.\n\n` +
+  `You are a bookmark classifier. You are categorizing exactly ONE new bookmark. ` +
+  `Do not reorganize, move, or consider any other bookmarks.\n\n` +
   `Existing categories: ${JSON.stringify(existingCategories)}\n\n` +
   `Rules:\n` +
   `- Use ONLY a name from the existing list — do NOT invent new categories.\n` +
-  `- If none fit reasonably well, return null.\n\n` +
-  `Return JSON only: { "category": "<name>" | null }`;
+  `- Always pick the closest matching category for this single bookmark.\n` +
+  `- Return one category for this bookmark only.\n\n` +
+  `Return JSON only: { "category": "<name>" }`;

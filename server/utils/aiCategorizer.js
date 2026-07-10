@@ -114,8 +114,8 @@ export async function assignToCategories(bookmarks, taxonomy) {
 }
 
 /**
- * Categorize a single bookmark against existing user categories.
- * Used by bookmarklet auto-sort (fire-and-forget, non-fatal).
+ * Categorize exactly one bookmark against existing user categories.
+ * Bookmarklet-only — one OpenAI call, one bookmark, no batch processing.
  */
 export async function categorizeSingle(title, url, existingCategories) {
   const client = getClient();
@@ -123,7 +123,7 @@ export async function categorizeSingle(title, url, existingCategories) {
   const callNum = _totalCalls;
 
   logAI(
-    `Single (call #${callNum}) — "${title.slice(0, 60)}" against ${existingCategories.length} categories`
+    `Bookmarklet single (call #${callNum}) — 1 bookmark: "${title.slice(0, 60)}" → pick from ${existingCategories.length} categories`
   );
 
   const t0 = Date.now();

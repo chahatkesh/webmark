@@ -371,48 +371,23 @@ export const revertAISort = async (req, res) => {
 };
 
 /**
- * Auto-categorize a single bookmark after save (fire-and-forget).
- * NOT a route handler — called internally from createBookmark.
+ * Pick the best category for exactly one bookmark (bookmarklet only).
+ * Makes a single categorizeSingle() call — never runs bulk AI sort.
  */
-export async function autoCategorizeSingle(bookmarkId, userId) {
-  try {
-    if (!process.env.OPENAI_API_KEY) return; // silently skip if no key
+export async function pickCategoryForSingleBookmark(name, link, categories) {
+  if (!categories.length) return null;
+  if (categories.length === 1) return categories[0];
 
-    const bookmark = await Bookmark.findById(bookmarkId);
-    if (!bookmark) return;
+  if (!process.env.OPENAI_API_KEY) return categories[0];
 
-    const categories = await Category.find({ userId }).lean();
-    if (categories.length <= 1) return; // no point with only 1 category
+  const catNames = categories.map((c) => c.category);
+  const bestCategory = await categorizeSingle(name, link, catNames);
+  if (!bestCategory) return categories[0];
 
-    const catNames = categories.map((c) => c.category);
-    const bestCategory = await categorizeSingle(
-      bookmark.name,
-      bookmark.link,
-      catNames
-    );
-
-    if (!bestCategory) return;
-
-    const targetCat = categories.find(
-      (c) => c.category.toLowerCase() === bestCategory.toLowerCase()
-    );
-    if (!targetCat) return;
-
-    // Only move if different from current
-    if (bookmark.categoryId.toString() !== targetCat._id.toString()) {
-      const lastBm = await Bookmark.findOne({
-        categoryId: targetCat._id,
-      }).sort("-order");
-      const order = lastBm ? lastBm.order + 1 : 0;
-
-      await Bookmark.findByIdAndUpdate(bookmarkId, {
-        categoryId: targetCat._id,
-        order,
-      });
-      console.log(`AI: Moved "${bookmark.name}" → "${targetCat.category}"`);
-    }
-  } catch (error) {
-    // Non-fatal — bookmark stays where it was originally saved
-    console.error("AI auto-categorize failed (non-fatal):", error.message);
-  }
+  const targetCat = categories.find(
+    (c) => c.category.toLowerCase() === bestCategory.toLowerCase()
+  );
+  return targetCat || categories[0];
 }
+
+export const pickCategoryForBookmark = pickCategoryForSingleBookmark;

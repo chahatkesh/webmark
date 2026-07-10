@@ -21,6 +21,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const BookmarkletSave = lazy(() => import("./pages/BookmarkletSave"));
+const BookmarkletSync = lazy(() => import("./pages/BookmarkletSync"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 const ProtectedRoute = ({ children }) => {
@@ -107,6 +108,16 @@ const App = () => {
             element={
               <Suspense fallback={<Loader />}>
                 <BookmarkletSave />
+              </Suspense>
+            }
+          />
+
+          {/* Hidden iframe target — refreshes dashboard cache after bookmarklet saves */}
+          <Route
+            path="/bookmarklet-sync"
+            element={
+              <Suspense fallback={null}>
+                <BookmarkletSync />
               </Suspense>
             }
           />

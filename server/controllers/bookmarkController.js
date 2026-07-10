@@ -1,7 +1,76 @@
 import Bookmark from "../models/bookmarkModel.js";
 import Category from "../models/categoryModel.js";
 import User from "../models/userModel.js";
-import { autoCategorizeSingle } from "./aiController.js";
+import { pickCategoryForSingleBookmark } from "./aiController.js";
+import { sendBookmarkletPage } from "../utils/bookmarkletPage.js";
+
+const saveBookmarkToCategory = async ({
+  userId,
+  categoryId,
+  name,
+  link,
+  logo,
+  notes = "",
+}) => {
+  const category = await Category.findOne({ _id: categoryId, userId });
+  if (!category) {
+    return { success: false, message: "Category not found" };
+  }
+
+  const lastBookmark = await Bookmark.findOne({ categoryId: category._id }).sort("-order");
+  const order = lastBookmark ? lastBookmark.order + 1 : 0;
+
+  const bookmark = await Bookmark.create({
+    categoryId: category._id,
+    name,
+    link,
+    logo,
+    notes,
+    order,
+  });
+
+  return {
+    success: true,
+    bookmark,
+    categoryName: category.category,
+  };
+};
+
+/**
+ * Bookmarklet-only save path.
+ * Runs AI on exactly one incoming bookmark to pick a category — no bulk sort.
+ */
+const saveBookmarkViaBookmarklet = async ({ userId, name, link, logo }) => {
+  const categories = await Category.find({ userId }).sort("order");
+  if (!categories.length) {
+    return { success: false, message: "No categories found" };
+  }
+
+  let targetCategory = categories[0];
+  try {
+    targetCategory = await pickCategoryForSingleBookmark(name, link, categories);
+  } catch (error) {
+    console.error("Bookmarklet AI category pick failed, using fallback:", error.message);
+  }
+
+  const lastBookmark = await Bookmark.findOne({ categoryId: targetCategory._id }).sort("-order");
+  const order = lastBookmark ? lastBookmark.order + 1 : 0;
+
+  const bookmark = await Bookmark.create({
+    categoryId: targetCategory._id,
+    name,
+    link,
+    logo,
+    notes: "",
+    order,
+  });
+
+  return {
+    success: true,
+    bookmark,
+    categoryName: targetCategory.category,
+  };
+};
 
 // Get all bookmarks for a category
 export const getBookmarks = async (req, res) => {
@@ -26,46 +95,91 @@ export const getBookmarks = async (req, res) => {
   }
 };
 
-// Create new bookmark
+// Create new bookmark (dashboard — no AI, saves to the chosen category)
 export const createBookmark = async (req, res) => {
   try {
     const { categoryId, name, link, logo, notes } = req.body;
-
-    // Verify category belongs to user
-    const category = await Category.findOne({
-      _id: categoryId,
-      userId: req.body.userId
-    });
-
-    if (!category) {
-      return res.json({ success: false, message: "Category not found" });
-    }
-
-    // Get highest order number
-    const lastBookmark = await Bookmark.findOne({ categoryId })
-      .sort('-order');
-    const order = lastBookmark ? lastBookmark.order + 1 : 0;
-
-    const newBookmark = new Bookmark({
+    const result = await saveBookmarkToCategory({
+      userId: req.body.userId,
       categoryId,
       name,
       link,
       logo,
-      notes: notes || "",
-      order
+      notes,
     });
 
-    await newBookmark.save();
-    res.json({ success: true, bookmark: newBookmark });
-
-    // Fire-and-forget: AI auto-categorize for bookmarklet saves
-    if (req.body.autoCateg) {
-      autoCategorizeSingle(newBookmark._id, req.body.userId).catch((err) => {
-        console.error("AI auto-categorize error (non-fatal):", err.message);
-      });
+    if (!result.success) {
+      return res.json({ success: false, message: result.message });
     }
+
+    res.json({
+      success: true,
+      bookmark: result.bookmark,
+      categoryName: result.categoryName,
+    });
   } catch (error) {
     res.json({ success: false, message: "Error creating bookmark" });
+  }
+};
+
+// Bookmarklet popup — server-rendered, no frontend bundle
+export const bookmarkletSave = async (req, res) => {
+  try {
+    const rawUrl = req.query.url;
+    if (!rawUrl) {
+      return sendBookmarkletPage(res, {
+        status: "error",
+        title: "Could not save",
+        message: "Missing page URL. Please regenerate your bookmarklet.",
+      });
+    }
+
+    const link = decodeURIComponent(rawUrl);
+    const title = req.query.title ? decodeURIComponent(req.query.title) : link;
+    const logo =
+      req.query.logo
+        ? decodeURIComponent(req.query.logo)
+        : `https://www.google.com/s2/favicons?domain=${
+            (() => {
+              try {
+                return new URL(link).hostname;
+              } catch {
+                return "";
+              }
+            })()
+          }&sz=128`;
+
+    const result = await saveBookmarkViaBookmarklet({
+      userId: req.body.userId,
+      name: title,
+      link,
+      logo,
+    });
+
+    if (!result.success) {
+      return sendBookmarkletPage(res, {
+        status: "error",
+        title: "Could not save",
+        message: result.message || "Failed to save bookmark.",
+      });
+    }
+
+    const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, "");
+
+    return sendBookmarkletPage(res, {
+      status: "success",
+      title: "Saved!",
+      message: `Placed in ${result.categoryName}.`,
+      autoCloseMs: 700,
+      syncUrl: frontendUrl ? `${frontendUrl}/bookmarklet-sync` : null,
+    });
+  } catch (error) {
+    console.error("Bookmarklet save error:", error);
+    return sendBookmarkletPage(res, {
+      status: "error",
+      title: "Could not save",
+      message: "Something went wrong while saving your bookmark.",
+    });
   }
 };
 
