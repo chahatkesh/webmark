@@ -6,6 +6,7 @@ import bookmarkRouter from './routes/bookmarkRoute.js'
 import statsRoute from './routes/statsRoute.js';
 import clickRoute from './routes/clickRoute.js';
 import cronRoute from './routes/cronRoute.js';
+import tweetRoute from './routes/tweetRoute.js';
 import { initializeCronJobs } from './utils/cronJobs.js';
 import passport from './config/passport.js';
 import 'dotenv/config'
@@ -72,6 +73,7 @@ app.use("/api/bookmarks", bookmarkRouter)
 app.use('/api/stats', statsRoute);
 app.use('/api/clicks', clickRoute);
 app.use('/api/cron', cronRoute);
+app.use('/api/tweets', tweetRoute);
 
 app.get('/', (req, res) => {
   res.send("API Working")
