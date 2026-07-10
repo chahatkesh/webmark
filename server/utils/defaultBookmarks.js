@@ -1,6 +1,7 @@
 // utils/defaultBookmarks.js
 import Category from "../models/categoryModel.js";
 import Bookmark from "../models/bookmarkModel.js";
+import { UNCATEGORIZED_CATEGORY } from "./uncategorizedCategory.js";
 
 export const defaultCategories = [
   {
@@ -132,6 +133,10 @@ export const defaultCategories = [
         order: 2
       }
     ]
+  },
+  {
+    ...UNCATEGORIZED_CATEGORY,
+    bookmarks: [],
   }
 ];
 

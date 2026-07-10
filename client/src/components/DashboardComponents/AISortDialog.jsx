@@ -16,6 +16,8 @@ import {
   Tag,
   HardDrive,
   Undo2,
+  FolderOpen,
+  Inbox,
 } from "lucide-react";
 
 const STAGES = [
@@ -33,7 +35,8 @@ const STAGE_DELAYS_MS = [0, 4000, 10000, 22000];
  * Props:
  *   open        – boolean
  *   onClose()   – called to dismiss
- *   onConfirm() – calls the mutation
+ *   onConfirm(mode) – calls the mutation with "all" or "uncategorized"
+ *   uncategorizedCount – number of bookmarks in Uncategorized
  *   isSorting   – boolean from mutation isPending
  *   results     – { totalBookmarks, taxonomy, bookmarksMoved, canRevert } | null
  *   sortError   – Error | null
@@ -45,6 +48,7 @@ const AISortDialog = ({
   open,
   onClose,
   onConfirm,
+  uncategorizedCount = 0,
   isSorting,
   results,
   sortError,
@@ -54,6 +58,7 @@ const AISortDialog = ({
 }) => {
   const [stageIdx, setStageIdx] = useState(-1);
   const [progress, setProgress] = useState(0);
+  const [sortMode, setSortMode] = useState("all");
   const timersRef = useRef([]);
 
   // Start stage animation when sorting begins
@@ -87,9 +92,10 @@ const AISortDialog = ({
   }, [results]);
 
   const handleClose = () => {
-    if (isSorting) return; // block dismiss while running
+    if (isSorting) return;
     setStageIdx(-1);
     setProgress(0);
+    setSortMode("all");
     onReset();
     onClose();
   };
@@ -97,7 +103,7 @@ const AISortDialog = ({
   const handleConfirm = () => {
     setStageIdx(0);
     setProgress(STAGES[0].pct);
-    onConfirm();
+    onConfirm(sortMode);
   };
 
   // ─── Phase: done ────────────────────────────────────────────────────────────
@@ -118,7 +124,9 @@ const AISortDialog = ({
               <Stat label="Moved" value={results.bookmarksMoved} />
             </div>
             <p className="text-sm text-gray-500 text-center">
-              Your library has been reorganized by AI.
+              {results.sortMode === "uncategorized"
+                ? "Uncategorized bookmarks have been placed into matching categories."
+                : "Your library has been reorganized by AI."}
             </p>
           </div>
           <div className="flex justify-between">
@@ -255,6 +263,27 @@ const AISortDialog = ({
   }
 
   // ─── Phase: confirm ──────────────────────────────────────────────────────────
+  const sortOptions = [
+    {
+      id: "all",
+      title: "Sort all",
+      description:
+        "Reorganize your entire library — builds new categories and moves every bookmark.",
+      icon: FolderOpen,
+      disabled: false,
+    },
+    {
+      id: "uncategorized",
+      title: "Sort Uncategorized",
+      description:
+        uncategorizedCount > 0
+          ? `Place ${uncategorizedCount} bookmark${uncategorizedCount !== 1 ? "s" : ""} from Uncategorized into matching categories.`
+          : "No bookmarks in Uncategorized right now.",
+      icon: Inbox,
+      disabled: uncategorizedCount === 0,
+    },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
@@ -264,27 +293,49 @@ const AISortDialog = ({
             AI Smart Sort
           </DialogTitle>
           <DialogDescription>
-            Reorganize all your bookmarks into smart categories using AI.
+            Choose how you want AI to organize your bookmarks.
           </DialogDescription>
         </DialogHeader>
 
-        <ul className="space-y-1.5 text-sm text-gray-600 py-1">
-          <li className="flex items-start gap-2">
-            <span className="mt-0.5 text-blue-500">•</span>
-            Analyzes titles to build a coherent category set
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-0.5 text-blue-500">•</span>
-            Creates, merges, or renames categories as needed
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-0.5 text-blue-500">•</span>
-            Empty categories are removed automatically
-          </li>
-        </ul>
+        <div className="space-y-3 py-1">
+          {sortOptions.map((option) => {
+            const Icon = option.icon;
+            const selected = sortMode === option.id;
+
+            return (
+              <button
+                key={option.id}
+                type="button"
+                disabled={option.disabled}
+                onClick={() => setSortMode(option.id)}
+                className={`w-full rounded-xl border p-4 text-left transition-all ${
+                  option.disabled
+                    ? "cursor-not-allowed border-gray-100 bg-gray-50 opacity-60"
+                    : selected
+                    ? "border-blue-300 bg-blue-50 ring-2 ring-blue-200"
+                    : "border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50/40"
+                }`}>
+                <div className="flex items-start gap-3">
+                  <span
+                    className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                      selected ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-500"
+                    }`}>
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900">{option.title}</p>
+                    <p className="mt-1 text-sm text-gray-500">{option.description}</p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
 
         <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-md px-3 py-2">
-          This will reorganize your entire library. The process takes 20–40 seconds.
+          {sortMode === "uncategorized"
+            ? "Only Uncategorized bookmarks will be moved. Existing categories stay as they are."
+            : "This will reorganize your entire library. The process takes 20–40 seconds."}
         </p>
 
         <div className="flex justify-between items-center pt-1">
@@ -309,7 +360,10 @@ const AISortDialog = ({
             <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button onClick={handleConfirm} className="gap-2">
+            <Button
+              onClick={handleConfirm}
+              disabled={sortMode === "uncategorized" && uncategorizedCount === 0}
+              className="gap-2">
               <Sparkles className="h-4 w-4" />
               Start sorting
             </Button>

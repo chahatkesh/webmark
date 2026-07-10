@@ -326,6 +326,93 @@ export const useUpdateBookmarkOrder = () => {
   });
 };
 
+export const useUpdateBookmarkLayout = () => {
+  const { url } = useContext(StoreContext);
+
+  return useMutationAction(
+    "reorder-bookmark-layout",
+    async (_, { arg: { categories } }) => {
+      const rollback = updateCatCache(url, (current) => {
+        if (!current?.categories) return current;
+
+        const bookmarkLookup = current.categories.reduce((acc, category) => {
+          (category.bookmarks || []).forEach((bookmark) => {
+            acc[String(bookmark._id)] = bookmark;
+          });
+          return acc;
+        }, {});
+
+        const updatesByCategory = categories.reduce((acc, update) => {
+          acc[String(update.categoryId)] = update.bookmarks;
+          return acc;
+        }, {});
+
+        return {
+          ...current,
+          categories: current.categories.map((category) => {
+            const updatedBookmarks = updatesByCategory[String(category._id)];
+            if (!updatedBookmarks) return category;
+
+            return {
+              ...category,
+              bookmarks: updatedBookmarks
+                .map(({ id, order }) => ({
+                  ...bookmarkLookup[String(id)],
+                  order,
+                }))
+                .sort((a, b) => a.order - b.order),
+            };
+          }),
+        };
+      });
+
+      try {
+        const data = await apiRequest(`${url}/api/bookmarks/reorder-layout`, {
+          method: "PUT",
+          body: { categories },
+        });
+        return data;
+      } catch (err) {
+        rollback();
+        toast.error("Failed to update bookmarks");
+        throw err;
+      }
+    },
+  );
+};
+
+export const useUpdateCategoryOrder = () => {
+  const { url } = useContext(StoreContext);
+
+  return useMutationAction('reorder-categories', async (_, { arg: { categories } }) => {
+    const rollback = updateCatCache(url, (current) => {
+      if (!current?.categories) return current;
+      const categoryMap = current.categories.reduce((acc, c) => {
+        acc[c._id] = c;
+        return acc;
+      }, {});
+      return {
+        ...current,
+        categories: categories
+          .map(({ id, order }) => ({ ...categoryMap[id], order }))
+          .sort((a, b) => a.order - b.order),
+      };
+    });
+
+    try {
+      const data = await apiRequest(`${url}/api/bookmarks/categories/reorder`, {
+        method: 'PUT',
+        body: { categories },
+      });
+      return data;
+    } catch (err) {
+      rollback();
+      toast.error('Failed to update category order');
+      throw err;
+    }
+  });
+};
+
 // ── Import / AI ────────────────────────────────────────────────────────────────
 
 export const useImportBookmarks = () => {
@@ -353,9 +440,10 @@ export const useImportBookmarks = () => {
 export const useAISort = () => {
   const { url } = useContext(StoreContext);
 
-  return useMutationAction('ai-sort', async () => {
+  return useMutationAction('ai-sort', async (_, { arg: mode = 'all' }) => {
     const data = await apiRequest(`${url}/api/bookmarks/ai/sort`, {
       method: 'POST',
+      body: { mode },
     });
     // Full revalidation — AI sort restructures everything
     globalMutate(catKey(url));

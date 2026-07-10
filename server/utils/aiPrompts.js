@@ -52,6 +52,8 @@ export const singleCategorizationSystemPrompt = (existingCategories) =>
   `Existing categories: ${JSON.stringify(existingCategories)}\n\n` +
   `Rules:\n` +
   `- Use ONLY a name from the existing list — do NOT invent new categories.\n` +
-  `- Always pick the closest matching category for this single bookmark.\n` +
+  `- Pick a category only when it clearly fits the bookmark's topic.\n` +
+  `- If no category is a reasonable fit, return "Uncategorized".\n` +
+  `- Do NOT force a poor match — prefer "Uncategorized" over stretching a weak fit.\n` +
   `- Return one category for this bookmark only.\n\n` +
   `Return JSON only: { "category": "<name>" }`;

@@ -6,6 +6,7 @@ import {
   assignToCategories,
   categorizeSingle,
 } from "../utils/aiCategorizer.js";
+import { findUncategorizedCategory } from "../utils/uncategorizedCategory.js";
 
 // Emoji lookup for auto-generated categories
 const EMOJI_MAP = {
@@ -71,11 +72,14 @@ const COLORS = [
 
 /**
  * POST /api/bookmarks/ai/sort
- * Bulk AI sort — reorganize all user bookmarks using two-pass approach.
+ * Bulk AI sort — reorganize bookmarks using two-pass approach.
+ * Body: { mode: "all" | "uncategorized" }
  */
 export const aiSortBookmarks = async (req, res) => {
   try {
     const userId = req.body.userId;
+    const sortMode =
+      req.body.mode === "uncategorized" ? "uncategorized" : "all";
 
     // 0. Check credits
     const user = await User.findById(userId);
@@ -101,9 +105,33 @@ export const aiSortBookmarks = async (req, res) => {
       return res.json({ success: false, message: "No bookmarks to sort" });
     }
 
+    const uncategorizedCat = findUncategorizedCategory(categories);
+    let bookmarksToSort = allBookmarks;
+
+    if (sortMode === "uncategorized") {
+      if (!uncategorizedCat) {
+        return res.json({
+          success: false,
+          message: "No Uncategorized category found.",
+        });
+      }
+
+      bookmarksToSort = allBookmarks.filter(
+        (b) => b.categoryId.toString() === uncategorizedCat._id.toString(),
+      );
+
+      if (bookmarksToSort.length === 0) {
+        return res.json({
+          success: false,
+          message: "No uncategorized bookmarks to sort.",
+        });
+      }
+    }
+
     // 1.5 Save snapshot for revert
     user.aiSortSnapshot = {
-      bookmarks: allBookmarks.map((b) => ({
+      mode: sortMode,
+      bookmarks: bookmarksToSort.map((b) => ({
         bookmarkId: b._id,
         categoryId: b.categoryId,
         order: b.order,
@@ -121,12 +149,30 @@ export const aiSortBookmarks = async (req, res) => {
 
     const existingCatNames = categories.map((c) => c.category);
 
-    // 2. Pass 1 — generate taxonomy
-    const titles = allBookmarks.map((b) => b.name);
-    const taxonomy = await generateTaxonomy(titles, existingCatNames);
+    // 2. Pass 1 — build taxonomy
+    let taxonomy;
+    if (sortMode === "uncategorized") {
+      const targetCatNames = categories
+        .filter((c) => c.category.toLowerCase() !== "uncategorized")
+        .map((c) => c.category);
+
+      if (targetCatNames.length === 0) {
+        taxonomy = await generateTaxonomy(
+          bookmarksToSort.map((b) => b.name),
+          [],
+        );
+      } else {
+        taxonomy = targetCatNames;
+      }
+    } else {
+      taxonomy = await generateTaxonomy(
+        bookmarksToSort.map((b) => b.name),
+        existingCatNames,
+      );
+    }
 
     // 3. Pass 2 — assign each bookmark
-    const assignments = await assignToCategories(allBookmarks, taxonomy);
+    const assignments = await assignToCategories(bookmarksToSort, taxonomy);
 
     // 4. Ensure all taxonomy categories exist
     const catMap = {};
@@ -159,7 +205,7 @@ export const aiSortBookmarks = async (req, res) => {
     // First, collect assignments per category
     const categoryAssignments = {};
     for (const assignment of assignments) {
-      const bookmark = allBookmarks[assignment.index];
+      const bookmark = bookmarksToSort[assignment.index];
       if (!bookmark) continue;
 
       const catKey = assignment.category.toLowerCase();
@@ -172,111 +218,147 @@ export const aiSortBookmarks = async (req, res) => {
       categoryAssignments[catKey].bookmarks.push(bookmark);
     }
 
-    // Split categories with > 10 bookmarks
+    // Split categories with > 10 bookmarks (full sort only)
     const MAX_PER_CATEGORY = 10;
-    for (const [catKey, data] of Object.entries(categoryAssignments)) {
-      if (data.bookmarks.length <= MAX_PER_CATEGORY) continue;
+    if (sortMode === "all") {
+      for (const [catKey, data] of Object.entries(categoryAssignments)) {
+        if (data.bookmarks.length <= MAX_PER_CATEGORY) continue;
 
-      const chunks = [];
-      for (let i = 0; i < data.bookmarks.length; i += MAX_PER_CATEGORY) {
-        chunks.push(data.bookmarks.slice(i, i + MAX_PER_CATEGORY));
-      }
-
-      // First chunk stays in the original category
-      categoryAssignments[catKey].bookmarks = chunks[0];
-
-      // Create overflow categories for remaining chunks
-      for (let c = 1; c < chunks.length; c++) {
-        const splitName = `${data.cat.category} ${c + 1}`;
-        const splitKey = splitName.toLowerCase();
-
-        if (!catMap[splitKey]) {
-          maxOrder++;
-          const colorIdx = (categoriesCreated + c) % COLORS.length;
-          const newCat = await Category.create({
-            userId,
-            category: splitName,
-            emoji: data.cat.emoji || pickEmoji(splitName),
-            bgcolor: COLORS[colorIdx].bgcolor,
-            hcolor: COLORS[colorIdx].hcolor,
-            order: maxOrder,
-          });
-          catMap[splitKey] = newCat;
-          categoriesCreated++;
+        const chunks = [];
+        for (let i = 0; i < data.bookmarks.length; i += MAX_PER_CATEGORY) {
+          chunks.push(data.bookmarks.slice(i, i + MAX_PER_CATEGORY));
         }
 
-        categoryAssignments[splitKey] = {
-          cat: catMap[splitKey],
-          bookmarks: chunks[c],
-        };
+        categoryAssignments[catKey].bookmarks = chunks[0];
+
+        for (let c = 1; c < chunks.length; c++) {
+          const splitName = `${data.cat.category} ${c + 1}`;
+          const splitKey = splitName.toLowerCase();
+
+          if (!catMap[splitKey]) {
+            maxOrder++;
+            const colorIdx = (categoriesCreated + c) % COLORS.length;
+            const newCat = await Category.create({
+              userId,
+              category: splitName,
+              emoji: data.cat.emoji || pickEmoji(splitName),
+              bgcolor: COLORS[colorIdx].bgcolor,
+              hcolor: COLORS[colorIdx].hcolor,
+              order: maxOrder,
+            });
+            catMap[splitKey] = newCat;
+            categoriesCreated++;
+          }
+
+          categoryAssignments[splitKey] = {
+            cat: catMap[splitKey],
+            bookmarks: chunks[c],
+          };
+        }
       }
     }
 
-    // Now move all bookmarks to their assigned (possibly split) categories
-    for (const data of Object.values(categoryAssignments)) {
-      for (let i = 0; i < data.bookmarks.length; i++) {
-        const bookmark = data.bookmarks[i];
-        const needsMove = bookmark.categoryId.toString() !== data.cat._id.toString();
-        if (needsMove) {
+    // Move bookmarks to assigned categories
+    if (sortMode === "uncategorized") {
+      for (const data of Object.values(categoryAssignments)) {
+        const existingBookmarks = await Bookmark.find({
+          categoryId: data.cat._id,
+          _id: { $nin: data.bookmarks.map((b) => b._id) },
+        })
+          .sort("order")
+          .lean();
+
+        let startOrder = existingBookmarks.length
+          ? existingBookmarks[existingBookmarks.length - 1].order + 1
+          : 0;
+
+        for (let i = 0; i < data.bookmarks.length; i++) {
+          const bookmark = data.bookmarks[i];
           await Bookmark.findByIdAndUpdate(bookmark._id, {
             categoryId: data.cat._id,
-            order: i,
+            order: startOrder + i,
           });
           bookmarksMoved++;
-        } else {
-          await Bookmark.findByIdAndUpdate(bookmark._id, { order: i });
+        }
+      }
+    } else {
+      for (const data of Object.values(categoryAssignments)) {
+        for (let i = 0; i < data.bookmarks.length; i++) {
+          const bookmark = data.bookmarks[i];
+          const needsMove =
+            bookmark.categoryId.toString() !== data.cat._id.toString();
+          if (needsMove) {
+            await Bookmark.findByIdAndUpdate(bookmark._id, {
+              categoryId: data.cat._id,
+              order: i,
+            });
+            bookmarksMoved++;
+          } else {
+            await Bookmark.findByIdAndUpdate(bookmark._id, { order: i });
+          }
         }
       }
     }
 
-    // 6. Cleanup — remove categories that are now empty
+    // 6. Cleanup empty categories
     const updatedCats = await Category.find({ userId }).lean();
     let categoriesRemoved = 0;
+    const snapshotCatIds = new Set(
+      user.aiSortSnapshot.categories.map((c) => c.categoryId.toString()),
+    );
+
     for (const cat of updatedCats) {
       const count = await Bookmark.countDocuments({ categoryId: cat._id });
-      if (count === 0) {
-        await Category.findByIdAndDelete(cat._id);
-        categoriesRemoved++;
-      }
-    }
+      if (count > 0) continue;
 
-    // 6.5 Reorder so split siblings ("Name", "Name 2", "Name 3") sit side-by-side
-    const finalCats = await Category.find({ userId }).lean().sort({ order: 1 });
-    // Detect which names are numbered splits (e.g. "Portfolio Inspiration 2")
-    const splitChildPattern = /^(.+)\s(\d+)$/;
-    const baseNames = new Set(finalCats.map((c) => c.category.toLowerCase()));
-    const baseCats = [];
-    const splitMap = {}; // baseName -> [cat with suffix 2, 3, ...]
-
-    for (const cat of finalCats) {
-      const match = cat.category.match(splitChildPattern);
-      if (match) {
-        const base = match[1].toLowerCase();
-        const num = parseInt(match[2], 10);
-        if (baseNames.has(base) && num >= 2) {
-          if (!splitMap[base]) splitMap[base] = [];
-          splitMap[base].push({ cat, num });
-          continue;
+      if (sortMode === "uncategorized") {
+        if (!snapshotCatIds.has(cat._id.toString())) {
+          await Category.findByIdAndDelete(cat._id);
+          categoriesRemoved++;
         }
+        continue;
       }
-      baseCats.push(cat);
+
+      await Category.findByIdAndDelete(cat._id);
+      categoriesRemoved++;
     }
 
-    // Build ordered list: base category followed immediately by its numbered splits
-    const orderedList = [];
-    for (const base of baseCats) {
-      orderedList.push(base);
-      const splits = (splitMap[base.category.toLowerCase()] || [])
-        .sort((a, b) => a.num - b.num)
-        .map((s) => s.cat);
-      orderedList.push(...splits);
-    }
+    // 6.5 Reorder split siblings (full sort only)
+    if (sortMode === "all") {
+      const finalCats = await Category.find({ userId }).lean().sort({ order: 1 });
+      const splitChildPattern = /^(.+)\s(\d+)$/;
+      const baseNames = new Set(finalCats.map((c) => c.category.toLowerCase()));
+      const baseCats = [];
+      const splitMap = {};
 
-    // Persist the new order values
-    const orderUpdates = orderedList.map((cat, idx) =>
-      Category.findByIdAndUpdate(cat._id, { order: idx })
-    );
-    await Promise.all(orderUpdates);
+      for (const cat of finalCats) {
+        const match = cat.category.match(splitChildPattern);
+        if (match) {
+          const base = match[1].toLowerCase();
+          const num = parseInt(match[2], 10);
+          if (baseNames.has(base) && num >= 2) {
+            if (!splitMap[base]) splitMap[base] = [];
+            splitMap[base].push({ cat, num });
+            continue;
+          }
+        }
+        baseCats.push(cat);
+      }
+
+      const orderedList = [];
+      for (const base of baseCats) {
+        orderedList.push(base);
+        const splits = (splitMap[base.category.toLowerCase()] || [])
+          .sort((a, b) => a.num - b.num)
+          .map((s) => s.cat);
+        orderedList.push(...splits);
+      }
+
+      const orderUpdates = orderedList.map((cat, idx) =>
+        Category.findByIdAndUpdate(cat._id, { order: idx }),
+      );
+      await Promise.all(orderUpdates);
+    }
 
     // 7. Decrement credits
     user.aiSortsRemaining = sortsLeft - 1;
@@ -285,11 +367,12 @@ export const aiSortBookmarks = async (req, res) => {
     res.json({
       success: true,
       results: {
+        sortMode,
         taxonomy,
         categoriesCreated,
         categoriesRemoved,
         bookmarksMoved,
-        totalBookmarks: allBookmarks.length,
+        totalBookmarks: bookmarksToSort.length,
         aiSortsRemaining: user.aiSortsRemaining,
         canRevert: true,
       },
@@ -376,18 +459,31 @@ export const revertAISort = async (req, res) => {
  */
 export async function pickCategoryForSingleBookmark(name, link, categories) {
   if (!categories.length) return null;
+
+  const fallback =
+    findUncategorizedCategory(categories) || categories[categories.length - 1];
+
   if (categories.length === 1) return categories[0];
 
-  if (!process.env.OPENAI_API_KEY) return categories[0];
+  if (!process.env.OPENAI_API_KEY) return fallback;
 
   const catNames = categories.map((c) => c.category);
   const bestCategory = await categorizeSingle(name, link, catNames);
-  if (!bestCategory) return categories[0];
+  if (!bestCategory) return fallback;
+
+  const normalized = String(bestCategory).trim().toLowerCase();
+  if (
+    normalized === "uncategorized" ||
+    normalized === "none" ||
+    normalized === "other"
+  ) {
+    return findUncategorizedCategory(categories) || fallback;
+  }
 
   const targetCat = categories.find(
-    (c) => c.category.toLowerCase() === bestCategory.toLowerCase()
+    (c) => c.category.toLowerCase() === normalized,
   );
-  return targetCat || categories[0];
+  return targetCat || fallback;
 }
 
 export const pickCategoryForBookmark = pickCategoryForSingleBookmark;

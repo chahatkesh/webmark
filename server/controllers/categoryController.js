@@ -86,6 +86,30 @@ export const updateCategory = async (req, res) => {
   }
 };
 
+// Reorder categories
+export const reorderCategories = async (req, res) => {
+  try {
+    const { categories } = req.body;
+
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return res.json({ success: false, message: "Invalid categories payload" });
+    }
+
+    await Category.bulkWrite(
+      categories.map(({ id, order }) => ({
+        updateOne: {
+          filter: { _id: id, userId: req.body.userId },
+          update: { $set: { order } },
+        },
+      })),
+    );
+
+    res.json({ success: true, message: "Category order updated successfully" });
+  } catch (error) {
+    res.json({ success: false, message: "Error updating category order" });
+  }
+};
+
 // Delete category
 export const deleteCategory = async (req, res) => {
   try {

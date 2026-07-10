@@ -4,6 +4,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
+  reorderCategories,
 } from "../controllers/categoryController.js";
 import {
   getBookmarks,
@@ -11,6 +12,7 @@ import {
   updateBookmark,
   deleteBookmark,
   reorderBookmarks,
+  reorderBookmarkLayout,
   importBookmarks,
   bookmarkletSave,
 } from "../controllers/bookmarkController.js";
@@ -28,6 +30,7 @@ router.get("/categories", authMiddleware, getCategories);
 router.get("/categories-with-bookmarks", authMiddleware, getCategories);
 router.post("/category", authMiddleware, createCategory);
 router.put("/category", authMiddleware, updateCategory);
+router.put("/categories/reorder", authMiddleware, reorderCategories);
 router.delete("/category", authMiddleware, deleteCategory);
 
 // Bookmark routes
@@ -36,6 +39,7 @@ router.post("/bookmark", authMiddleware, createBookmark);
 router.put("/bookmark", authMiddleware, updateBookmark);
 router.delete("/bookmark", authMiddleware, deleteBookmark);
 router.put("/reorder", authMiddleware, reorderBookmarks);
+router.put("/reorder-layout", authMiddleware, reorderBookmarkLayout);
 router.post("/import", authMiddleware, importBookmarks);
 
 // AI categorization

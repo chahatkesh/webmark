@@ -1,9 +1,14 @@
-import React, { lazy, Suspense, useState } from "react";
+import React, {
+  lazy,
+  Suspense,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   useBookmarks,
   useDeleteCategory,
   useDeleteBookmark,
-  useUpdateBookmarkOrder,
 } from "../../hooks/useBookmarks";
 import useClicks from "../../hooks/useClicks";
 import { Button } from "../ui/button";
@@ -21,13 +26,227 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  SortableContext,
+  rectSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { useDroppable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
+import { bookmarkDragId } from "../../utils/bookmarkDnd";
 import { BookmarkItemSkeleton } from "./LoadingSkeletons";
 
 const AddBookmarkDialog = lazy(() => import("./AddBookmarkDialog"));
 const EditBookmarkDialog = lazy(() => import("./EditBookmarkDialog"));
 const EditCategoryDialog = lazy(() => import("./EditCategoryDialog"));
 const ConfirmDeleteDialog = lazy(() => import("./ConfirmDeleteDialog"));
+
+const SORTABLE_TRANSITION = {
+  duration: 200,
+  easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+};
+
+export const BookmarkCard = ({
+  item,
+  onBookmarkClick,
+  onEdit,
+  onNotes,
+  onDelete,
+  isOverlay = false,
+  isPreview = false,
+  dragHandleProps = null,
+}) => (
+  <div
+    className={`flex justify-between items-center p-2 md:p-2.5 bg-white rounded gap-3 ${
+      isOverlay
+        ? "shadow-lg scale-[1.01] cursor-grabbing"
+        : isPreview
+        ? ""
+        : "hover:bg-blue-100 cursor-pointer"
+    }`}>
+    <div
+      {...(dragHandleProps || {})}
+      data-drag-handle
+      className={`touch-none shrink-0 outline-none focus:outline-none ${
+        dragHandleProps
+          ? "cursor-grab active:cursor-grabbing"
+          : "cursor-default"
+      }`}>
+      <GripVertical className="h-4 w-4 text-gray-400" />
+    </div>
+
+    <div className="min-w-0 flex-1">
+      {isPreview ? (
+        <h2 className="text-[13px] md:text-[16px] font-[400] truncate">
+          {item.name}
+        </h2>
+      ) : (
+        <a
+          target="_blank"
+          href={item.link}
+          className="block"
+          onClick={(e) => onBookmarkClick(item._id, e)}
+          draggable={false}>
+          <h2 className="text-[13px] md:text-[16px] font-[400] truncate">
+            {item.name}
+          </h2>
+        </a>
+      )}
+    </div>
+
+    <div className="flex items-center gap-2 shrink-0">
+      <img
+        className="h-4 md:h-6 rounded"
+        src={item.logo}
+        alt=""
+        onError={(e) => {
+          e.target.src = "/api/placeholder/24/24";
+          e.target.onerror = null;
+        }}
+      />
+      {!isOverlay && !isPreview && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="menu"
+              className="hover:bg-blue-200 py-1">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem onClick={() => onNotes(item)} className="cursor-pointer">
+              <StickyNote className="h-4 w-4 mr-2" />
+              Notes
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(item)} className="cursor-pointer">
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onDelete(item)}
+              className="cursor-pointer text-red-600">
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+    </div>
+  </div>
+);
+
+export const CategoryCard = ({
+  category,
+  color,
+  hcolor,
+  emoji,
+  bookmarks = [],
+  isOverlay = false,
+  showCategoryGrip = false,
+}) => (
+  <div
+    style={{ backgroundColor: color }}
+    className={`px-2 md:px-4 pt-3 md:pt-6 pb-4 md:pb-8 rounded relative w-full ${
+      isOverlay
+        ? "shadow-lg scale-[1.01] cursor-grabbing pointer-events-none"
+        : ""
+    }`}>
+    <div className="flex justify-between items-center mb-4">
+      <h1
+        style={{ color: hcolor }}
+        className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2 min-w-0">
+        {showCategoryGrip && (
+          <div className="shrink-0">
+            <GripVertical className="h-4 w-4 opacity-60" />
+          </div>
+        )}
+        <span className="truncate">
+          {emoji} {category}
+        </span>
+      </h1>
+      <div className="flex items-center justify-center gap-1">
+        <PlusCircle size={20} className="opacity-80" />
+        <Pencil size={18} className="opacity-80" />
+        <Trash2 size={18} className="opacity-80" />
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 mt-2 md:mt-4 gap-x-2 gap-y-2 md:gap-x-3 md:gap-y-3 min-h-[2.5rem]">
+      {bookmarks.map((item) => (
+        <div key={item._id} className="min-w-0">
+          <BookmarkCard
+            item={item}
+            onBookmarkClick={() => {}}
+            onEdit={() => {}}
+            onNotes={() => {}}
+            onDelete={() => {}}
+            isPreview={isOverlay}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const CategoryDropZone = ({ categoryId, children }) => {
+  const { setNodeRef } = useDroppable({
+    id: `container-${categoryId}`,
+    data: { type: "container", containerId: String(categoryId) },
+  });
+
+  return (
+    <div ref={setNodeRef} className="rounded-md">
+      {children}
+    </div>
+  );
+};
+
+export const SortableBookmark = ({
+  item,
+  categoryId,
+  onBookmarkClick,
+  onEdit,
+  onNotes,
+  onDelete,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: bookmarkDragId(item._id),
+    data: {
+      type: "bookmark",
+      containerId: String(categoryId),
+      bookmark: item,
+    },
+    transition: SORTABLE_TRANSITION,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.35 : 1,
+    zIndex: isDragging ? 0 : "auto",
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="min-w-0 outline-none focus:outline-none">
+      <BookmarkCard
+        item={item}
+        onBookmarkClick={onBookmarkClick}
+        onEdit={onEdit}
+        onNotes={onNotes}
+        onDelete={onDelete}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </div>
+  );
+};
 
 const BookmarkItem = ({
   category,
@@ -36,12 +255,16 @@ const BookmarkItem = ({
   hcolor,
   emoji,
   bookmarks: filteredBookmarks,
+  dragDisabled = false,
+  sharedDrag = false,
+  categoryDragHandleProps = null,
 }) => {
   const shouldFetchBookmarks = !Array.isArray(filteredBookmarks);
-  const { data: bookmarks, isLoading } = useBookmarks(shouldFetchBookmarks ? categoryId : null);
+  const { data: bookmarks, isLoading } = useBookmarks(
+    shouldFetchBookmarks ? categoryId : null,
+  );
   const deleteCategory = useDeleteCategory();
   const deleteBookmark = useDeleteBookmark();
-  const updateBookmarkOrder = useUpdateBookmarkOrder();
   const { trackClick } = useClicks();
   const [isAddingBookmark, setIsAddingBookmark] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
@@ -50,27 +273,33 @@ const BookmarkItem = ({
   const [bookmarkToDelete, setBookmarkToDelete] = useState(null);
   const [selectedBookmarkForNotes, setSelectedBookmarkForNotes] =
     useState(null);
+
   const displayBookmarks = filteredBookmarks || bookmarks;
 
-  // Handle bookmark click
-  const handleBookmarkClick = async (bookmarkId, e) => {
-    if (e.target.closest("button") || e.target.closest("[role='menuitem']")) {
-      e.preventDefault();
-      return;
-    }
-
-    // Track the bookmark click
-    try {
-      const result = await trackClick(bookmarkId);
-      if (result) {
-        console.log(
-          `Click tracked: ${result.clickCount} clicks for this bookmark`
-        );
+  const handleBookmarkClick = useCallback(
+    async (bookmarkId, e) => {
+      if (
+        e.target.closest("button") ||
+        e.target.closest("[role='menuitem']") ||
+        e.target.closest("[data-drag-handle]")
+      ) {
+        e.preventDefault();
+        return;
       }
-    } catch (err) {
-      console.error("Error tracking click:", err);
-    }
-  };
+
+      try {
+        const result = await trackClick(bookmarkId);
+        if (result) {
+          console.log(
+            `Click tracked: ${result.clickCount} clicks for this bookmark`,
+          );
+        }
+      } catch (err) {
+        console.error("Error tracking click:", err);
+      }
+    },
+    [trackClick],
+  );
 
   if (isLoading) return <BookmarkItemSkeleton />;
 
@@ -89,34 +318,52 @@ const BookmarkItem = ({
     }
   };
 
-  const onDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const items = Array.from(displayBookmarks);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    // Create the updated bookmarks array with new orders
-    const updatedBookmarks = items.map((item, index) => ({
-      id: item._id,
-      order: index,
-    }));
-
-    // Update the order in the backend with optimistic updates
-    updateBookmarkOrder.mutate(
-      {
-        categoryId,
-        bookmarks: updatedBookmarks,
-      },
-      {
-        // The mutation will now handle optimistic updates automatically
-        onError: (error) => {
-          // If there's an error, the mutation will automatically revert the changes
-          console.error("Error updating bookmark order:", error);
-        },
-      }
+  const renderBookmark = (item) =>
+    dragDisabled ? (
+      <div key={item._id} className="min-w-0">
+        <BookmarkCard
+          item={item}
+          onBookmarkClick={handleBookmarkClick}
+          onEdit={setSelectedBookmark}
+          onNotes={setSelectedBookmarkForNotes}
+          onDelete={setBookmarkToDelete}
+        />
+      </div>
+    ) : (
+      <SortableBookmark
+        key={item._id}
+        item={item}
+        categoryId={categoryId}
+        onBookmarkClick={handleBookmarkClick}
+        onEdit={setSelectedBookmark}
+        onNotes={setSelectedBookmarkForNotes}
+        onDelete={setBookmarkToDelete}
+      />
     );
-  };
+
+  const bookmarkIds = useMemo(
+    () => (displayBookmarks || []).map((item) => bookmarkDragId(item._id)),
+    [displayBookmarks],
+  );
+
+  const bookmarkGrid = (
+    <div className="grid grid-cols-2 mt-2 md:mt-4 gap-x-2 gap-y-2 md:gap-x-3 md:gap-y-3 min-h-[2.5rem]">
+      {displayBookmarks?.map(renderBookmark)}
+    </div>
+  );
+
+  const bookmarkList = sharedDrag ? (
+    <SortableContext
+      id={String(categoryId)}
+      items={bookmarkIds}
+      strategy={rectSortingStrategy}>
+      <CategoryDropZone categoryId={categoryId}>
+        {bookmarkGrid}
+      </CategoryDropZone>
+    </SortableContext>
+  ) : (
+    bookmarkGrid
+  );
 
   return (
     <>
@@ -126,8 +373,18 @@ const BookmarkItem = ({
         <div className="flex justify-between items-center mb-4">
           <h1
             style={{ color: hcolor }}
-            className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2">
-            {emoji} {category}
+            className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2 min-w-0">
+            {categoryDragHandleProps && (
+              <div
+                {...categoryDragHandleProps}
+                data-category-drag-handle
+                className="touch-none shrink-0 cursor-grab active:cursor-grabbing outline-none focus:outline-none">
+                <GripVertical className="h-4 w-4 opacity-60" />
+              </div>
+            )}
+            <span className="truncate">
+              {emoji} {category}
+            </span>
           </h1>
           <div className="flex items-center justify-center gap-1">
             <Button
@@ -154,98 +411,7 @@ const BookmarkItem = ({
           </div>
         </div>
 
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId={categoryId}>
-            {(provided) => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className="grid grid-cols-2 mt-2 md:mt-4 gap-x-2 gap-y-2 md:gap-x-3 md:gap-y-3">
-                {displayBookmarks?.map((item, index) => (
-                  <Draggable
-                    key={item._id}
-                    draggableId={item._id}
-                    index={index}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className={`flex justify-between items-center p-2 md:p-2.5 bg-white rounded hover:bg-blue-100 cursor-pointer gap-3 ${
-                          snapshot.isDragging ? "shadow-lg" : ""
-                        }`}>
-                        {/* Drag Handle */}
-                        <div
-                          {...provided.dragHandleProps}
-                          className="cursor-grab active:cursor-grabbing">
-                          <GripVertical className="h-4 w-4 text-gray-400" />
-                        </div>
-
-                        {/* Content */}
-                        <div className="min-w-0 flex-1">
-                          <a
-                            target="_blank"
-                            href={item.link}
-                            className="block"
-                            onClick={(e) => handleBookmarkClick(item._id, e)}>
-                            <h2 className="text-[13px] md:text-[16px] font-[400] truncate">
-                              {item.name}
-                            </h2>
-                          </a>
-                        </div>
-
-                        {/* Right side with logo and menu */}
-                        <div className="flex items-center gap-2 shrink-0">
-                          <img
-                            className="h-4 md:h-6 rounded"
-                            src={item.logo}
-                            alt=""
-                            onError={(e) => {
-                              e.target.src = "/api/placeholder/24/24";
-                              e.target.onerror = null;
-                            }}
-                          />
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="menu"
-                                className="hover:bg-blue-200 py-1">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-32">
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  setSelectedBookmarkForNotes(item)
-                                }
-                                className="cursor-pointer">
-                                <StickyNote className="h-4 w-4 mr-2" />
-                                Notes
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setSelectedBookmark(item)}
-                                className="cursor-pointer">
-                                <Pencil className="h-4 w-4 mr-2" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => setBookmarkToDelete(item)}
-                                className="cursor-pointer text-red-600">
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+        {dragDisabled ? bookmarkGrid : bookmarkList}
       </div>
 
       <Suspense fallback={null}>

@@ -3,6 +3,10 @@ import Category from "../models/categoryModel.js";
 import User from "../models/userModel.js";
 import { pickCategoryForSingleBookmark } from "./aiController.js";
 import { sendBookmarkletPage } from "../utils/bookmarkletPage.js";
+import {
+  findUncategorizedCategory,
+  getOrCreateUncategorizedCategory,
+} from "../utils/uncategorizedCategory.js";
 
 const saveBookmarkToCategory = async ({
   userId,
@@ -41,16 +45,30 @@ const saveBookmarkToCategory = async ({
  * Runs AI on exactly one incoming bookmark to pick a category — no bulk sort.
  */
 const saveBookmarkViaBookmarklet = async ({ userId, name, link, logo }) => {
-  const categories = await Category.find({ userId }).sort("order");
+  let categories = await Category.find({ userId }).sort("order");
+
   if (!categories.length) {
-    return { success: false, message: "No categories found" };
+    const uncategorized = await getOrCreateUncategorizedCategory(userId);
+    categories = [uncategorized];
+  } else if (!findUncategorizedCategory(categories)) {
+    const uncategorized = await getOrCreateUncategorizedCategory(userId);
+    categories = [...categories, uncategorized];
   }
 
-  let targetCategory = categories[0];
+  const fallbackCategory =
+    findUncategorizedCategory(categories) || categories[0];
+  let targetCategory = fallbackCategory;
+
   try {
-    targetCategory = await pickCategoryForSingleBookmark(name, link, categories);
+    targetCategory =
+      (await pickCategoryForSingleBookmark(name, link, categories)) ||
+      fallbackCategory;
   } catch (error) {
-    console.error("Bookmarklet AI category pick failed, using fallback:", error.message);
+    console.error(
+      "Bookmarklet AI category pick failed, using Uncategorized:",
+      error.message,
+    );
+    targetCategory = fallbackCategory;
   }
 
   const lastBookmark = await Bookmark.findOne({ categoryId: targetCategory._id }).sort("-order");
@@ -269,6 +287,44 @@ export const reorderBookmarks = async (req, res) => {
     res.json({ success: true, message: "Bookmark order updated successfully" });
   } catch (error) {
     res.json({ success: false, message: "Error updating bookmark order" });
+  }
+};
+
+export const reorderBookmarkLayout = async (req, res) => {
+  try {
+    const { categories } = req.body;
+
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return res.json({ success: false, message: "Invalid layout payload" });
+    }
+
+    for (const { categoryId, bookmarks } of categories) {
+      const category = await Category.findOne({
+        _id: categoryId,
+        userId: req.body.userId,
+      });
+
+      if (!category) {
+        return res.json({ success: false, message: "Category not found" });
+      }
+
+      if (!Array.isArray(bookmarks)) {
+        return res.json({ success: false, message: "Invalid bookmarks payload" });
+      }
+
+      await Bookmark.bulkWrite(
+        bookmarks.map(({ id, order }) => ({
+          updateOne: {
+            filter: { _id: id },
+            update: { $set: { categoryId: category._id, order } },
+          },
+        })),
+      );
+    }
+
+    res.json({ success: true, message: "Bookmark layout updated successfully" });
+  } catch (error) {
+    res.json({ success: false, message: "Error updating bookmark layout" });
   }
 };
 

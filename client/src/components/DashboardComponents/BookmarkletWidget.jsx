@@ -17,8 +17,7 @@ const BookmarkletWidget = () => {
   const { data: categories, isLoading } = useCategories();
   const [copied, setCopied] = useState(false);
 
-  const hasCategories = categories && categories.length > 0;
-  const bookmarkletHref = hasCategories ? buildBookmarklet(apiUrl) : null;
+  const bookmarkletHref = buildBookmarklet(apiUrl);
 
   const handleCopy = () => {
     if (!bookmarkletHref) return;
@@ -65,7 +64,7 @@ const BookmarkletWidget = () => {
       <div className="bg-white p-5 space-y-4">
         {isLoading ? (
           <div className="h-9 w-full rounded-md bg-gray-100 animate-pulse" />
-        ) : bookmarkletHref ? (
+        ) : (
           <div className="space-y-2">
             <p className="text-xs font-medium text-gray-500 flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5 text-blue-500" />
@@ -110,9 +109,11 @@ const BookmarkletWidget = () => {
               </Button>
             </div>
           </div>
-        ) : (
-          <p className="text-sm text-amber-600 bg-amber-50 rounded-md px-3 py-2">
-            Create at least one category on your dashboard first — AI needs categories to sort into.
+        )}
+
+        {!isLoading && (!categories || categories.length === 0) && (
+          <p className="text-xs text-gray-500">
+            No categories yet? Saves will go into an auto-created Uncategorized folder.
           </p>
         )}
 
@@ -125,7 +126,7 @@ const BookmarkletWidget = () => {
               or download and import the bookmark file for the Webmark icon.
             </li>
             <li>Visit any page you want to save and click the bookmark.</li>
-            <li>AI places it in the best matching category automatically.</li>
+            <li>AI places it in the best matching category, or Uncategorized if none fit.</li>
           </ol>
           <p className="text-xs text-amber-600 mt-1.5">
             If you log out of Webmark, sign in again before using the bookmarklet.
