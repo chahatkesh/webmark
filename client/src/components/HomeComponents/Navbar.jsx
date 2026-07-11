@@ -1,4 +1,5 @@
 import { useAuth } from "../../hooks/useAuth";
+import LandingButton from "./LandingButton";
 import StarRepo from "./StarRepo";
 
 const Navbar = () => {
@@ -11,12 +12,18 @@ const Navbar = () => {
     });
   };
 
+  const navLinks = [
+    { label: "home", sectionId: "home" },
+    { label: "features", sectionId: "features" },
+    { label: "how to use", sectionId: "how-to-use" },
+  ];
+
   return (
     <section className="z-30 w-full top-4 md:top-6 fixed">
-      <div className="pl-4 pr-4 md:pl-6 md:pr-6 max-w-[72rem] ml-auto mr-auto">
-        <div className="bg-white pl-3 opacity-90 pr-3 rounded-[1rem] h-[3.5rem] flex justify-between items-center relative gap-3 shadow">
-          <div className="flex items-center flex-1">
-            <a className="inline-flex" href="/">
+      <div className="px-4 md:px-6 max-w-[72rem] mx-auto">
+        <div className="bg-white/90 backdrop-blur-sm px-4 md:px-5 rounded-2xl h-14 w-full flex justify-between items-center md:grid md:grid-cols-[1fr_auto_1fr] shadow-sm border border-gray-100">
+          <div className="flex items-center justify-start min-w-0">
+            <a className="inline-flex shrink-0" href="/">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="110"
@@ -62,58 +69,34 @@ const Navbar = () => {
               </svg>
             </a>
           </div>
-          <nav className="hidden md:flex md:flex-grow text-[#374252]">
-            <ul className="flex flex-grow flex-wrap justify-center items-center gap-4 lg:gap-8 text-sm">
-              <li
-                onClick={() => scrollToSection("home")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
-              >
-                home
-              </li>
-              <li
-                onClick={() => scrollToSection("features")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
-              >
-                features
-              </li>
-              <li
-                onClick={() => scrollToSection("how-to-use")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
-              >
-                how to use
-              </li>
-              <li
-                onClick={() => scrollToSection("about-us")}
-                className="cursor-pointer hover:bg-gray-50 hover:text-black hover:font-[500] rounded pt-1 pb-1 pl-3 pr-3"
-              >
-                about us
-              </li>
+          <nav className="hidden md:block justify-self-center">
+            <ul className="flex items-center gap-1 lg:gap-2 text-sm text-gray-600">
+              {navLinks.map(({ label, sectionId }) => (
+                <li key={sectionId}>
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection(sectionId)}
+                    className="px-3 py-1.5 rounded-lg font-medium transition-colors hover:bg-gray-50 hover:text-gray-900"
+                  >
+                    {label}
+                  </button>
+                </li>
+              ))}
             </ul>
           </nav>
-          <ul className="flex flex-1 justify-end items-center gap-3">
-            <li className="hidden sm:block">
+          <div className="flex items-center justify-end gap-2 sm:gap-3 min-w-0 md:col-start-3">
+            <div className="hidden sm:block shrink-0">
               <StarRepo variant="navbar" />
-            </li>
-            {isAuthenticated ? (
-              <li>
-                <a
-                  className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-3 pr-3 pt-[5px] pb-[5px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
-                  href="/user/dashboard"
-                >
-                  Dashboard
-                </a>
-              </li>
-            ) : (
-              <li>
-                <a
-                  className="inline-flex cursor-pointer shadow bg-[#1f2937] hover:bg-[#000] text-[#E5E7EB] pl-4 pr-4 pt-[6px] pb-[6px] rounded-lg text-[0.875rem] leading-[1.5715] font-[500]"
-                  href="/auth"
-                >
-                  Get Started
-                </a>
-              </li>
-            )}
-          </ul>
+            </div>
+            <LandingButton
+              href={isAuthenticated ? "/user/dashboard" : "/auth"}
+              variant="dark"
+              size="sm"
+              className="shrink-0"
+            >
+              {isAuthenticated ? "Dashboard" : "Get Started"}
+            </LandingButton>
+          </div>
         </div>
       </div>
     </section>

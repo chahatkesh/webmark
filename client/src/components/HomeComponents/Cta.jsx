@@ -1,6 +1,6 @@
 import React from "react";
 import { assets } from "../../assets/assests";
-import { motion } from "framer-motion";
+import LandingButton from "./LandingButton";
 import StarRepo from "./StarRepo";
 
 const Cta = () => {
@@ -23,20 +23,10 @@ const Cta = () => {
           <h2 className="border-in-header-1 text-[#e5e7eb] font-[700] text-[1.4rem] leading-[1.3333] tracking-[-0.037em] md:text-[2.25rem] md:leading-[1.2777] mb-6 md:mb-12">
             Master Your Bookmarks - Simplify Your Web Experience
           </h2>
-          <div className="ml-auto mr-auto max-w-80 sm:max-w-none flex flex-col sm:flex-row flex-wrap sm:justify-center gap-4">
-            <motion.a
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full sm:w-auto shadow text-white bg-blue-500 hover:bg-blue-600 hover:font-[600] pl-4 pr-4 pt-2.5 pb-2.5 inline-flex items-center justify-center rounded-[8px] leading-[1.5715] font-[500] whitespace-nowrap text-[0.875rem]"
-              href="/auth"
-            >
-              <span className="inline-flex items-center relative">
-                Get Started
-                <span className="tracking-[0rem] ml-1 text-[#93c5fd]">
-                  -&gt;
-                </span>
-              </span>
-            </motion.a>
+          <div className="ml-auto mr-auto flex flex-row flex-nowrap justify-center items-center gap-2 sm:gap-4">
+            <LandingButton href="/auth" variant="primary" arrow>
+              Get Started
+            </LandingButton>
             <StarRepo variant="cta" />
           </div>
         </div>

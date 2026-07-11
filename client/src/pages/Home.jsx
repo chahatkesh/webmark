@@ -4,7 +4,6 @@ import Circle1 from "../components/HomeComponents/Background/Circle1";
 import Circle2 from "../components/HomeComponents/Background/Circle2";
 import Circle3 from "../components/HomeComponents/Background/Circle3";
 import Navbar from "../components/HomeComponents/Navbar";
-import Message from "../components/HomeComponents/Message";
 import Footer from "../components/HomeComponents/Footer";
 import Cta from "../components/HomeComponents/Cta";
 import Testimonial from "../components/HomeComponents/Testimonial";
@@ -53,7 +52,6 @@ const Home = () => {
           <Circle3 />
           <HeroContent />
         </section>
-        <Message />
         <Features />
         <StatsSection />
         <HowtoUse />
