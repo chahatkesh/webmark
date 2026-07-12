@@ -2,7 +2,7 @@ import { Github, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
 import { cn } from "../../lib/utils";
-import { landingButtonVariants } from "./LandingButton";
+import { landingButtonVariants } from "./landingButtonVariants";
 
 const REPO_URL = "https://github.com/chahatkesh/webmark";
 const GITHUB_API = "https://api.github.com/repos/chahatkesh/webmark";

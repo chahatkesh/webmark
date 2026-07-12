@@ -1,6 +1,12 @@
+/* eslint-disable react-refresh/only-export-components -- context module exports provider + context */
 import React, { createContext, useState } from "react";
 
-export const StoreContext = createContext(null);
+// Keep the same context instance across Vite HMR
+export const StoreContext =
+  import.meta.hot?.data?.StoreContext ?? createContext(null);
+if (import.meta.hot) {
+  import.meta.hot.data.StoreContext = StoreContext;
+}
 
 const StoreContextProvider = (props) => {
   // Use environment variable with fallback for API URL

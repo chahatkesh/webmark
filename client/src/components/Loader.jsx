@@ -173,20 +173,12 @@ const Loader = (props) => {
   return getLoader();
 };
 
-// PropTypes validation
+// PropTypes validation (defaults live in the function params above)
 Loader.propTypes = {
   type: PropTypes.oneOf(["spinner", "dots", "pulse", "text"]),
   size: PropTypes.oneOf(["xs", "sm", "md", "lg", "xl"]),
   fullScreen: PropTypes.bool,
   text: PropTypes.string,
-};
-
-// Default props
-Loader.defaultProps = {
-  type: "spinner",
-  size: "md",
-  fullScreen: false,
-  text: "Webmark",
 };
 
 /** Centered loader for the main content area below the fixed header */

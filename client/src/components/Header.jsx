@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { assets } from "../assets/assests";
 import { toast } from "react-toastify";
+import ConfirmLogoutDialog from "./DashboardComponents/ConfirmLogoutDialog";
 
 const dispatchDashboardAction = (action) => {
   window.dispatchEvent(
@@ -91,6 +92,7 @@ const Header = () => {
   const [importsLeft, setImportsLeft] = useState(() =>
     parseInt(localStorage.getItem("importsRemainingThisMonth") ?? "2", 10),
   );
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const searchRef = useRef(null);
   const suggestionsRef = useRef(null);
   const { user } = useContext(StoreContext);
@@ -322,7 +324,10 @@ const Header = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer gap-2 text-red-600 focus:text-red-600"
-          onSelect={handleLogout}
+          onSelect={(event) => {
+            event.preventDefault();
+            setIsLogoutDialogOpen(true);
+          }}
         >
           <LogOut className="h-4 w-4" />
           Log out
@@ -521,107 +526,131 @@ const Header = () => {
 
   if (!isDesktop) {
     return (
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-gray-200/80 bg-white/95 backdrop-blur-md">
-        <div className="flex h-14 items-center gap-1.5 px-3">
-          <button
-            type="button"
-            onClick={() => navigate("/user/dashboard")}
-            className="flex shrink-0 items-center"
-            aria-label="Webmark home"
-          >
-            <img src={assets.small_logo_color} alt="" className="h-7 w-auto" />
-          </button>
+      <>
+        <header className="fixed inset-x-0 top-0 z-50 border-b border-gray-200/80 bg-white/95 backdrop-blur-md">
+          <div className="flex h-14 items-center gap-1.5 px-3">
+            <button
+              type="button"
+              onClick={() => navigate("/user/dashboard")}
+              className="flex shrink-0 items-center"
+              aria-label="Webmark home"
+            >
+              <img
+                src={assets.small_logo_color}
+                alt=""
+                className="h-7 w-auto"
+              />
+            </button>
 
-          {isDashboard ? (
-            searchField
-          ) : (
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => navigate("/user/dashboard")}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-                aria-label="Back to bookmarks"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </button>
-              {pageLabel && (
-                <span className="truncate text-sm font-semibold text-gray-900">
-                  {pageLabel}
-                </span>
-              )}
-            </div>
-          )}
+            {isDashboard ? (
+              searchField
+            ) : (
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate("/user/dashboard")}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                  aria-label="Back to bookmarks"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                {pageLabel && (
+                  <span className="truncate text-sm font-semibold text-gray-900">
+                    {pageLabel}
+                  </span>
+                )}
+              </div>
+            )}
 
-          {isDashboard && (
-            <>
-              {mobileToolsMenu}
-              {addCategoryButton}
-            </>
-          )}
+            {isDashboard && (
+              <>
+                {mobileToolsMenu}
+                {addCategoryButton}
+              </>
+            )}
 
-          {accountMenu}
-        </div>
-      </header>
+            {accountMenu}
+          </div>
+        </header>
+        <ConfirmLogoutDialog
+          open={isLogoutDialogOpen}
+          onClose={() => setIsLogoutDialogOpen(false)}
+          onConfirm={handleLogout}
+        />
+      </>
     );
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-gray-200/80 bg-white/95 backdrop-blur-md">
-      <div className="grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6 lg:px-8">
-        <div className="justify-self-start">
-          <button
-            type="button"
-            onClick={() => navigate("/user/dashboard")}
-            className="flex items-center gap-2.5"
-            aria-label="Webmark home"
-          >
-            <img src={assets.small_logo_color} alt="" className="h-7 w-auto" />
-            <span className="text-[15px] font-semibold tracking-tight text-gray-900">
-              Webmark
-            </span>
-          </button>
-        </div>
+    <>
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-gray-200/80 bg-white/95 backdrop-blur-md">
+        <div className="grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 sm:px-6 lg:px-8">
+          <div className="justify-self-start">
+            <button
+              type="button"
+              onClick={() => navigate("/user/dashboard")}
+              className="flex items-center gap-2.5"
+              aria-label="Webmark home"
+            >
+              <img
+                src={assets.small_logo_color}
+                alt=""
+                className="h-7 w-auto"
+              />
+              <span className="text-[15px] font-semibold tracking-tight text-gray-900">
+                Webmark
+              </span>
+            </button>
+          </div>
 
-        <div className="flex w-[28rem] max-w-[calc(100vw-28rem)] items-center justify-center">
-          {isDashboard ? (
-            searchField
-          ) : pageLabel ? (
-            <div className="text-center">
-              <p className="text-sm font-semibold text-gray-900">{pageLabel}</p>
-              <p className="text-xs text-gray-400">
-                {isProfile
-                  ? "Account & bookmark stats"
-                  : "One-click save from any page"}
-              </p>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="justify-self-end">
-          <div className="flex items-center gap-1">
+          <div className="flex w-[28rem] max-w-[calc(100vw-28rem)] items-center justify-center">
             {isDashboard ? (
-              <>
-                {desktopToolButtons}
-                <div className="mx-1 h-4 w-px bg-gray-200" />
-                {addCategoryButton}
-              </>
-            ) : (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/user/dashboard")}
-                className="h-8 gap-1.5 px-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              >
-                <Bookmark className="h-3.5 w-3.5" />
-                <span className="text-[13px] font-medium">My Bookmarks</span>
-              </Button>
-            )}
-            {accountMenu}
+              searchField
+            ) : pageLabel ? (
+              <div className="text-center">
+                <p className="text-sm font-semibold text-gray-900">
+                  {pageLabel}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {isProfile
+                    ? "Account & bookmark stats"
+                    : "One-click save from any page"}
+                </p>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="justify-self-end">
+            <div className="flex items-center gap-1">
+              {isDashboard ? (
+                <>
+                  {desktopToolButtons}
+                  <div className="mx-1 h-4 w-px bg-gray-200" />
+                  {addCategoryButton}
+                </>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate("/user/dashboard")}
+                  className="h-8 gap-1.5 px-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                >
+                  <Bookmark className="h-3.5 w-3.5" />
+                  <span className="text-[13px] font-medium">My Bookmarks</span>
+                </Button>
+              )}
+              {accountMenu}
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+      <ConfirmLogoutDialog
+        open={isLogoutDialogOpen}
+        onClose={() => setIsLogoutDialogOpen(false)}
+        onConfirm={handleLogout}
+      />
+    </>
   );
 };
 

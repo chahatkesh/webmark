@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- context module exports provider + hook */
 import {
   createContext,
   useCallback,
@@ -6,12 +7,16 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { mutate as globalMutate } from "swr";
 import { StoreContext } from "./StoreContext";
 import { apiRequest, clearLocalSession } from "../utils/apiClient";
 
-const AuthContext = createContext(null);
+// Keep the same context instance across Vite HMR so providers/consumers stay in sync
+const AuthContext = import.meta.hot?.data?.AuthContext ?? createContext(null);
+if (import.meta.hot) {
+  import.meta.hot.data.AuthContext = AuthContext;
+}
 
 const applyUserLimits = (data) => {
   let limitsUpdated = false;
@@ -178,3 +183,10 @@ export const useAuth = () => {
   }
   return context;
 };
+
+/** Pathless layout so AuthProvider wraps route elements and errorElement */
+export const AuthLayout = () => (
+  <AuthProvider>
+    <Outlet />
+  </AuthProvider>
+);

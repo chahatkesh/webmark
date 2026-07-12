@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import ResponsiveModal from "../ui/ResponsiveModal";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useCreateCategory } from "../../hooks/useBookmarks";
@@ -202,160 +202,157 @@ const AddCategoryDialog = ({ open, onClose }) => {
   const currentTheme = getCurrentTheme();
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="rounded-xl p-6 bg-white w-full max-w-[95vw] sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold text-gray-900 text-center">
-            Add New Category
-          </DialogTitle>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
-          <div className="flex space-x-3">
-            {/* Emoji selector */}
-            <div className="flex-shrink-0">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Icon
-              </label>
-              <button
-                type="button"
-                className="w-12 h-12 flex items-center justify-center text-md rounded-md border border-gray-200 bg-white hover:bg-gray-50"
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              >
-                {formData.emoji}
-              </button>
-              {showEmojiPicker && (
-                <div className="absolute z-50 left-0 sm:left-0 mt-2">
-                  <EmojiPicker
-                    onEmojiClick={handleEmojiClick}
-                    width={300}
-                    height={400}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Category name input */}
-            <div className="flex-grow">
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Category Name
-                </label>
-                <span
-                  className={`text-xs ${
-                    error ? "text-red-500" : "text-gray-500"
-                  }`}
-                >
-                  {formData.category.length}/{MAX_CATEGORY_LENGTH}
-                </span>
+    <ResponsiveModal
+      open={open}
+      onClose={onClose}
+      title="Add New Category"
+      size="md"
+      footer={
+        <Button
+          type="submit"
+          form="add-category-form"
+          className={cn(
+            "h-12 w-full px-5 text-base font-medium sm:w-auto",
+            "bg-blue-500 hover:bg-blue-600 text-white",
+            "transition-colors relative",
+            isSubmitting && "pl-9",
+          )}
+          disabled={isSubmitting || !formData.category.trim() || !!error}
+        >
+          {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          {isSubmitting ? "Adding..." : "Add Category"}
+        </Button>
+      }
+    >
+      <form
+        id="add-category-form"
+        onSubmit={handleSubmit}
+        className="space-y-6"
+      >
+        <div className="flex space-x-3">
+          {/* Emoji selector */}
+          <div className="flex-shrink-0">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Icon
+            </label>
+            <button
+              type="button"
+              className="w-12 h-12 flex items-center justify-center text-md rounded-md border border-gray-200 bg-white hover:bg-gray-50"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            >
+              {formData.emoji}
+            </button>
+            {showEmojiPicker && (
+              <div className="relative z-10 mt-2">
+                <EmojiPicker
+                  onEmojiClick={handleEmojiClick}
+                  width="100%"
+                  height={320}
+                />
               </div>
-              <Input
-                ref={inputRef}
-                value={formData.category}
-                onChange={handleCategoryChange}
-                placeholder="Enter category name..."
-                className={`w-full h-12 px-4 bg-white border ${
-                  error
-                    ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-200"
-                } rounded-md`}
-              />
-              {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-            </div>
+            )}
           </div>
 
-          {/* Updated Theme Selection with refined tooltip */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-4">
-              Color Theme
-            </label>
-            <div className="grid grid-cols-2 gap-6">
-              {Object.entries(colorThemes).map(([groupName, categories]) => (
-                <div key={groupName}>
-                  {Object.entries(categories).map(([categoryName, themes]) => (
-                    <div key={categoryName} className="mb-4">
-                      <div className="text-sm text-gray-600 mb-2">
-                        {categoryName}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {themes.map((theme) => (
-                          <div key={theme.name} className="relative group">
-                            <button
-                              type="button"
-                              onClick={() => handleThemeChange(theme)}
-                              className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full transition-all
+          {/* Category name input */}
+          <div className="flex-grow">
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Category Name
+              </label>
+              <span
+                className={`text-xs ${
+                  error ? "text-red-500" : "text-gray-500"
+                }`}
+              >
+                {formData.category.length}/{MAX_CATEGORY_LENGTH}
+              </span>
+            </div>
+            <Input
+              ref={inputRef}
+              value={formData.category}
+              onChange={handleCategoryChange}
+              placeholder="Enter category name..."
+              className={`w-full h-12 px-4 bg-white border ${
+                error ? "border-red-500 focus:ring-red-500" : "border-gray-200"
+              } rounded-md`}
+            />
+            {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+          </div>
+        </div>
+
+        {/* Updated Theme Selection with refined tooltip */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-4">
+            Color Theme
+          </label>
+          <div className="grid grid-cols-2 gap-6">
+            {Object.entries(colorThemes).map(([groupName, categories]) => (
+              <div key={groupName}>
+                {Object.entries(categories).map(([categoryName, themes]) => (
+                  <div key={categoryName} className="mb-4">
+                    <div className="text-sm text-gray-600 mb-2">
+                      {categoryName}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {themes.map((theme) => (
+                        <div key={theme.name} className="relative group">
+                          <button
+                            type="button"
+                            onClick={() => handleThemeChange(theme)}
+                            className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full transition-all
                       ${
                         formData.themeName === theme.name
                           ? "ring-2 ring-blue-500 ring-offset-2"
                           : "hover:scale-110"
                       }`}
-                              style={{ backgroundColor: theme.h }}
-                            ></button>
-                            {/* Updated subtle tooltip */}
-                            <span
-                              className="absolute hidden group-hover:block whitespace-nowrap 
+                            style={{ backgroundColor: theme.h }}
+                          ></button>
+                          {/* Updated subtle tooltip */}
+                          <span
+                            className="absolute hidden group-hover:block whitespace-nowrap 
                              left-1/2 -translate-x-1/2 -bottom-[13px] text-[10px] text-gray-600
                              pointer-events-none transition-opacity"
-                            >
-                              {theme.name}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                          >
+                            {theme.name}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Preview */}
-          <div className="rounded-lg border border-gray-200 overflow-hidden">
-            <div className="bg-gray-50 p-3 border-b border-gray-200">
-              <div className="text-base font-medium text-gray-700">Preview</div>
-              {currentTheme && (
-                <div className="hidden md:block text-sm text-gray-500">
-                  {currentTheme.preview} - {currentTheme.category} collection
-                </div>
-              )}
-            </div>
-            <div className="p-4">
-              <div
-                className="p-3 rounded-lg flex items-center space-x-2 max-w-full"
-                style={{ backgroundColor: formData.bgcolor }}
-              >
-                <span className="text-xl flex-shrink-0">{formData.emoji}</span>
-                <span
-                  className="font-medium truncate flex-1 min-w-0"
-                  style={{ color: formData.hcolor }}
-                  title={formData.category || "Category Name"}
-                >
-                  {formData.category || "Category Name"}
-                </span>
+                  </div>
+                ))}
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Preview */}
+        <div className="rounded-lg border border-gray-200 overflow-hidden">
+          <div className="bg-gray-50 p-3 border-b border-gray-200">
+            <div className="text-base font-medium text-gray-700">Preview</div>
+            {currentTheme && (
+              <div className="hidden md:block text-sm text-gray-500">
+                {currentTheme.preview} - {currentTheme.category} collection
+              </div>
+            )}
+          </div>
+          <div className="p-4">
+            <div
+              className="p-3 rounded-lg flex items-center space-x-2 max-w-full"
+              style={{ backgroundColor: formData.bgcolor }}
+            >
+              <span className="text-xl flex-shrink-0">{formData.emoji}</span>
+              <span
+                className="font-medium truncate flex-1 min-w-0"
+                style={{ color: formData.hcolor }}
+                title={formData.category || "Category Name"}
+              >
+                {formData.category || "Category Name"}
+              </span>
             </div>
           </div>
-          <div className="w-full flex justify-center items-center">
-            <Button
-              type="submit"
-              className={cn(
-                "h-12 w-full px-5 text-base font-medium",
-                "bg-blue-500 hover:bg-blue-600 text-white",
-                "transition-colors",
-                "relative",
-                isSubmitting && "pl-9",
-              )}
-              disabled={isSubmitting || !formData.category.trim() || !!error}
-            >
-              {isSubmitting && (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              )}
-              {isSubmitting ? "Adding..." : "Add Category"}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </form>
+    </ResponsiveModal>
   );
 };
 

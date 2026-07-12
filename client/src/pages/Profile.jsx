@@ -23,9 +23,11 @@ import { toast } from "react-toastify";
 import { format, formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import ShareModal from "../components/DashboardComponents/ShareModel";
+import ConfirmLogoutDialog from "../components/DashboardComponents/ConfirmLogoutDialog";
 
 const Profile = () => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const {
     profile,
     clickStats,
@@ -221,7 +223,7 @@ const Profile = () => {
             Share
           </Button>
           <Button
-            onClick={handleLogout}
+            onClick={() => setIsLogoutDialogOpen(true)}
             className="mt-4 md:mt-0 bg-red-50 hover:bg-red-100 text-red-600 px-5 py-2.5 rounded-md transition-all duration-200 shadow-sm flex items-center gap-2 font-medium"
             aria-label="Logout"
           >
@@ -620,6 +622,11 @@ const Profile = () => {
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
+      />
+      <ConfirmLogoutDialog
+        open={isLogoutDialogOpen}
+        onClose={() => setIsLogoutDialogOpen(false)}
+        onConfirm={handleLogout}
       />
     </motion.div>
   );

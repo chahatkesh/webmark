@@ -6,25 +6,34 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
 import ErrorPage from "./pages/ErrorPage.jsx";
 import StoreContextProvider from "./context/StoreContext.jsx";
+import { AuthLayout } from "./context/AuthContext.jsx";
 import "./index.css";
 import { setupGlobalErrorHandlers } from "./utils/errorHandling.js";
 
 // Set up global error handlers
 setupGlobalErrorHandlers();
 
-// Create router with error handling
-const router = createBrowserRouter([
+// AuthLayout wraps both route elements and errorElement so useAuth always works
+const router = createBrowserRouter(
+  [
+    {
+      element: <AuthLayout />,
+      children: [
+        {
+          path: "*",
+          element: <App />,
+          errorElement: <ErrorPage />,
+        },
+      ],
+    },
+  ],
   {
-    path: "/",
-    element: <App />,
-    errorElement: <ErrorPage />,
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+    },
   },
-  {
-    path: "*",
-    element: <App />,
-    errorElement: <ErrorPage />,
-  },
-]);
+);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <HelmetProvider>

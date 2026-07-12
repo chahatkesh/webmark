@@ -1,39 +1,40 @@
 import React from "react";
 import ResponsiveModal from "../ui/ResponsiveModal";
 import { Button } from "../ui/button";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { LogOut, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ConfirmDeleteDialog = ({
+const ConfirmLogoutDialog = ({
   open,
   onClose,
   onConfirm,
-  title = "Delete Category",
-  message = "This will permanently delete this category and all its bookmarks.",
+  title = "Log out",
+  message = "Are you sure you want to log out of your account?",
 }) => {
-  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const cancelRef = React.useRef(null);
 
   React.useEffect(() => {
     if (open) {
       cancelRef.current?.focus();
+      setIsLoggingOut(false);
     }
   }, [open]);
 
   const handleConfirm = async () => {
-    setIsDeleting(true);
+    setIsLoggingOut(true);
     try {
       await onConfirm();
     } catch (error) {
-      console.error("Delete failed:", error);
+      console.error("Logout failed:", error);
     } finally {
-      setIsDeleting(false);
+      setIsLoggingOut(false);
       onClose();
     }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !isDeleting) {
+    if (e.key === "Enter" && !isLoggingOut) {
       handleConfirm();
     }
   };
@@ -45,9 +46,9 @@ const ConfirmDeleteDialog = ({
       size="sm"
       onKeyDown={handleKeyDown}
       title={
-        <span className="flex items-center gap-3 text-red-600">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-100">
-            <AlertTriangle className="h-5 w-5" />
+        <span className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100">
+            <LogOut className="h-5 w-5 text-gray-700" />
           </span>
           {title}
         </span>
@@ -58,7 +59,7 @@ const ConfirmDeleteDialog = ({
             type="button"
             variant="outline"
             onClick={onClose}
-            disabled={isDeleting}
+            disabled={isLoggingOut}
             ref={cancelRef}
             className="h-11 w-full px-5 font-medium sm:w-auto"
           >
@@ -67,18 +68,18 @@ const ConfirmDeleteDialog = ({
           <Button
             type="button"
             onClick={handleConfirm}
-            disabled={isDeleting}
+            disabled={isLoggingOut}
             className={cn(
               "h-11 w-full px-5 font-medium sm:w-auto",
               "bg-red-500 hover:bg-red-600 text-white",
               "transition-colors relative",
-              isDeleting && "pl-9",
+              isLoggingOut && "pl-9",
             )}
           >
-            {isDeleting && (
+            {isLoggingOut && (
               <Loader2 className="h-4 w-4 absolute left-3 animate-spin" />
             )}
-            {isDeleting ? "Deleting..." : "Delete"}
+            {isLoggingOut ? "Logging out..." : "Log out"}
           </Button>
         </>
       }
@@ -88,4 +89,4 @@ const ConfirmDeleteDialog = ({
   );
 };
 
-export default ConfirmDeleteDialog;
+export default ConfirmLogoutDialog;

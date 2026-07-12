@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Share2, Copy, Check } from "lucide-react";
+import ResponsiveModal from "../ui/ResponsiveModal";
+import { Button } from "../ui/button";
 
 const ShareModal = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
   const shareUrl = "https://webmark.chahatkesh.me";
   const shareMessage =
-    "Check out Webmark - a beautifully simple way to organize your bookmarks! ✨";
+    "Check out Webmark - a beautifully simple way to organize your bookmarks!";
 
-  // Social platforms with proper icons and brand colors
   const socialPlatforms = [
     {
       name: "WhatsApp",
@@ -59,23 +61,6 @@ const ShareModal = ({ isOpen, onClose }) => {
     },
   ];
 
-  // Handle ESC key press and prevent background scrolling
-  useEffect(() => {
-    const handleEsc = (event) => {
-      if (event.keyCode === 27) onClose();
-    };
-
-    if (isOpen) {
-      window.addEventListener("keydown", handleEsc);
-      document.body.style.overflow = "hidden";
-    }
-
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "auto";
-    };
-  }, [isOpen, onClose]);
-
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(`${shareMessage}\n${shareUrl}`);
@@ -90,143 +75,70 @@ const ShareModal = ({ isOpen, onClose }) => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="fixed inset-0" onClick={onClose} aria-hidden="true"></div>
-
-      <div className="bg-white rounded-lg w-full max-w-sm relative z-10 shadow-xl animate-fadeIn">
-        {/* Header with close button */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-medium flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-blue-500"
-            >
-              <circle cx="18" cy="5" r="3"></circle>
-              <circle cx="6" cy="12" r="3"></circle>
-              <circle cx="18" cy="19" r="3"></circle>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-            </svg>
-            Share Webmark
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-full hover:bg-gray-100"
-            aria-label="Close dialog"
+    <ResponsiveModal
+      open={isOpen}
+      onClose={onClose}
+      size="sm"
+      title={
+        <span className="flex items-center gap-2">
+          <Share2 className="h-5 w-5 text-blue-500" />
+          Share Webmark
+        </span>
+      }
+    >
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2">
+          <div className="flex-1 truncate text-sm text-gray-600">
+            {shareUrl}
+          </div>
+          <Button
+            onClick={handleCopyLink}
+            size="sm"
+            className="shrink-0 gap-1.5 bg-blue-500 hover:bg-blue-600"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
+            {copied ? (
+              <>
+                <Check className="h-4 w-4" />
+                Copied
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                Copy
+              </>
+            )}
+          </Button>
         </div>
 
-        {/* Content */}
-        <div className="p-4 space-y-4">
-          {/* Copy URL section */}
-          <div className="flex items-center gap-2 p-2 bg-gray-50 rounded border">
-            <div className="flex-1 truncate text-sm text-gray-600">
-              {shareUrl}
-            </div>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-white px-2 text-xs text-gray-500">
+              Share via
+            </span>
+          </div>
+        </div>
+
+        <div className="flex justify-center gap-6">
+          {socialPlatforms.map((platform) => (
             <button
-              onClick={handleCopyLink}
-              className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded transition-colors flex items-center gap-1.5"
+              key={platform.name}
+              type="button"
+              onClick={() => handleShare(platform.url)}
+              className="rounded-full p-2 transition-colors hover:bg-gray-100"
+              title={platform.name}
+              aria-label={`Share to ${platform.name}`}
+              style={{ color: platform.color }}
             >
-              {copied ? (
-                <>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M20 6L9 17l-5-5"></path>
-                  </svg>
-                  Copied
-                </>
-              ) : (
-                <>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect
-                      x="9"
-                      y="9"
-                      width="13"
-                      height="13"
-                      rx="2"
-                      ry="2"
-                    ></rect>
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
-                  </svg>
-                  Copy
-                </>
-              )}
+              {platform.icon}
             </button>
-          </div>
-
-          {/* Divider with label */}
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="px-2 bg-white text-xs text-gray-500">
-                Share via
-              </span>
-            </div>
-          </div>
-
-          {/* Social platforms */}
-          <div className="flex justify-center space-x-6">
-            {socialPlatforms.map((platform) => (
-              <button
-                key={platform.name}
-                onClick={() => handleShare(platform.url)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-all flex items-center justify-center"
-                title={platform.name}
-                aria-label={`Share to ${platform.name}`}
-                style={{ color: platform.color }}
-              >
-                {platform.icon}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
-    </div>
+    </ResponsiveModal>
   );
 };
 

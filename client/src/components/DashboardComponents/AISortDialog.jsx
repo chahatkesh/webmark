@@ -1,11 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../ui/dialog";
+import ResponsiveModal from "../ui/ResponsiveModal";
 import { Button } from "../ui/button";
 import {
   Sparkles,
@@ -27,23 +21,8 @@ const STAGES = [
   { label: "Saving changes to your library", icon: HardDrive, pct: 92 },
 ];
 
-// Approximate real delays matching server work (Pass 1 ~ 5s, Pass 2 batches ~ 10s+)
 const STAGE_DELAYS_MS = [0, 4000, 10000, 22000];
 
-/**
- * AISortDialog
- * Props:
- *   open        – boolean
- *   onClose()   – called to dismiss
- *   onConfirm(mode) – calls the mutation with "all" or "uncategorized"
- *   uncategorizedCount – number of bookmarks in Uncategorized
- *   isSorting   – boolean from mutation isPending
- *   results     – { totalBookmarks, taxonomy, bookmarksMoved, canRevert } | null
- *   sortError   – Error | null
- *   onReset()   – resets mutation state
- *   onRevert()  – calls the revert mutation
- *   isReverting – boolean from revert mutation isPending
- */
 const AISortDialog = ({
   open,
   onClose,
@@ -61,7 +40,6 @@ const AISortDialog = ({
   const [sortMode, setSortMode] = useState("all");
   const timersRef = useRef([]);
 
-  // Start stage animation when sorting begins
   useEffect(() => {
     if (isSorting) {
       setStageIdx(0);
@@ -82,7 +60,6 @@ const AISortDialog = ({
     }
   }, [isSorting]);
 
-  // Jump to 100% on success
   useEffect(() => {
     if (results) {
       timersRef.current.forEach(clearTimeout);
@@ -106,33 +83,22 @@ const AISortDialog = ({
     onConfirm(sortMode);
   };
 
-  // ─── Phase: done ────────────────────────────────────────────────────────────
+  const isProgressPhase = isSorting || stageIdx >= 0;
+
   if (results) {
     return (
-      <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-green-600">
-              <CheckCircle2 className="h-5 w-5" />
-              Sort complete
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <Stat label="Bookmarks" value={results.totalBookmarks} />
-              <Stat
-                label="Categories"
-                value={results.taxonomy?.length ?? "—"}
-              />
-              <Stat label="Moved" value={results.bookmarksMoved} />
-            </div>
-            <p className="text-sm text-gray-500 text-center">
-              {results.sortMode === "uncategorized"
-                ? "Uncategorized bookmarks have been placed into matching categories."
-                : "Your library has been reorganized by AI."}
-            </p>
-          </div>
-          <div className="flex justify-between">
+      <ResponsiveModal
+        open={open}
+        onClose={handleClose}
+        size="sm"
+        title={
+          <span className="flex items-center gap-2 text-green-600">
+            <CheckCircle2 className="h-5 w-5" />
+            Sort complete
+          </span>
+        }
+        footer={
+          <div className="flex w-full items-center justify-between gap-2">
             {results.canRevert && (
               <Button
                 variant="outline"
@@ -147,30 +113,43 @@ const AISortDialog = ({
                 {isReverting ? "Reverting…" : "Undo Sort"}
               </Button>
             )}
-            <div className="ml-auto">
-              <Button onClick={handleClose}>Done</Button>
-            </div>
+            <Button onClick={handleClose} className="ml-auto">
+              Done
+            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        }
+      >
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <Stat label="Bookmarks" value={results.totalBookmarks} />
+            <Stat label="Categories" value={results.taxonomy?.length ?? "—"} />
+            <Stat label="Moved" value={results.bookmarksMoved} />
+          </div>
+          <p className="text-sm text-gray-500 text-center">
+            {results.sortMode === "uncategorized"
+              ? "Uncategorized bookmarks have been placed into matching categories."
+              : "Your library has been reorganized by AI."}
+          </p>
+        </div>
+      </ResponsiveModal>
     );
   }
 
-  // ─── Phase: error ────────────────────────────────────────────────────────────
   if (sortError) {
     return (
-      <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
-              Sort failed
-            </DialogTitle>
-            <DialogDescription>
-              {sortError.message || "An unexpected error occurred."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-2">
+      <ResponsiveModal
+        open={open}
+        onClose={handleClose}
+        size="sm"
+        title={
+          <span className="flex items-center gap-2 text-red-600">
+            <AlertCircle className="h-5 w-5" />
+            Sort failed
+          </span>
+        }
+        description={sortError.message || "An unexpected error occurred."}
+        footer={
+          <>
             <Button variant="outline" onClick={handleClose}>
               Close
             </Button>
@@ -184,93 +163,88 @@ const AISortDialog = ({
             >
               Retry
             </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </>
+        }
+      />
     );
   }
 
-  // ─── Phase: sorting ──────────────────────────────────────────────────────────
-  if (isSorting || stageIdx >= 0) {
+  if (isProgressPhase) {
     return (
-      <Dialog open={open} onOpenChange={() => {}}>
-        <DialogContent
-          className="sm:max-w-md [&>button]:hidden"
-          onInteractOutside={(e) => e.preventDefault()}
-        >
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-blue-500 animate-pulse" />
-              AI sorting in progress
-            </DialogTitle>
-            <DialogDescription>
-              Please don&apos;t close this tab — this may take 20–40 seconds.
-            </DialogDescription>
-          </DialogHeader>
+      <ResponsiveModal
+        open={open}
+        onClose={handleClose}
+        size="sm"
+        preventClose
+        hideClose
+        title={
+          <span className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-blue-500 animate-pulse" />
+            AI sorting in progress
+          </span>
+        }
+        description="Please don't close this tab — this may take 20–40 seconds."
+        onInteractOutside={(e) => e.preventDefault()}
+      >
+        <div className="space-y-5">
+          <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-1.5 bg-blue-500 rounded-full transition-all duration-1000 ease-in-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
 
-          <div className="space-y-5 py-2">
-            {/* Progress bar */}
-            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-1.5 bg-blue-500 rounded-full transition-all duration-1000 ease-in-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+          <ul className="space-y-2.5">
+            {STAGES.map((stage, i) => {
+              const Icon = stage.icon;
+              const done = i < stageIdx;
+              const active = i === stageIdx;
+              const future = i > stageIdx;
 
-            {/* Stage list */}
-            <ul className="space-y-2.5">
-              {STAGES.map((stage, i) => {
-                const Icon = stage.icon;
-                const done = i < stageIdx;
-                const active = i === stageIdx;
-                const future = i > stageIdx;
-
-                return (
-                  <li
-                    key={stage.label}
-                    className={`flex items-center gap-3 text-sm transition-opacity duration-300 ${
-                      future ? "opacity-30" : "opacity-100"
+              return (
+                <li
+                  key={stage.label}
+                  className={`flex items-center gap-3 text-sm transition-opacity duration-300 ${
+                    future ? "opacity-30" : "opacity-100"
+                  }`}
+                >
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${
+                      done
+                        ? "border-green-200 bg-green-50 text-green-600"
+                        : active
+                          ? "border-blue-200 bg-blue-50 text-blue-600"
+                          : "border-gray-200 bg-gray-50 text-gray-400"
                     }`}
                   >
-                    <span
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${
-                        done
-                          ? "border-green-200 bg-green-50 text-green-600"
-                          : active
-                            ? "border-blue-200 bg-blue-50 text-blue-600"
-                            : "border-gray-200 bg-gray-50 text-gray-400"
-                      }`}
-                    >
-                      {done ? (
-                        <CheckCircle2 className="h-4 w-4" />
-                      ) : (
-                        <Icon
-                          className={`h-4 w-4 ${active ? "animate-pulse" : ""}`}
-                        />
-                      )}
-                    </span>
-                    <span
-                      className={
-                        done
-                          ? "text-gray-400 line-through"
-                          : active
-                            ? "font-medium text-gray-900"
-                            : "text-gray-400"
-                      }
-                    >
-                      {stage.label}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </DialogContent>
-      </Dialog>
+                    {done ? (
+                      <CheckCircle2 className="h-4 w-4" />
+                    ) : (
+                      <Icon
+                        className={`h-4 w-4 ${active ? "animate-pulse" : ""}`}
+                      />
+                    )}
+                  </span>
+                  <span
+                    className={
+                      done
+                        ? "text-gray-400 line-through"
+                        : active
+                          ? "font-medium text-gray-900"
+                          : "text-gray-400"
+                    }
+                  >
+                    {stage.label}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </ResponsiveModal>
     );
   }
 
-  // ─── Phase: confirm ──────────────────────────────────────────────────────────
   const sortOptions = [
     {
       id: "all",
@@ -293,66 +267,19 @@ const AISortDialog = ({
   ];
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-blue-500" />
-            AI Smart Sort
-          </DialogTitle>
-          <DialogDescription>
-            Choose how you want AI to organize your bookmarks.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-3 py-1">
-          {sortOptions.map((option) => {
-            const Icon = option.icon;
-            const selected = sortMode === option.id;
-
-            return (
-              <button
-                key={option.id}
-                type="button"
-                disabled={option.disabled}
-                onClick={() => setSortMode(option.id)}
-                className={`w-full rounded-xl border p-4 text-left transition-all ${
-                  option.disabled
-                    ? "cursor-not-allowed border-gray-100 bg-gray-50 opacity-60"
-                    : selected
-                      ? "border-blue-300 bg-blue-50 ring-2 ring-blue-200"
-                      : "border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50/40"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <span
-                    className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                      selected
-                        ? "bg-blue-100 text-blue-600"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-900">{option.title}</p>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {option.description}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-md px-3 py-2">
-          {sortMode === "uncategorized"
-            ? "Only Uncategorized bookmarks will be moved. Existing categories stay as they are."
-            : "This will reorganize your entire library. The process takes 20–40 seconds."}
-        </p>
-
-        <div className="flex justify-between items-center pt-1">
+    <ResponsiveModal
+      open={open}
+      onClose={handleClose}
+      size="sm"
+      title={
+        <span className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-blue-500" />
+          AI Smart Sort
+        </span>
+      }
+      description="Choose how you want AI to organize your bookmarks."
+      footer={
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             {localStorage.getItem("canRevertAISort") === "true" && (
               <Button
@@ -386,8 +313,55 @@ const AISortDialog = ({
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      }
+    >
+      <div className="space-y-3">
+        {sortOptions.map((option) => {
+          const Icon = option.icon;
+          const selected = sortMode === option.id;
+
+          return (
+            <button
+              key={option.id}
+              type="button"
+              disabled={option.disabled}
+              onClick={() => setSortMode(option.id)}
+              className={`w-full rounded-xl border p-4 text-left transition-all ${
+                option.disabled
+                  ? "cursor-not-allowed border-gray-100 bg-gray-50 opacity-60"
+                  : selected
+                    ? "border-blue-300 bg-blue-50 ring-2 ring-blue-200"
+                    : "border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50/40"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                    selected
+                      ? "bg-blue-100 text-blue-600"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-medium text-gray-900">{option.title}</p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {option.description}
+                  </p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+
+        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-md px-3 py-2">
+          {sortMode === "uncategorized"
+            ? "Only Uncategorized bookmarks will be moved. Existing categories stay as they are."
+            : "This will reorganize your entire library. The process takes 20–40 seconds."}
+        </p>
+      </div>
+    </ResponsiveModal>
   );
 };
 
