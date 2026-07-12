@@ -6,7 +6,10 @@ import {
   getRefreshTokenFromRequest,
   hashToken,
 } from "../utils/authTokens.js";
-import { findDeviceByRefreshHash } from "../utils/deviceTracking.js";
+import {
+  findDeviceByRefreshHash,
+  isDeviceSessionRevoked,
+} from "../utils/deviceTracking.js";
 import { issueUserSession } from "../utils/session.js";
 
 const authMiddleware = async (req, res, next) => {
@@ -59,6 +62,16 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
+    const deviceIdHeader = req.headers["device-id"] || null;
+    if (isDeviceSessionRevoked(user, deviceIdHeader)) {
+      clearAuthCookies(res);
+      return res.status(401).json({
+        success: false,
+        code: "SESSION_REVOKED",
+        message: "This device was signed out. Please login again",
+      });
+    }
+
     const refreshToken = getRefreshTokenFromRequest(req);
     if (refreshToken) {
       const sessionDevice = findDeviceByRefreshHash(
@@ -71,7 +84,7 @@ const authMiddleware = async (req, res, next) => {
     if (!refreshToken && !user.refreshTokenHash && user.refreshToken) {
       await issueUserSession(user, res, {
         preservePrevious: false,
-        deviceId: req.headers["device-id"] || undefined,
+        deviceId: deviceIdHeader || undefined,
         userAgent: req.headers["user-agent"],
       });
     }

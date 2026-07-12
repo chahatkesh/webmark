@@ -133,16 +133,27 @@ export const evaluateDeviceLogin = (user, { deviceId }) => {
   };
 };
 
+export const clearUserLevelSessionIfMatches = (user, refreshTokenHash) => {
+  if (!refreshTokenHash || user.refreshTokenHash !== refreshTokenHash) {
+    return false;
+  }
+
+  user.refreshTokenHash = undefined;
+  user.previousRefreshTokenHash = undefined;
+  user.previousRefreshTokenExpiresAt = undefined;
+  user.tokenExpiresAt = undefined;
+  return true;
+};
+
 export const revokeDeviceSession = (user, deviceId) => {
   ensureLoginDevices(user);
   const device = findDeviceEntry(user, deviceId);
   if (!device) return false;
 
-  device.isActive = false;
-  device.refreshTokenHash = undefined;
-  device.previousRefreshTokenHash = undefined;
-  device.previousRefreshTokenExpiresAt = undefined;
-  device.tokenExpiresAt = undefined;
+  const deviceHash = device.refreshTokenHash;
+  clearDeviceSessionFields(device);
+  clearUserLevelSessionIfMatches(user, deviceHash);
+  user.markModified?.("loginDevices");
   return true;
 };
 
@@ -281,22 +292,30 @@ export const persistDeviceActivity = async (
   ip,
   deviceIdHeader,
 ) => {
-  const user = await User.findById(userId);
-  if (!user) return;
-
   const ctx = resolveDeviceContext(userAgent, ip, deviceIdHeader);
-  const active = listActiveSessions(user);
-  const isRegistered = active.some(
-    (device) => device.deviceId === ctx.deviceId,
-  );
-
-  if (!isRegistered && active.length >= MAX_DEVICES) {
-    return;
+  const setFields = {
+    "loginDevices.$[device].lastActive": new Date(),
+  };
+  if (ctx.userAgent) {
+    setFields["loginDevices.$[device].userAgent"] = ctx.userAgent;
   }
 
-  upsertDeviceSession(user, ctx);
-  pruneInactiveDevices(user);
-  await user.save();
+  // Atomic update only — never load/save the full user doc. A concurrent
+  // load-modify-save was re-writing revoked devices as active.
+  await User.updateOne(
+    {
+      _id: userId,
+      loginDevices: {
+        $elemMatch: { deviceId: ctx.deviceId, isActive: true },
+      },
+    },
+    { $set: setFields },
+    {
+      arrayFilters: [
+        { "device.deviceId": ctx.deviceId, "device.isActive": true },
+      ],
+    },
+  );
 };
 
 export const findDeviceByRefreshHash = (
@@ -363,9 +382,15 @@ export const applySessionToDevice = (user, deviceId, sessionFields) => {
 
 export const clearDeviceSessionFields = (device) => {
   if (!device) return;
+  device.isActive = false;
   device.refreshTokenHash = undefined;
   device.previousRefreshTokenHash = undefined;
   device.previousRefreshTokenExpiresAt = undefined;
   device.tokenExpiresAt = undefined;
-  device.isActive = false;
+};
+
+export const isDeviceSessionRevoked = (user, deviceId) => {
+  if (!deviceId) return false;
+  const device = findDeviceEntry(user, deviceId);
+  return Boolean(device && device.isActive === false);
 };

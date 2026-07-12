@@ -65,12 +65,14 @@ This avoids refresh storms and infinite loops. Use `skipAuthRefresh: true` for l
 
 ## Logout
 
-`POST /api/user/logout` (auth required) clears:
+`POST /api/user/logout` (auth required) clears **this device only**:
 
 - Access and refresh cookies
-- Current device session (when bound)
-- Previous refresh grace hashes
-- Session expiration
+- Current device session in `loginDevices[]` (when bound)
+- User-level refresh mirror when it matched this device
+- Previous refresh grace hashes and session expiration
+
+Other devices keep their sessions. To sign out another device, use Profile revoke (`POST /api/user/devices/revoke`) — see [Device Management](./device-management.md).
 
 Client also clears legacy `localStorage.token` via `clearLocalSession()`.
 
@@ -81,9 +83,12 @@ Client also clears legacy `localStorage.token` via `clearLocalSession()`.
 1. Read access token (cookie → Bearer → `token` header)
 2. Verify JWT; return structured codes (`ACCESS_TOKEN_EXPIRED`, `INVALID_TOKEN`, …)
 3. Load user; check `tokenExpiresAt`
-4. Bind `req.deviceId` from refresh cookie → `loginDevices`
-5. Migrate legacy plaintext `refreshToken` if present
-6. Set `req.user` / `req.userId`
+4. If `device-id` header maps to a device with `isActive === false`, reject with `SESSION_REVOKED` and clear cookies
+5. Bind `req.deviceId` from refresh cookie → active `loginDevices` entry
+6. Migrate legacy plaintext `refreshToken` if present
+7. Set `req.user` / `req.userId`
+
+`POST /api/user/refresh` also rejects revoked devices with `SESSION_REVOKED`.
 
 ## Cookie Environment
 

@@ -19,8 +19,9 @@ Prevents unbounded session sprawl while still allowing phone + laptop use. Exces
 **Files:** `server/utils/deviceTracking.js`, `server/controllers/deviceController.js`
 
 - `MAX_DEVICES = 2`
-- A device stays “active” if `tokenExpiresAt` is future **or** `lastActive` is within 30 days
+- A device is listed as active only when `isActive === true` **and** (`tokenExpiresAt` is in the future **or** `lastActive` is within 30 days)
 - On OAuth success, `evaluateDeviceLogin` either upserts the device session or creates a pending login
+- New devices join **only** via OAuth / continue-login — profile activity pings never create or reactivate sessions
 
 ## Pending Login Flow
 
@@ -41,7 +42,30 @@ Authenticated users can manage devices on the Profile page (`DevicesCard`):
 
 - Lists `activeDevices` from `POST /api/user/profile`
 - Remote revoke: `POST /api/user/devices/revoke` with `{ deviceId }`
-- Cannot revoke the current device from this endpoint
+- Cannot revoke the current device from this endpoint (use logout instead)
+
+### What revoke does
+
+Atomic Mongo update (`updateOne` + `arrayFilters`):
+
+1. Sets `loginDevices.$.isActive = false`
+2. Unsets that device’s refresh hashes and `tokenExpiresAt`
+3. If the user-level refresh mirror matched that device, clears it too
+
+The revoked device’s next API call (with its `device-id` header) gets `401` + `code: "SESSION_REVOKED"`. Refresh is rejected the same way. Cookies are cleared; the client must sign in again.
+
+### Activity pings
+
+After `POST /api/user/profile`, `persistDeviceActivity` only bumps `lastActive` / `userAgent` on an **already-active** matching device via an atomic `$set`. It does not upsert or flip `isActive` back to `true`, so it cannot undo a remote revoke.
+
+## Logout vs revoke
+
+| Action                          | Scope                   |
+| ------------------------------- | ----------------------- |
+| `POST /api/user/logout`         | Current device only     |
+| `POST /api/user/devices/revoke` | Another device (remote) |
+
+There is no “sign out everywhere” endpoint. To clear the other session, use Profile → Devices → Sign out.
 
 ## Endpoints
 

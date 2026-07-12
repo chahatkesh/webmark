@@ -1,6 +1,7 @@
 import userModel from "../models/userModel.js";
 import {
   evaluateDeviceLogin,
+  findDeviceEntry,
   listActiveSessions,
   resolveDeviceContext,
   revokeDeviceSession,
@@ -143,7 +144,7 @@ export const revokeDevice = async (req, res) => {
   try {
     const user = req.user;
     const { deviceId } = req.body || {};
-    const currentDeviceId = req.deviceId;
+    const currentDeviceId = req.deviceId || req.headers["device-id"];
 
     if (!deviceId) {
       return res.status(400).json({
@@ -152,22 +153,54 @@ export const revokeDevice = async (req, res) => {
       });
     }
 
-    if (deviceId === currentDeviceId) {
+    if (currentDeviceId && deviceId === currentDeviceId) {
       return res.status(400).json({
         success: false,
         message: "Use logout to sign out this device",
       });
     }
 
-    const revoked = revokeDeviceSession(user, deviceId);
-    if (!revoked) {
+    const device = findDeviceEntry(user, deviceId);
+    if (!device) {
       return res.status(404).json({
         success: false,
         message: "Device not found",
       });
     }
 
-    await user.save();
+    const deviceHash = device.refreshTokenHash;
+    const unset = {
+      "loginDevices.$[device].refreshTokenHash": "",
+      "loginDevices.$[device].previousRefreshTokenHash": "",
+      "loginDevices.$[device].previousRefreshTokenExpiresAt": "",
+      "loginDevices.$[device].tokenExpiresAt": "",
+    };
+
+    if (deviceHash && user.refreshTokenHash === deviceHash) {
+      unset.refreshTokenHash = "";
+      unset.previousRefreshTokenHash = "";
+      unset.previousRefreshTokenExpiresAt = "";
+      unset.tokenExpiresAt = "";
+    }
+
+    const result = await userModel.updateOne(
+      {
+        _id: user._id,
+        loginDevices: { $elemMatch: { deviceId } },
+      },
+      {
+        $set: { "loginDevices.$[device].isActive": false },
+        $unset: unset,
+      },
+      { arrayFilters: [{ "device.deviceId": deviceId }] },
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Device not found",
+      });
+    }
 
     return res.json({
       success: true,

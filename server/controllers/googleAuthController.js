@@ -9,7 +9,12 @@ import {
   clearUserSession,
   findUserByRefreshToken,
   issueUserSession,
+  resolveCurrentDeviceId,
 } from "../utils/session.js";
+import {
+  findDeviceEntry,
+  isDeviceSessionRevoked,
+} from "../utils/deviceTracking.js";
 import { completeOAuthDeviceLogin } from "./deviceController.js";
 
 const googleAuthCallback = async (req, res) => {
@@ -46,13 +51,24 @@ const refreshSession = async (req, res) => {
       });
     }
 
+    const deviceIdHeader = req.headers["device-id"];
     const resolvedDeviceId =
-      deviceId ||
-      resolveCurrentDeviceId(user, req.headers["device-id"]) ||
-      undefined;
+      deviceId || resolveCurrentDeviceId(user, deviceIdHeader) || undefined;
+
+    if (
+      isDeviceSessionRevoked(user, resolvedDeviceId) ||
+      isDeviceSessionRevoked(user, deviceIdHeader)
+    ) {
+      clearAuthCookies(res);
+      return res.status(401).json({
+        success: false,
+        code: "SESSION_REVOKED",
+        message: "This device was signed out. Please login again",
+      });
+    }
 
     const deviceEntry = resolvedDeviceId
-      ? user.loginDevices?.find((d) => d.deviceId === resolvedDeviceId)
+      ? findDeviceEntry(user, resolvedDeviceId)
       : null;
 
     const session = await issueUserSession(user, res, {

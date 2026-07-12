@@ -20,6 +20,10 @@ Error shape:
 { "success": false, "message": "...", "code": "OPTIONAL_CODE" }
 ```
 
+Common auth `code` values: `AUTH_REQUIRED`, `ACCESS_TOKEN_EXPIRED`, `INVALID_TOKEN`, `SESSION_EXPIRED`, `SESSION_REVOKED`, `REFRESH_EXPIRED`, `RATE_LIMITED`.
+
+`SESSION_REVOKED` means this device was signed out remotely (Profile → Devices). Cookies are cleared; the client must OAuth again.
+
 Rate-limit responses use HTTP `429` and `code: "RATE_LIMITED"`.
 
 ---
@@ -35,8 +39,8 @@ Rate-limit responses use HTTP `429` and `code: "RATE_LIMITED"`.
 | POST   | `/refresh`                | refresh cookie | refresh     | Rotate session                 |
 | POST   | `/userdata`               | access         | —           | Current user / onboarding flag |
 | POST   | `/complete-onboarding`    | access         | —           | Set username + seed defaults   |
-| POST   | `/logout`                 | access         | —           | Clear session                  |
-| POST   | `/devices/revoke`         | access         | —           | Revoke another device          |
+| POST   | `/logout`                 | access         | —           | Clear **this** device session  |
+| POST   | `/devices/revoke`         | access         | —           | Sign out another device        |
 | POST   | `/profile`                | access         | —           | Profile + devices + credits    |
 | GET    | `/profile/analytics`      | access         | —           | `?range=7d\|30d` click series  |
 | PUT    | `/profile`                | access         | —           | Update name/picture            |
@@ -46,6 +50,14 @@ Rate-limit responses use HTTP `429` and `code: "RATE_LIMITED"`.
 ```json
 { "code": "pending_code", "revokeDeviceId": "device_id" }
 ```
+
+### Revoke device body
+
+```json
+{ "deviceId": "device_id" }
+```
+
+Cannot revoke the current device; use `/logout` instead.
 
 ### Profile update body
 

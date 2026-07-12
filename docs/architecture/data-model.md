@@ -29,15 +29,15 @@ All collections are Mongoose schemas under `server/models/`.
 
 ### `loginDevices` subdocument
 
-| Field                                                                             | Notes                 |
-| --------------------------------------------------------------------------------- | --------------------- |
-| `deviceId`                                                                        | Client-stable ID      |
-| `deviceName`, `deviceType`                                                        | `desktop` or `mobile` |
-| `userAgent`                                                                       |                       |
-| `lastActive`                                                                      |                       |
-| `isActive`                                                                        |                       |
-| `refreshTokenHash` / `previousRefreshTokenHash` / `previousRefreshTokenExpiresAt` | Device-bound refresh  |
-| `tokenExpiresAt`                                                                  |                       |
+| Field                                                                             | Notes                                |
+| --------------------------------------------------------------------------------- | ------------------------------------ |
+| `deviceId`                                                                        | Client-stable ID                     |
+| `deviceName`, `deviceType`                                                        | `desktop` or `mobile`                |
+| `userAgent`                                                                       |                                      |
+| `lastActive`                                                                      |                                      |
+| `isActive`                                                                        | `false` after logout / remote revoke |
+| `refreshTokenHash` / `previousRefreshTokenHash` / `previousRefreshTokenExpiresAt` | Device-bound refresh                 |
+| `tokenExpiresAt`                                                                  |                                      |
 
 **Cap:** max **2** active devices. See [Device Management](../auth/device-management.md).
 

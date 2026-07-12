@@ -113,17 +113,22 @@ export const clearUserSession = async (user, res, options = {}) => {
   if (user) {
     if (deviceId) {
       const device = findDeviceEntry(user, deviceId);
+      // Capture hash before clearing — comparing after clear always failed.
+      const deviceHash = device?.refreshTokenHash;
       clearDeviceSessionFields(device);
 
       if (
         user.refreshTokenHash &&
-        device?.refreshTokenHash === user.refreshTokenHash
+        deviceHash &&
+        deviceHash === user.refreshTokenHash
       ) {
         user.refreshTokenHash = undefined;
         user.previousRefreshTokenHash = undefined;
         user.previousRefreshTokenExpiresAt = undefined;
         user.tokenExpiresAt = undefined;
       }
+
+      user.markModified?.("loginDevices");
     } else {
       (user.loginDevices || []).forEach(clearDeviceSessionFields);
       user.refreshToken = undefined;
@@ -131,6 +136,7 @@ export const clearUserSession = async (user, res, options = {}) => {
       user.previousRefreshTokenHash = undefined;
       user.previousRefreshTokenExpiresAt = undefined;
       user.tokenExpiresAt = undefined;
+      user.markModified?.("loginDevices");
     }
 
     await user.save();
