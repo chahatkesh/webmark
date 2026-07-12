@@ -36,10 +36,13 @@ This prevents duplicate refresh storms and infinite request loops.
 `POST /api/user/logout` clears:
 
 - access and refresh cookies
-- current refresh-token hash
+- current device session (when bound to refresh token)
 - previous refresh-token grace hash
 - session expiration timestamp
-- legacy client access token
+
+## Device limit sign-in
+
+When two devices are already active, OAuth redirects to `/auth/devices?code=...` with a one-time server code (10 minute TTL). The user picks a device to revoke, then `POST /api/user/devices/continue-login` completes sign-in. OAuth `state` is a signed JWT binding CSRF protection and client `deviceId`.
 
 ## Cookie Environment
 

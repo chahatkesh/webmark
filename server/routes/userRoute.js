@@ -17,32 +17,45 @@ import {
   updateProfile,
 } from "../controllers/profileController.js";
 import authMiddleware from "../middleware/authmiddleware.js";
+import {
+  authRateLimit,
+  deviceLoginRateLimit,
+  refreshRateLimit,
+} from "../middleware/rateLimit.js";
+import { createOAuthState } from "../utils/oauthState.js";
 import passport from "../config/passport.js";
 
 const userRouter = express.Router();
 
-userRouter.get("/auth/google", (req, res, next) => {
+userRouter.get("/auth/google", authRateLimit, (req, res, next) => {
   const deviceId =
     typeof req.query.deviceId === "string" ? req.query.deviceId : "";
+  const state = createOAuthState(deviceId);
+
   passport.authenticate("google", {
     scope: ["profile", "email"],
-    state: deviceId,
+    state,
   })(req, res, next);
 });
 
 userRouter.get(
   "/auth/google/callback",
+  authRateLimit,
   passport.authenticate("google", {
-    failureRedirect: "/login",
+    failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/auth?error=auth_failed`,
     session: false,
   }),
   googleAuthCallback,
 );
 
-userRouter.get("/devices/pending", getPendingDeviceLogin);
-userRouter.post("/devices/continue-login", continueDeviceLogin);
+userRouter.get("/devices/pending", deviceLoginRateLimit, getPendingDeviceLogin);
+userRouter.post(
+  "/devices/continue-login",
+  deviceLoginRateLimit,
+  continueDeviceLogin,
+);
 
-userRouter.post("/refresh", refreshSession);
+userRouter.post("/refresh", refreshRateLimit, refreshSession);
 userRouter.post("/userdata", authMiddleware, getUserData);
 userRouter.post("/complete-onboarding", authMiddleware, completeOnboarding);
 userRouter.post("/logout", authMiddleware, logoutUser);

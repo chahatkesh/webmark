@@ -4,9 +4,45 @@ import User from "../models/userModel.js";
 import { pickCategoryForSingleBookmark } from "./aiController.js";
 import { sendBookmarkletPage } from "../utils/bookmarkletPage.js";
 import {
+  isAllowedHttpUrl,
+  isAllowedImageUrl,
+  sanitizeHttpUrl,
+  sanitizeImageUrl,
+} from "../utils/urlValidation.js";
+import {
   findUncategorizedCategory,
   getOrCreateUncategorizedCategory,
 } from "../utils/uncategorizedCategory.js";
+
+const MAX_IMPORT_FOLDERS = 50;
+const MAX_BOOKMARKS_PER_FOLDER = 500;
+const MAX_TOTAL_IMPORT_BOOKMARKS = 2000;
+
+const normalizeBookmarkInput = ({ name, link, logo, notes = "" }) => {
+  const safeLink = sanitizeHttpUrl(link);
+  if (!safeLink) {
+    return { error: "Bookmark link must be a valid http(s) URL" };
+  }
+
+  const safeLogo = logo ? sanitizeImageUrl(logo) : null;
+  if (logo && !safeLogo) {
+    return { error: "Bookmark logo must be a valid https URL" };
+  }
+
+  const safeName =
+    typeof name === "string" && name.trim()
+      ? name.trim().slice(0, 500)
+      : safeLink;
+
+  return {
+    value: {
+      name: safeName,
+      link: safeLink,
+      logo: safeLogo || undefined,
+      notes: typeof notes === "string" ? notes.slice(0, 2000) : "",
+    },
+  };
+};
 
 const saveBookmarkToCategory = async ({
   userId,
@@ -16,6 +52,11 @@ const saveBookmarkToCategory = async ({
   logo,
   notes = "",
 }) => {
+  const normalized = normalizeBookmarkInput({ name, link, logo, notes });
+  if (normalized.error) {
+    return { success: false, message: normalized.error };
+  }
+
   const category = await Category.findOne({ _id: categoryId, userId });
   if (!category) {
     return { success: false, message: "Category not found" };
@@ -28,10 +69,7 @@ const saveBookmarkToCategory = async ({
 
   const bookmark = await Bookmark.create({
     categoryId: category._id,
-    name,
-    link,
-    logo,
-    notes,
+    ...normalized.value,
     order,
   });
 
@@ -47,6 +85,11 @@ const saveBookmarkToCategory = async ({
  * Runs AI on exactly one incoming bookmark to pick a category — no bulk sort.
  */
 const saveBookmarkViaBookmarklet = async ({ userId, name, link, logo }) => {
+  const normalized = normalizeBookmarkInput({ name, link, logo });
+  if (normalized.error) {
+    return { success: false, message: normalized.error };
+  }
+
   let categories = await Category.find({ userId }).sort("order");
 
   if (!categories.length) {
@@ -80,10 +123,7 @@ const saveBookmarkViaBookmarklet = async ({ userId, name, link, logo }) => {
 
   const bookmark = await Bookmark.create({
     categoryId: targetCategory._id,
-    name,
-    link,
-    logo,
-    notes: "",
+    ...normalized.value,
     order,
   });
 
@@ -156,16 +196,24 @@ export const bookmarkletSave = async (req, res) => {
     }
 
     const link = decodeURIComponent(rawUrl);
+    if (!isAllowedHttpUrl(link)) {
+      return sendBookmarkletPage(res, {
+        status: "error",
+        title: "Could not save",
+        message: "Only http(s) page URLs can be saved.",
+      });
+    }
+
     const title = req.query.title ? decodeURIComponent(req.query.title) : link;
-    const logo = req.query.logo
-      ? decodeURIComponent(req.query.logo)
-      : `https://www.google.com/s2/favicons?domain=${(() => {
-          try {
-            return new URL(link).hostname;
-          } catch {
-            return "";
-          }
-        })()}&sz=128`;
+    const rawLogo = req.query.logo ? decodeURIComponent(req.query.logo) : "";
+    const favicon = `https://www.google.com/s2/favicons?domain=${(() => {
+      try {
+        return new URL(link).hostname;
+      } catch {
+        return "";
+      }
+    })()}&sz=128`;
+    const logo = rawLogo ? sanitizeImageUrl(rawLogo) || favicon : favicon;
 
     const result = await saveBookmarkViaBookmarklet({
       userId: req.body.userId,
@@ -221,9 +269,41 @@ export const updateBookmark = async (req, res) => {
       return res.json({ success: false, message: "Not authorized" });
     }
 
+    const updates = {};
+    if (name !== undefined) {
+      updates.name =
+        typeof name === "string" && name.trim()
+          ? name.trim().slice(0, 500)
+          : bookmark.name;
+    }
+    if (link !== undefined) {
+      const safeLink = sanitizeHttpUrl(link);
+      if (!safeLink) {
+        return res.json({
+          success: false,
+          message: "Bookmark link must be a valid http(s) URL",
+        });
+      }
+      updates.link = safeLink;
+    }
+    if (logo !== undefined) {
+      const safeLogo = sanitizeImageUrl(logo);
+      if (logo && !safeLogo) {
+        return res.json({
+          success: false,
+          message: "Bookmark logo must be a valid https URL",
+        });
+      }
+      updates.logo = safeLogo || undefined;
+    }
+    if (notes !== undefined) {
+      updates.notes =
+        typeof notes === "string" ? notes.slice(0, 2000) : bookmark.notes;
+    }
+
     const updatedBookmark = await Bookmark.findByIdAndUpdate(
       bookmarkId,
-      { name, link, logo, notes },
+      updates,
       { new: true },
     );
 
@@ -318,8 +398,8 @@ export const reorderBookmarkLayout = async (req, res) => {
       await Bookmark.bulkWrite(
         bookmarks.map(({ id, order }) => ({
           updateOne: {
-            filter: { _id: id },
-            update: { $set: { categoryId: category._id, order } },
+            filter: { _id: id, categoryId: category._id },
+            update: { $set: { order } },
           },
         })),
       );
@@ -343,6 +423,26 @@ export const importBookmarks = async (req, res) => {
 
     if (!Array.isArray(folders) || folders.length === 0) {
       return res.json({ success: false, message: "No folders provided" });
+    }
+
+    if (folders.length > MAX_IMPORT_FOLDERS) {
+      return res.json({
+        success: false,
+        message: `Imports are limited to ${MAX_IMPORT_FOLDERS} folders per request`,
+      });
+    }
+
+    const totalIncomingBookmarks = folders.reduce(
+      (sum, folder) =>
+        sum + (Array.isArray(folder.bookmarks) ? folder.bookmarks.length : 0),
+      0,
+    );
+
+    if (totalIncomingBookmarks > MAX_TOTAL_IMPORT_BOOKMARKS) {
+      return res.json({
+        success: false,
+        message: `Imports are limited to ${MAX_TOTAL_IMPORT_BOOKMARKS} bookmarks per request`,
+      });
     }
 
     // Check monthly import limit (max 2 imports per calendar month)
@@ -377,6 +477,13 @@ export const importBookmarks = async (req, res) => {
         continue;
       }
 
+      if (folder.bookmarks.length > MAX_BOOKMARKS_PER_FOLDER) {
+        return res.json({
+          success: false,
+          message: `Each folder can include up to ${MAX_BOOKMARKS_PER_FOLDER} bookmarks`,
+        });
+      }
+
       // Reuse existing category with same name, or create a new one
       let category = await Category.findOne({ userId, category: folder.name });
 
@@ -398,15 +505,31 @@ export const importBookmarks = async (req, res) => {
 
       const docs = folder.bookmarks
         .filter((bm) => bm.link && bm.name)
-        .map((bm) => ({
-          categoryId: category._id,
-          name: bm.name,
-          link: bm.link,
-          logo:
-            bm.logo ||
-            `https://www.google.com/s2/favicons?domain=${new URL(bm.link).hostname}&sz=128`,
-          order: order++,
-        }));
+        .map((bm) => {
+          const safeLink = sanitizeHttpUrl(bm.link);
+          if (!safeLink) return null;
+
+          let safeLogo;
+          if (bm.logo) {
+            safeLogo = sanitizeImageUrl(bm.logo);
+            if (!safeLogo) return null;
+          } else {
+            try {
+              safeLogo = `https://www.google.com/s2/favicons?domain=${new URL(safeLink).hostname}&sz=128`;
+            } catch {
+              safeLogo = undefined;
+            }
+          }
+
+          return {
+            categoryId: category._id,
+            name: String(bm.name).trim().slice(0, 500),
+            link: safeLink,
+            logo: safeLogo,
+            order: order++,
+          };
+        })
+        .filter(Boolean);
 
       if (docs.length > 0) {
         await Bookmark.insertMany(docs, { ordered: false });

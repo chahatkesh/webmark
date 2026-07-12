@@ -1,9 +1,5 @@
 import userModel from "../models/userModel.js";
 import {
-  createDevicePendingToken,
-  verifyDevicePendingToken,
-} from "../utils/authTokens.js";
-import {
   evaluateDeviceLogin,
   listActiveSessions,
   resolveDeviceContext,
@@ -11,20 +7,33 @@ import {
   toDeviceResponse,
   upsertDeviceSession,
 } from "../utils/deviceTracking.js";
+import {
+  createPendingLoginCode,
+  loadPendingLogin,
+} from "../utils/pendingLogin.js";
+import { verifyOAuthState } from "../utils/oauthState.js";
 import { issueUserSession } from "../utils/session.js";
 
 export const getPendingDeviceLogin = async (req, res) => {
   try {
-    const { token } = req.query;
-    if (!token) {
+    const { code } = req.query;
+    if (!code) {
       return res.status(400).json({
         success: false,
-        message: "Missing pending token",
+        message: "Missing sign-in code",
       });
     }
 
-    const decoded = verifyDevicePendingToken(token);
-    const user = await userModel.findById(decoded.id);
+    const pending = await loadPendingLogin(code);
+    if (!pending) {
+      return res.status(401).json({
+        success: false,
+        code: "PENDING_EXPIRED",
+        message: "This sign-in request expired. Please try again.",
+      });
+    }
+
+    const user = await userModel.findById(pending.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -36,12 +45,12 @@ export const getPendingDeviceLogin = async (req, res) => {
     return res.json({
       success: true,
       devices: active.map((device) =>
-        toDeviceResponse(device, decoded.deviceId),
+        toDeviceResponse(device, pending.deviceId),
       ),
       newDevice: {
-        deviceId: decoded.deviceId,
-        deviceName: decoded.deviceName,
-        deviceType: decoded.deviceType,
+        deviceId: pending.deviceId,
+        deviceName: pending.deviceName,
+        deviceType: pending.deviceType,
       },
     });
   } catch (error) {
@@ -56,16 +65,24 @@ export const getPendingDeviceLogin = async (req, res) => {
 
 export const continueDeviceLogin = async (req, res) => {
   try {
-    const { pendingToken, revokeDeviceId } = req.body || {};
-    if (!pendingToken || !revokeDeviceId) {
+    const { code, revokeDeviceId } = req.body || {};
+    if (!code || !revokeDeviceId) {
       return res.status(400).json({
         success: false,
-        message: "pendingToken and revokeDeviceId are required",
+        message: "code and revokeDeviceId are required",
       });
     }
 
-    const decoded = verifyDevicePendingToken(pendingToken);
-    const user = await userModel.findById(decoded.id);
+    const pending = await loadPendingLogin(code, { consume: true });
+    if (!pending) {
+      return res.status(401).json({
+        success: false,
+        code: "PENDING_EXPIRED",
+        message: "This sign-in request expired. Please try again.",
+      });
+    }
+
+    const user = await userModel.findById(pending.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -87,21 +104,21 @@ export const continueDeviceLogin = async (req, res) => {
 
     revokeDeviceSession(user, revokeDeviceId);
     upsertDeviceSession(user, {
-      deviceId: decoded.deviceId,
-      deviceName: decoded.deviceName,
-      deviceType: decoded.deviceType,
-      userAgent: decoded.userAgent,
+      deviceId: pending.deviceId,
+      deviceName: pending.deviceName,
+      deviceType: pending.deviceType,
+      userAgent: pending.userAgent,
     });
 
     user.lastLogin = new Date();
-    user.lastLoginDevice = decoded.userAgent;
+    user.lastLoginDevice = pending.userAgent;
 
-    const session = await issueUserSession(user, res, {
+    await issueUserSession(user, res, {
       preservePrevious: false,
-      deviceId: decoded.deviceId,
-      deviceName: decoded.deviceName,
-      deviceType: decoded.deviceType,
-      userAgent: decoded.userAgent,
+      deviceId: pending.deviceId,
+      deviceName: pending.deviceName,
+      deviceType: pending.deviceType,
+      userAgent: pending.userAgent,
     });
 
     if (!user.hasCompletedOnboarding) {
@@ -111,10 +128,7 @@ export const continueDeviceLogin = async (req, res) => {
       });
     }
 
-    return res.json({
-      success: true,
-      accessToken: session.accessToken,
-    });
+    return res.json({ success: true });
   } catch (error) {
     console.error("Continue device login error:", error);
     return res.status(401).json({
@@ -129,7 +143,7 @@ export const revokeDevice = async (req, res) => {
   try {
     const user = req.user;
     const { deviceId } = req.body || {};
-    const currentDeviceId = req.headers["device-id"];
+    const currentDeviceId = req.deviceId;
 
     if (!deviceId) {
       return res.status(400).json({
@@ -168,8 +182,8 @@ export const revokeDevice = async (req, res) => {
   }
 };
 
-export const createPendingLoginRedirect = (user, ctx) => {
-  const pendingToken = createDevicePendingToken({
+export const createPendingLoginRedirect = async (user, ctx) => {
+  const code = await createPendingLoginCode({
     userId: user._id,
     deviceId: ctx.deviceId,
     deviceName: ctx.deviceName,
@@ -177,25 +191,35 @@ export const createPendingLoginRedirect = (user, ctx) => {
     userAgent: ctx.userAgent,
   });
 
-  return `${process.env.FRONTEND_URL}/auth/devices?pending=${encodeURIComponent(pendingToken)}`;
+  return `${process.env.FRONTEND_URL}/auth/devices?code=${encodeURIComponent(code)}`;
 };
 
 export const completeOAuthDeviceLogin = async (req, res, user) => {
-  const deviceIdHeader = req.query.state || req.headers["device-id"];
+  let deviceIdFromState = "";
+  try {
+    deviceIdFromState = verifyOAuthState(req.query.state).deviceId;
+  } catch (error) {
+    console.error("OAuth state verification failed:", error.message);
+    return res.redirect(
+      `${process.env.FRONTEND_URL}/auth?error=oauth_state_invalid`,
+    );
+  }
+
   const userAgent = req.headers["user-agent"];
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-  const ctx = resolveDeviceContext(userAgent, ip, deviceIdHeader);
+  const ctx = resolveDeviceContext(userAgent, ip, deviceIdFromState);
   const evaluation = evaluateDeviceLogin(user, ctx);
 
   if (!evaluation.ok) {
-    return res.redirect(createPendingLoginRedirect(user, ctx));
+    const redirectUrl = await createPendingLoginRedirect(user, ctx);
+    return res.redirect(redirectUrl);
   }
 
   upsertDeviceSession(user, ctx);
   user.lastLogin = new Date();
   user.lastLoginDevice = userAgent;
 
-  const session = await issueUserSession(user, res, {
+  await issueUserSession(user, res, {
     preservePrevious: false,
     deviceId: ctx.deviceId,
     deviceName: ctx.deviceName,
@@ -205,12 +229,6 @@ export const completeOAuthDeviceLogin = async (req, res, user) => {
 
   if (!user.hasCompletedOnboarding) {
     return res.redirect(`${process.env.FRONTEND_URL}/onboarding`);
-  }
-
-  if (process.env.AUTH_REDIRECT_TOKEN === "true") {
-    return res.redirect(
-      `${process.env.FRONTEND_URL}/auth?token=${session.accessToken}`,
-    );
   }
 
   return res.redirect(`${process.env.FRONTEND_URL}/auth`);

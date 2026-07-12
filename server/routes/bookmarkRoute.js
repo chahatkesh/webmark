@@ -19,6 +19,7 @@ import {
 import { aiSortBookmarks, revertAISort } from "../controllers/aiController.js";
 import authMiddleware from "../middleware/authmiddleware.js";
 import bookmarkletAuthMiddleware from "../middleware/bookmarkletAuth.js";
+import { aiRateLimit, importRateLimit } from "../middleware/rateLimit.js";
 
 const router = express.Router();
 
@@ -40,10 +41,10 @@ router.put("/bookmark", authMiddleware, updateBookmark);
 router.delete("/bookmark", authMiddleware, deleteBookmark);
 router.put("/reorder", authMiddleware, reorderBookmarks);
 router.put("/reorder-layout", authMiddleware, reorderBookmarkLayout);
-router.post("/import", authMiddleware, importBookmarks);
+router.post("/import", authMiddleware, importRateLimit, importBookmarks);
 
 // AI categorization
-router.post("/ai/sort", authMiddleware, aiSortBookmarks);
-router.post("/ai/sort/revert", authMiddleware, revertAISort);
+router.post("/ai/sort", authMiddleware, aiRateLimit, aiSortBookmarks);
+router.post("/ai/sort/revert", authMiddleware, aiRateLimit, revertAISort);
 
 export default router;

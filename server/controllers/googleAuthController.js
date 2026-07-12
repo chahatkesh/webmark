@@ -9,7 +9,6 @@ import {
   clearUserSession,
   findUserByRefreshToken,
   issueUserSession,
-  resolveCurrentDeviceId,
 } from "../utils/session.js";
 import { completeOAuthDeviceLogin } from "./deviceController.js";
 
@@ -19,9 +18,7 @@ const googleAuthCallback = async (req, res) => {
     return completeOAuthDeviceLogin(req, res, user);
   } catch (error) {
     console.error("Google auth callback error:", error);
-    return res.redirect(
-      `${process.env.FRONTEND_URL}/auth?error=Authentication failed`,
-    );
+    return res.redirect(`${process.env.FRONTEND_URL}/auth?error=auth_failed`);
   }
 };
 
@@ -68,7 +65,6 @@ const refreshSession = async (req, res) => {
 
     return res.json({
       success: true,
-      accessToken: session.accessToken,
       expiresAt: session.expiresAt,
     });
   } catch (error) {
@@ -171,7 +167,7 @@ const logoutUser = async (req, res) => {
   try {
     const userId = req.body.userId;
     const user = await userModel.findById(userId);
-    const deviceId = resolveCurrentDeviceId(user, req.headers["device-id"]);
+    const deviceId = req.deviceId || null;
 
     await clearUserSession(user, res, { deviceId: deviceId || undefined });
 

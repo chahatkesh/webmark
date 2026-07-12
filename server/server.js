@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import { connectDB } from "./config/db.js";
 import userRouter from "./routes/userRoute.js";
 import bookmarkRouter from "./routes/bookmarkRoute.js";
@@ -11,7 +12,6 @@ import { initializeCronJobs } from "./utils/cronJobs.js";
 import passport from "./config/passport.js";
 import "dotenv/config";
 
-// app config
 const app = express();
 const port = process.env.PORT || 4000;
 const host = process.env.HOST;
@@ -35,13 +35,22 @@ const getAllowedOrigins = () => {
 const allowedOrigins = getAllowedOrigins();
 const allowVercelPreviews = process.env.ALLOW_VERCEL_PREVIEWS === "true";
 
-// middleware
+const noOriginAllowedPaths = ["/api/cron", "/api/bookmarks/save"];
+
 app.set("trust proxy", 1);
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  }),
+);
 app.use(express.json({ limit: "1mb" }));
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin) return callback(null, true);
+      if (!origin) {
+        return callback(null, true);
+      }
       if (allowedOrigins.has(origin)) return callback(null, true);
       if (
         allowVercelPreviews &&
@@ -52,9 +61,31 @@ app.use(
       return callback(new Error(`CORS blocked origin: ${origin}`));
     },
     credentials: true,
-    exposedHeaders: ["x-auth-token", "x-device-id", "x-request-id"],
+    exposedHeaders: ["x-device-id", "x-request-id"],
   }),
 );
+
+app.use((req, res, next) => {
+  if (
+    req.headers.origin ||
+    req.method === "GET" ||
+    req.method === "HEAD" ||
+    req.method === "OPTIONS"
+  ) {
+    return next();
+  }
+
+  const allowed = noOriginAllowedPaths.some((path) =>
+    req.path.startsWith(path),
+  );
+  if (allowed) return next();
+
+  return res.status(403).json({
+    success: false,
+    message: "Origin header required",
+  });
+});
+
 app.use(passport.initialize());
 
 app.use(async (_req, res, next) => {
@@ -67,12 +98,10 @@ app.use(async (_req, res, next) => {
   }
 });
 
-// Initialize cron jobs only for long-running Node servers.
 if (!isVercel && process.env.ENABLE_LOCAL_CRON !== "false") {
   initializeCronJobs();
 }
 
-// api endpoints
 app.use("/api/user", userRouter);
 app.use("/api/bookmarks", bookmarkRouter);
 app.use("/api/stats", statsRoute);

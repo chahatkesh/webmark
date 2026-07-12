@@ -4,7 +4,9 @@ import {
   clearAuthCookies,
   getAccessTokenFromRequest,
   getRefreshTokenFromRequest,
+  hashToken,
 } from "../utils/authTokens.js";
+import { findDeviceByRefreshHash } from "../utils/deviceTracking.js";
 import { issueUserSession } from "../utils/session.js";
 
 const authMiddleware = async (req, res, next) => {
@@ -57,13 +59,16 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    // Migrate legacy localStorage sessions to cookie-backed sessions while
-    // the legacy access token is still valid.
-    if (
-      !getRefreshTokenFromRequest(req) &&
-      !user.refreshTokenHash &&
-      user.refreshToken
-    ) {
+    const refreshToken = getRefreshTokenFromRequest(req);
+    if (refreshToken) {
+      const sessionDevice = findDeviceByRefreshHash(
+        user,
+        hashToken(refreshToken),
+      );
+      req.deviceId = sessionDevice?.deviceId || null;
+    }
+
+    if (!refreshToken && !user.refreshTokenHash && user.refreshToken) {
       await issueUserSession(user, res, {
         preservePrevious: false,
         deviceId: req.headers["device-id"] || undefined,
@@ -71,7 +76,6 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    // Throttled last-login update (at most once per hour, skip on profile routes)
     if (!req.originalUrl.includes("/api/user/profile")) {
       const currentTime = new Date();
       const userAgent = req.headers["user-agent"];

@@ -7,37 +7,27 @@ import { Button } from "../components/ui/button";
 import { toast } from "react-toastify";
 import { Checkbox } from "../components/ui/checkbox";
 import Loader from "../components/Loader";
+import { resolveAuthError } from "../utils/authErrors";
 
 const Auth = () => {
   const { googleLogin, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
-  const error = searchParams.get("error");
+  const errorCode = searchParams.get("error");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   useEffect(() => {
-    // Redirect to dashboard if user is already authenticated
     if (isAuthenticated && !isLoading) {
-      // Check if current path is not already /onboarding to prevent redirect loops
       if (window.location.pathname !== "/onboarding") {
         navigate("/user/dashboard");
       }
     }
 
-    // Handle direct token passing (from Google OAuth callback)
-    if (token) {
-      localStorage.setItem("token", token);
-      navigate("/user/dashboard");
+    if (errorCode) {
+      toast.error(resolveAuthError(errorCode));
     }
+  }, [errorCode, navigate, isAuthenticated, isLoading]);
 
-    // Handle auth error
-    if (error) {
-      toast.error(error || "Authentication failed");
-    }
-  }, [token, error, navigate, isAuthenticated, isLoading]);
-
-  // Show loader while authentication status is being determined
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">

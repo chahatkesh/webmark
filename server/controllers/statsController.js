@@ -182,7 +182,7 @@ export const getHistoricalStats = async (req, res) => {
     const { type = "daily" } = req.params;
     let { period = 30 } = req.query;
 
-    period = parseInt(period, 10);
+    period = Math.min(Math.max(parseInt(period, 10) || 30, 1), 90);
 
     const now = new Date();
     const startDate = new Date(now);
@@ -220,7 +220,6 @@ export const getHistoricalStats = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch historical statistics",
-      error: error.message,
     });
   }
 };
@@ -365,7 +364,6 @@ export const getPublicStats = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch statistics",
-      error: error.message,
     });
   }
 };

@@ -53,10 +53,9 @@ const FAQ = ({
             <h3 id={`faq-${categoryId}-${index}`} className="faq-question">
               {faq.question}
             </h3>
-            <div
-              className="faq-answer"
-              dangerouslySetInnerHTML={{ __html: faq.answer }}
-            />
+            <div className="faq-answer whitespace-pre-line text-gray-600">
+              {faq.answer.replace(/<[^>]+>/g, "")}
+            </div>
           </div>
         ))}
       </div>

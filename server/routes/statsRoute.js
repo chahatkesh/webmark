@@ -3,13 +3,11 @@ import {
   getPublicStats,
   getHistoricalStats,
 } from "../controllers/statsController.js";
+import { publicStatsRateLimit } from "../middleware/rateLimit.js";
 
 const router = express.Router();
 
-// Get current stats with optional time range
-router.get("/public", getPublicStats);
-
-// Get historical stats with type parameter (daily/weekly/monthly)
-router.get("/historical/:type", getHistoricalStats);
+router.get("/public", publicStatsRateLimit, getPublicStats);
+router.get("/historical/:type", publicStatsRateLimit, getHistoricalStats);
 
 export default router;

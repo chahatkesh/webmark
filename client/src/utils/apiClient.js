@@ -34,13 +34,6 @@ const readJson = async (response) => {
   }
 };
 
-const storeAccessTokenFromResponse = (response) => {
-  const token = response.headers.get("x-auth-token");
-  if (token) {
-    localStorage.setItem("token", token);
-  }
-};
-
 export const clearLocalSession = () => {
   localStorage.removeItem("token");
   window.dispatchEvent(new Event("webmark:auth-cleared"));
@@ -63,7 +56,6 @@ export const refreshSession = async () => {
       headers: withDeviceHeader({ "Content-Type": "application/json" }),
     })
       .then(async (response) => {
-        storeAccessTokenFromResponse(response);
         const data = await readJson(response);
 
         if (!response.ok || data?.success === false) {
@@ -72,10 +64,6 @@ export const refreshSession = async () => {
             response,
             data,
           );
-        }
-
-        if (data?.accessToken) {
-          localStorage.setItem("token", data.accessToken);
         }
 
         return data;
@@ -103,15 +91,6 @@ export const apiRequest = async (path, options = {}) => {
   } = options;
 
   const requestHeaders = withDeviceHeader(headers);
-  const legacyToken = localStorage.getItem("token");
-
-  if (
-    legacyToken &&
-    !requestHeaders.has("Authorization") &&
-    !requestHeaders.has("token")
-  ) {
-    requestHeaders.set("Authorization", `Bearer ${legacyToken}`);
-  }
 
   if (
     body !== undefined &&
@@ -130,8 +109,6 @@ export const apiRequest = async (path, options = {}) => {
         ? body
         : JSON.stringify(body),
   });
-
-  storeAccessTokenFromResponse(response);
 
   if (response.status === 401 && retryOnAuth && !skipAuthRefresh) {
     await refreshSession();

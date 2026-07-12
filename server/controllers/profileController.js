@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import Bookmark from "../models/bookmarkModel.js";
 import Category from "../models/categoryModel.js";
+import { sanitizeImageUrl } from "../utils/urlValidation.js";
 import {
   getActiveDevicesForResponse,
   persistDeviceActivity,
@@ -233,7 +234,20 @@ export const updateProfile = async (req, res) => {
     }
 
     if (name !== undefined) user.name = name;
-    if (profilePicture !== undefined) user.profilePicture = profilePicture;
+    if (profilePicture !== undefined) {
+      if (profilePicture === "" || profilePicture === null) {
+        user.profilePicture = "";
+      } else {
+        const safePicture = sanitizeImageUrl(profilePicture);
+        if (!safePicture) {
+          return res.status(400).json({
+            success: false,
+            message: "Profile picture must be a valid https URL",
+          });
+        }
+        user.profilePicture = safePicture;
+      }
+    }
 
     await user.save();
 

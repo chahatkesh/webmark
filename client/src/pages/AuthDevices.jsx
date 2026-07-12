@@ -19,7 +19,7 @@ const DeviceIcon = ({ deviceType }) => {
 
 const AuthDevices = () => {
   const [searchParams] = useSearchParams();
-  const pendingToken = searchParams.get("pending");
+  const pendingCode = searchParams.get("code");
   const navigate = useNavigate();
   const { fetchUserData } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ const AuthDevices = () => {
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
 
   useEffect(() => {
-    if (!pendingToken) {
+    if (!pendingCode) {
       toast.error("Missing sign-in request. Please try again.");
       navigate("/auth", { replace: true });
       return;
@@ -38,7 +38,7 @@ const AuthDevices = () => {
       try {
         const response = await fetch(
           buildApiUrl(
-            `/api/user/devices/pending?token=${encodeURIComponent(pendingToken)}`,
+            `/api/user/devices/pending?code=${encodeURIComponent(pendingCode)}`,
           ),
           { credentials: "include" },
         );
@@ -61,17 +61,17 @@ const AuthDevices = () => {
     };
 
     loadPending();
-  }, [pendingToken, navigate]);
+  }, [pendingCode, navigate]);
 
   const handleContinue = async () => {
-    if (!selectedDeviceId || !pendingToken) return;
+    if (!selectedDeviceId || !pendingCode) return;
 
     setSubmitting(true);
     try {
       const data = await apiRequest("/api/user/devices/continue-login", {
         method: "POST",
         body: {
-          pendingToken,
+          code: pendingCode,
           revokeDeviceId: selectedDeviceId,
         },
         skipAuthRefresh: true,
@@ -79,10 +79,6 @@ const AuthDevices = () => {
 
       if (data.newDevice?.deviceId) {
         setDeviceId(data.newDevice.deviceId);
-      }
-
-      if (data.accessToken) {
-        localStorage.setItem("token", data.accessToken);
       }
 
       if (data.requiresOnboarding) {
