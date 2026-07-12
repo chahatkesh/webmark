@@ -6,7 +6,7 @@ import {
   getRefreshTokenFromRequest,
   hashToken,
 } from "../utils/authTokens.js";
-import { issueUserSession } from "../utils/session.js";
+import { findUserByRefreshToken, issueUserSession } from "../utils/session.js";
 import { sendBookmarkletPage } from "../utils/bookmarkletPage.js";
 
 const authError = (res, message) =>
@@ -42,21 +42,21 @@ const refreshUserSession = async (req, res) => {
   if (!refreshToken) return null;
 
   const refreshHash = hashToken(refreshToken);
-  const now = new Date();
-  const user = await User.findOne({
-    $or: [
-      { refreshTokenHash: refreshHash },
-      {
-        previousRefreshTokenHash: refreshHash,
-        previousRefreshTokenExpiresAt: { $gt: now },
-      },
-    ],
-    tokenExpiresAt: { $gt: now },
-  });
+  const { user, deviceId } = await findUserByRefreshToken(refreshHash);
 
   if (!user) return null;
 
-  await issueUserSession(user, res, { preservePrevious: true });
+  const deviceEntry = deviceId
+    ? user.loginDevices?.find((device) => device.deviceId === deviceId)
+    : null;
+
+  await issueUserSession(user, res, {
+    preservePrevious: true,
+    deviceId: deviceId || undefined,
+    deviceName: deviceEntry?.deviceName,
+    deviceType: deviceEntry?.deviceType,
+    userAgent: deviceEntry?.userAgent || req.headers["user-agent"],
+  });
   return user;
 };
 

@@ -3,18 +3,15 @@ import useSWR from "swr";
 import { toast } from "react-toastify";
 import { StoreContext } from "../context/StoreContext";
 import { apiRequest } from "../utils/apiClient";
+import { setDeviceId } from "../utils/deviceId";
 
 const profileFetcher = async (url) => {
-  const deviceId = localStorage.getItem("device-id");
-  const headers = deviceId ? { "device-id": deviceId } : {};
-
   const data = await apiRequest(url, {
     method: "POST",
-    headers,
   });
 
   if (data.profile?.currentDeviceId) {
-    localStorage.setItem("device-id", data.profile.currentDeviceId);
+    setDeviceId(data.profile.currentDeviceId);
   }
 
   if (data.success) {

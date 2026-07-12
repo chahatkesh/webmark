@@ -106,6 +106,7 @@ export const getProfileInfo = async (req, res) => {
         activeDevices: deviceInfo.activeDevices,
         currentDeviceId: deviceInfo.currentDeviceId,
         totalActiveDevices: deviceInfo.totalActiveDevices,
+        maxDevices: deviceInfo.maxDevices,
         aiSortsRemaining: user.aiSortsRemaining ?? 5,
         importsRemainingThisMonth: getImportsRemainingThisMonth(user),
       },
@@ -169,7 +170,7 @@ export const getProfileAnalytics = async (req, res) => {
 
     const { range, days, startDate } = parseAnalyticsRange(req.query.range);
     const categories = await Category.find({ userId: user._id })
-      .select("_id category emoji")
+      .select("_id")
       .lean();
     const categoryIds = categories.map((category) => category._id);
 
@@ -178,69 +179,35 @@ export const getProfileAnalytics = async (req, res) => {
         success: true,
         range,
         clicksOverTime: buildClicksOverTime(startDate, days, []),
-        categoryBreakdown: [],
       });
     }
 
-    const [clickAgg, categoryAgg] = await Promise.all([
-      Bookmark.aggregate([
-        { $match: { categoryId: { $in: categoryIds } } },
-        { $unwind: "$clickHistory" },
-        {
-          $match: {
-            "clickHistory.timestamp": { $gte: startDate },
-          },
+    const clickAgg = await Bookmark.aggregate([
+      { $match: { categoryId: { $in: categoryIds } } },
+      { $unwind: "$clickHistory" },
+      {
+        $match: {
+          "clickHistory.timestamp": { $gte: startDate },
         },
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: "$clickHistory.timestamp",
-              },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$clickHistory.timestamp",
             },
-            clicks: { $sum: 1 },
           },
+          clicks: { $sum: 1 },
         },
-        { $sort: { _id: 1 } },
-      ]),
-      Bookmark.aggregate([
-        { $match: { categoryId: { $in: categoryIds } } },
-        {
-          $group: {
-            _id: "$categoryId",
-            bookmarkCount: { $sum: 1 },
-            clickCount: { $sum: { $ifNull: ["$clickCount", 0] } },
-          },
-        },
-      ]),
+      },
+      { $sort: { _id: 1 } },
     ]);
-
-    const categoryById = Object.fromEntries(
-      categories.map((category) => [category._id.toString(), category]),
-    );
-
-    const categoryBreakdown = categoryAgg
-      .map((entry) => {
-        const category = categoryById[entry._id.toString()];
-        return {
-          id: entry._id,
-          name: category?.category || "Unknown",
-          emoji: category?.emoji || "📑",
-          bookmarkCount: entry.bookmarkCount,
-          clickCount: entry.clickCount,
-        };
-      })
-      .sort(
-        (a, b) =>
-          b.clickCount - a.clickCount || b.bookmarkCount - a.bookmarkCount,
-      );
 
     res.json({
       success: true,
       range,
       clicksOverTime: buildClicksOverTime(startDate, days, clickAgg),
-      categoryBreakdown,
     });
   } catch (error) {
     console.error("Error fetching profile analytics:", error);

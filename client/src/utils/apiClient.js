@@ -1,3 +1,5 @@
+import { getOrCreateDeviceId } from "./deviceId.js";
+
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -44,12 +46,21 @@ export const clearLocalSession = () => {
   window.dispatchEvent(new Event("webmark:auth-cleared"));
 };
 
+const withDeviceHeader = (headers = {}) => {
+  const requestHeaders = new Headers(headers);
+  const deviceId = getOrCreateDeviceId();
+  if (deviceId && !requestHeaders.has("device-id")) {
+    requestHeaders.set("device-id", deviceId);
+  }
+  return requestHeaders;
+};
+
 export const refreshSession = async () => {
   if (!refreshPromise) {
     refreshPromise = fetch(buildApiUrl("/api/user/refresh"), {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: withDeviceHeader({ "Content-Type": "application/json" }),
     })
       .then(async (response) => {
         storeAccessTokenFromResponse(response);
@@ -91,7 +102,7 @@ export const apiRequest = async (path, options = {}) => {
     ...rest
   } = options;
 
-  const requestHeaders = new Headers(headers);
+  const requestHeaders = withDeviceHeader(headers);
   const legacyToken = localStorage.getItem("token");
 
   if (

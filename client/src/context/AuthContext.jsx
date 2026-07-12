@@ -11,6 +11,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { mutate as globalMutate } from "swr";
 import { StoreContext } from "./StoreContext";
 import { apiRequest, clearLocalSession } from "../utils/apiClient";
+import { getOrCreateDeviceId } from "../utils/deviceId";
 
 // Keep the same context instance across Vite HMR so providers/consumers stay in sync
 const AuthContext = import.meta.hot?.data?.AuthContext ?? createContext(null);
@@ -90,7 +91,9 @@ export const AuthProvider = ({ children }) => {
   }, [navigate, setUser]);
 
   const googleLogin = useCallback(() => {
-    window.location.href = `${url}/api/user/auth/google`;
+    const deviceId = getOrCreateDeviceId();
+    const params = new URLSearchParams({ deviceId });
+    window.location.href = `${url}/api/user/auth/google?${params.toString()}`;
   }, [url]);
 
   const logout = useCallback(async () => {

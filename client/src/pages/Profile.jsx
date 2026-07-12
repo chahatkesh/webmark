@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import useProfile from "../hooks/useProfile";
 import useProfileAnalytics from "../hooks/useProfileAnalytics";
 import SEO from "../components/SEO";
-import ShareModal from "../components/DashboardComponents/ShareModel";
 import ProfileHero from "../components/ProfileComponents/ProfileHero";
 import ProfileStatStrip from "../components/ProfileComponents/ProfileStatStrip";
 import ActivityCharts from "../components/ProfileComponents/ActivityCharts";
@@ -37,7 +36,6 @@ const ProfileSkeleton = () => (
 );
 
 const Profile = () => {
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [analyticsRange, setAnalyticsRange] = useState("30d");
 
   const {
@@ -52,7 +50,6 @@ const Profile = () => {
 
   const {
     clicksOverTime,
-    categoryBreakdown,
     loading: analyticsLoading,
     error: analyticsError,
   } = useProfileAnalytics(analyticsRange);
@@ -100,11 +97,7 @@ const Profile = () => {
         variants={stagger}
       >
         <motion.div variants={fadeIn} className="space-y-4">
-          <ProfileHero
-            profile={profile}
-            updateProfile={updateProfile}
-            onShare={() => setIsShareModalOpen(true)}
-          />
+          <ProfileHero profile={profile} updateProfile={updateProfile} />
 
           <ProfileStatStrip
             profile={profile}
@@ -116,14 +109,13 @@ const Profile = () => {
           <div>
             {analyticsError && (
               <p className="mb-2 text-xs text-amber-600">
-                Activity charts unavailable right now.
+                Click activity unavailable right now.
               </p>
             )}
             <ActivityCharts
               range={analyticsRange}
               onRangeChange={setAnalyticsRange}
               clicksOverTime={clicksOverTime}
-              categoryBreakdown={categoryBreakdown}
               loading={analyticsLoading}
             />
           </div>
@@ -139,17 +131,14 @@ const Profile = () => {
               <CreditsCard profile={profile} loading={statsLoading} />
               <DevicesCard
                 devices={profile?.activeDevices || []}
+                maxDevices={profile?.maxDevices ?? 2}
                 loading={statsLoading}
+                onRevoked={fetchProfileData}
               />
             </div>
           </div>
         </motion.div>
       </motion.div>
-
-      <ShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-      />
     </>
   );
 };

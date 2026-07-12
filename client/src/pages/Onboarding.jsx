@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assests";
 import { useAuth } from "../hooks/useAuth";
 import { Input } from "../components/ui/input";
@@ -19,30 +19,21 @@ const Onboarding = () => {
     user,
   } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
 
   useEffect(() => {
-    // Handle token passed in URL
-    if (token) {
-      localStorage.setItem("token", token);
-    }
-
     if (authLoading) {
       return;
     }
 
-    // Check if user is already authenticated and has a username (completed onboarding)
     if (isAuthenticated && user?.username) {
-      // User already has a username, redirect to dashboard
       navigate("/user/dashboard");
       return;
     }
 
-    if (!isAuthenticated && !localStorage.getItem("token")) {
+    if (!isAuthenticated) {
       navigate("/auth");
     }
-  }, [token, navigate, isAuthenticated, authLoading, user]);
+  }, [navigate, isAuthenticated, authLoading, user]);
 
   // Show a loader while checking authentication status
   if (authLoading) {

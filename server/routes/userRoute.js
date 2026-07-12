@@ -7,6 +7,11 @@ import {
   logoutUser,
 } from "../controllers/googleAuthController.js";
 import {
+  continueDeviceLogin,
+  getPendingDeviceLogin,
+  revokeDevice,
+} from "../controllers/deviceController.js";
+import {
   getProfileInfo,
   getProfileAnalytics,
   updateProfile,
@@ -16,11 +21,14 @@ import passport from "../config/passport.js";
 
 const userRouter = express.Router();
 
-// Google OAuth routes
-userRouter.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] }),
-);
+userRouter.get("/auth/google", (req, res, next) => {
+  const deviceId =
+    typeof req.query.deviceId === "string" ? req.query.deviceId : "";
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    state: deviceId,
+  })(req, res, next);
+});
 
 userRouter.get(
   "/auth/google/callback",
@@ -31,13 +39,15 @@ userRouter.get(
   googleAuthCallback,
 );
 
-// User data and management
+userRouter.get("/devices/pending", getPendingDeviceLogin);
+userRouter.post("/devices/continue-login", continueDeviceLogin);
+
 userRouter.post("/refresh", refreshSession);
 userRouter.post("/userdata", authMiddleware, getUserData);
 userRouter.post("/complete-onboarding", authMiddleware, completeOnboarding);
 userRouter.post("/logout", authMiddleware, logoutUser);
+userRouter.post("/devices/revoke", authMiddleware, revokeDevice);
 
-// Profile management
 userRouter.post("/profile", authMiddleware, getProfileInfo);
 userRouter.get("/profile/analytics", authMiddleware, getProfileAnalytics);
 userRouter.put("/profile", authMiddleware, updateProfile);

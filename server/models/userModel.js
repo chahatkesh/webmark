@@ -21,7 +21,12 @@ const userSchema = new mongoose.Schema({
       userAgent: { type: String },
       lastActive: { type: Date, default: Date.now },
       deviceName: { type: String },
+      deviceType: { type: String, enum: ["desktop", "mobile"] },
       isActive: { type: Boolean, default: true },
+      refreshTokenHash: { type: String },
+      previousRefreshTokenHash: { type: String },
+      previousRefreshTokenExpiresAt: { type: Date },
+      tokenExpiresAt: { type: Date },
     },
   ],
   stats: {

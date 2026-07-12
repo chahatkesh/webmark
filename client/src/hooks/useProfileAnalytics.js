@@ -23,7 +23,6 @@ export const useProfileAnalytics = (range = "30d") => {
   return {
     range: data?.range ?? safeRange,
     clicksOverTime: data?.clicksOverTime ?? [],
-    categoryBreakdown: data?.categoryBreakdown ?? [],
     loading: isLoading && !data,
     validating: isValidating,
     error:

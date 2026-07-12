@@ -46,6 +46,28 @@ export const createAccessToken = (id, options = {}) =>
     expiresIn: process.env.ACCESS_TOKEN_TTL || DEFAULT_ACCESS_TOKEN_TTL,
   });
 
+export const createDevicePendingToken = (payload) =>
+  jwt.sign(
+    {
+      id: String(payload.userId),
+      typ: "device_pending",
+      deviceId: payload.deviceId,
+      deviceName: payload.deviceName,
+      deviceType: payload.deviceType,
+      userAgent: payload.userAgent || "",
+    },
+    getJwtSecret(),
+    { expiresIn: "10m" },
+  );
+
+export const verifyDevicePendingToken = (token) => {
+  const decoded = jwt.verify(token, getJwtSecret());
+  if (decoded.typ !== "device_pending") {
+    throw new Error("Invalid pending token type");
+  }
+  return decoded;
+};
+
 export const createRefreshToken = () => crypto.randomBytes(64).toString("hex");
 
 export const hashToken = (token) =>

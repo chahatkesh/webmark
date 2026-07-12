@@ -16,6 +16,7 @@ import { ErrorBoundary } from "./components/enhanced/ErrorComponents";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Bookmarklet = lazy(() => import("./pages/Bookmarklet"));
 const Auth = lazy(() => import("./pages/Auth"));
+const AuthDevices = lazy(() => import("./pages/AuthDevices"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Profile = lazy(() => import("./pages/Profile"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
@@ -77,6 +78,14 @@ const App = () => {
             element={
               <Suspense fallback={<Loader />}>
                 <Auth />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/auth/devices"
+            element={
+              <Suspense fallback={<Loader />}>
+                <AuthDevices />
               </Suspense>
             }
           />

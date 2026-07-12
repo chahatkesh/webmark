@@ -64,7 +64,11 @@ const authMiddleware = async (req, res, next) => {
       !user.refreshTokenHash &&
       user.refreshToken
     ) {
-      await issueUserSession(user, res, { preservePrevious: false });
+      await issueUserSession(user, res, {
+        preservePrevious: false,
+        deviceId: req.headers["device-id"] || undefined,
+        userAgent: req.headers["user-agent"],
+      });
     }
 
     // Throttled last-login update (at most once per hour, skip on profile routes)

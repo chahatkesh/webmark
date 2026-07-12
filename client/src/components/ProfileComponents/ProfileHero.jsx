@@ -1,16 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  CalendarDays,
-  Check,
-  Edit2,
-  Loader2,
-  Mail,
-  Share2,
-  X,
-} from "lucide-react";
+import { CalendarDays, Check, Edit2, Loader2, Mail, X } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -26,7 +17,7 @@ const formatJoinDate = (date) => {
   return format(new Date(date), "MMM d, yyyy");
 };
 
-const ProfileHero = ({ profile, updateProfile, onShare }) => {
+const ProfileHero = ({ profile, updateProfile }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -115,101 +106,85 @@ const ProfileHero = ({ profile, updateProfile, onShare }) => {
   return (
     <Card className="border-gray-100 shadow-sm">
       <CardContent className="p-4 sm:p-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-          <div className="flex min-w-0 gap-3.5 sm:gap-4">
-            <div className="shrink-0">{avatar}</div>
+        <div className="flex min-w-0 gap-3.5 sm:gap-4">
+          <div className="shrink-0">{avatar}</div>
 
-            <div className="min-w-0 flex-1">
-              <p className="text-sm text-gray-500">
-                {greeting},{" "}
-                <span className="font-medium text-gray-700">
-                  @{profile?.username}
-                </span>
-              </p>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm text-gray-500">
+              {greeting},{" "}
+              <span className="font-medium text-gray-700">
+                @{profile?.username}
+              </span>
+            </p>
 
-              <div className="mt-0.5 flex min-h-10 min-w-0 items-center gap-1.5">
-                {isEditing ? (
-                  <>
-                    <Input
-                      ref={inputRef}
-                      id="profile-name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      disabled={submitting}
-                      maxLength={80}
-                      aria-label="Display name"
-                      className="max-w-xs"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSave}
-                      disabled={submitting}
-                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-blue-500 text-white transition-colors hover:bg-blue-600 disabled:opacity-60"
-                      aria-label="Save name"
-                      title="Save"
-                    >
-                      {submitting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Check className="h-4 w-4" />
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      disabled={submitting}
-                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700 disabled:opacity-60"
-                      aria-label="Cancel editing"
-                      title="Cancel"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <h1 className="truncate text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
-                      {displayName}
-                    </h1>
-                    <button
-                      type="button"
-                      onClick={handleEditClick}
-                      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
-                      aria-label="Edit display name"
-                      title="Edit name"
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </button>
-                  </>
-                )}
-              </div>
+            <div className="mt-0.5 flex min-h-10 min-w-0 items-center gap-1.5">
+              {isEditing ? (
+                <>
+                  <Input
+                    ref={inputRef}
+                    id="profile-name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={submitting}
+                    maxLength={80}
+                    aria-label="Display name"
+                    className="max-w-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={submitting}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-blue-500 text-white transition-colors hover:bg-blue-600 disabled:opacity-60"
+                    aria-label="Save name"
+                    title="Save"
+                  >
+                    {submitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    disabled={submitting}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700 disabled:opacity-60"
+                    aria-label="Cancel editing"
+                    title="Cancel"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h1 className="truncate text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+                    {displayName}
+                  </h1>
+                  <button
+                    type="button"
+                    onClick={handleEditClick}
+                    className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    aria-label="Edit display name"
+                    title="Edit name"
+                  >
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </button>
+                </>
+              )}
+            </div>
 
-              <div className="mt-3 flex flex-col gap-1.5 text-sm text-gray-600 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1">
-                <span className="inline-flex min-w-0 items-center gap-1.5">
-                  <Mail className="h-3.5 w-3.5 shrink-0 text-blue-500" />
-                  <span className="truncate">{profile?.email}</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <CalendarDays className="h-3.5 w-3.5 shrink-0 text-blue-500" />
-                  Joined {formatJoinDate(profile?.joinedAt)}
-                </span>
-              </div>
+            <div className="mt-3 flex flex-col gap-1.5 text-sm text-gray-600 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1">
+              <span className="inline-flex min-w-0 items-center gap-1.5">
+                <Mail className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+                <span className="truncate">{profile?.email}</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+                Joined {formatJoinDate(profile?.joinedAt)}
+              </span>
             </div>
           </div>
-
-          {onShare && (
-            <div className="flex shrink-0 items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                onClick={onShare}
-                className="h-9 bg-blue-500 text-white hover:bg-blue-600"
-              >
-                <Share2 className="mr-1.5 h-3.5 w-3.5" />
-                Share
-              </Button>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>

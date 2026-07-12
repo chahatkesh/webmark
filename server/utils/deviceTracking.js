@@ -1,6 +1,8 @@
 import User from "../models/userModel.js";
 import crypto from "crypto";
 
+export const MAX_DEVICES = 2;
+
 export const generateDeviceId = (userAgent, ip) => {
   let stableFingerprint = "";
 
@@ -15,8 +17,7 @@ export const generateDeviceId = (userAgent, ip) => {
     );
     const osName = osMatch ? osMatch[1] : "Unknown";
 
-    const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(userAgent);
-    const deviceType = isMobile ? "Mobile" : "Desktop";
+    const deviceType = getDeviceType(userAgent);
 
     stableFingerprint = `${browserName}-${osName}-${deviceType}`;
   }
@@ -29,6 +30,12 @@ export const generateDeviceId = (userAgent, ip) => {
     .createHash("md5")
     .update(`${stableFingerprint}-${cleanIp}`)
     .digest("hex");
+};
+
+export const getDeviceType = (userAgent) => {
+  if (!userAgent) return "desktop";
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod|Tablet/i.test(userAgent);
+  return isMobile ? "mobile" : "desktop";
 };
 
 export const getDeviceName = (userAgent) => {
@@ -60,41 +67,170 @@ export const getDeviceName = (userAgent) => {
   return `${deviceType}${browser}`;
 };
 
-const buildActiveDevices = (
+const isSessionValid = (device, now = new Date()) => {
+  if (!device?.isActive) return false;
+  if (device.tokenExpiresAt && new Date(device.tokenExpiresAt) > now) {
+    return true;
+  }
+  if (!device.lastActive) return false;
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  return new Date(device.lastActive) > thirtyDaysAgo;
+};
+
+export const toDeviceResponse = (device, currentDeviceId) => ({
+  deviceId: device.deviceId,
+  deviceName: device.deviceName,
+  deviceType: device.deviceType || getDeviceType(device.userAgent),
+  lastActive: device.lastActive,
+  isCurrent: device.deviceId === currentDeviceId,
+});
+
+export const listActiveSessions = (user, now = new Date()) =>
+  (user.loginDevices || []).filter((device) => isSessionValid(device, now));
+
+export const findDeviceEntry = (user, deviceId) =>
+  (user.loginDevices || []).find((device) => device.deviceId === deviceId);
+
+export const ensureLoginDevices = (user) => {
+  if (!Array.isArray(user.loginDevices)) {
+    user.loginDevices = [];
+  }
+};
+
+export const resolveDeviceContext = (userAgent, ip, deviceIdHeader) => {
+  const userAgentValue = userAgent || "";
+  const ipValue = ip || "";
+  const deviceId = deviceIdHeader || generateDeviceId(userAgentValue, ipValue);
+  const deviceName = getDeviceName(userAgentValue);
+  const deviceType = getDeviceType(userAgentValue);
+
+  return {
+    deviceId,
+    deviceName,
+    deviceType,
+    userAgent: userAgentValue,
+    ip: ipValue,
+  };
+};
+
+export const evaluateDeviceLogin = (user, { deviceId }) => {
+  const active = listActiveSessions(user);
+  const existing = active.find((device) => device.deviceId === deviceId);
+
+  if (existing) {
+    return { ok: true, existing: true };
+  }
+
+  if (active.length < MAX_DEVICES) {
+    return { ok: true, existing: false };
+  }
+
+  return {
+    ok: false,
+    conflict: true,
+    devices: active.map((device) => toDeviceResponse(device, deviceId)),
+  };
+};
+
+export const revokeDeviceSession = (user, deviceId) => {
+  ensureLoginDevices(user);
+  const device = findDeviceEntry(user, deviceId);
+  if (!device) return false;
+
+  device.isActive = false;
+  device.refreshTokenHash = undefined;
+  device.previousRefreshTokenHash = undefined;
+  device.previousRefreshTokenExpiresAt = undefined;
+  device.tokenExpiresAt = undefined;
+  return true;
+};
+
+export const upsertDeviceSession = (
+  user,
+  { deviceId, deviceName, deviceType, userAgent },
+) => {
+  ensureLoginDevices(user);
+  const currentLogin = new Date();
+  let device = findDeviceEntry(user, deviceId);
+
+  if (!device) {
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    const similarDevice = user.loginDevices.find(
+      (entry) =>
+        entry.deviceName === deviceName &&
+        entry.isActive &&
+        new Date(entry.lastActive) > twoWeeksAgo,
+    );
+
+    if (similarDevice) {
+      similarDevice.deviceId = deviceId;
+      device = similarDevice;
+    }
+  }
+
+  if (device) {
+    device.lastActive = currentLogin;
+    device.userAgent = userAgent;
+    device.deviceName = deviceName;
+    device.deviceType = deviceType;
+    device.isActive = true;
+  } else {
+    user.loginDevices.push({
+      deviceId,
+      userAgent,
+      lastActive: currentLogin,
+      deviceName,
+      deviceType,
+      isActive: true,
+    });
+    device = findDeviceEntry(user, deviceId);
+  }
+
+  return device;
+};
+
+export const pruneInactiveDevices = (user) => {
+  ensureLoginDevices(user);
+  const sixtyDaysAgo = new Date();
+  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+  user.loginDevices = user.loginDevices.filter(
+    (device) =>
+      device.isActive ||
+      (device.lastActive && new Date(device.lastActive) > sixtyDaysAgo),
+  );
+};
+
+export const buildActiveDevices = (
   loginDevices,
   deviceId,
   deviceName,
+  deviceType,
   currentLogin,
 ) => {
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
+  const now = new Date();
   const activeDevices = (loginDevices || [])
-    .filter(
-      (device) =>
-        device.isActive && new Date(device.lastActive) > thirtyDaysAgo,
-    )
-    .map((device) => ({
-      deviceId: device.deviceId,
-      deviceName: device.deviceName,
-      lastActive: device.lastActive,
-      isCurrent: device.deviceId === deviceId,
-    }));
+    .filter((device) => isSessionValid(device, now))
+    .map((device) => toDeviceResponse(device, deviceId));
 
-  if (activeDevices.length === 0) {
+  if (
+    activeDevices.length === 0 &&
+    !activeDevices.some((device) => device.deviceId === deviceId)
+  ) {
     activeDevices.push({
       deviceId,
       deviceName,
+      deviceType,
       lastActive: currentLogin,
       isCurrent: true,
     });
   } else if (!activeDevices.some((device) => device.isCurrent)) {
-    activeDevices.push({
-      deviceId,
-      deviceName,
-      lastActive: currentLogin,
-      isCurrent: true,
-    });
+    const registered = findDeviceEntry({ loginDevices }, deviceId);
+    if (registered && isSessionValid(registered, now)) {
+      activeDevices.push(toDeviceResponse(registered, deviceId));
+    }
   }
 
   return activeDevices;
@@ -106,71 +242,36 @@ export const getActiveDevicesForResponse = (
   ip,
   deviceIdHeader,
 ) => {
-  const userAgentValue = userAgent || "";
-  const ipValue = ip || "";
-  const deviceId = deviceIdHeader || generateDeviceId(userAgentValue, ipValue);
-  const deviceName = getDeviceName(userAgentValue);
+  const ctx = resolveDeviceContext(userAgent, ip, deviceIdHeader);
+  const { deviceId, deviceName, deviceType, userAgent: userAgentValue } = ctx;
   const currentLogin = new Date();
-
   const loginDevices = Array.isArray(user.loginDevices)
     ? [...user.loginDevices]
     : [];
-  let existingDevice = loginDevices.find(
-    (device) => device.deviceId === deviceId,
-  );
 
-  if (!existingDevice) {
-    const twoWeeksAgo = new Date();
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-    const similarDevice = loginDevices.find(
-      (device) =>
-        device.deviceName === deviceName &&
-        new Date(device.lastActive) > twoWeeksAgo,
-    );
-
-    if (similarDevice) {
-      similarDevice.deviceId = deviceId;
-      existingDevice = similarDevice;
-    }
-  }
-
-  if (existingDevice) {
-    existingDevice.lastActive = currentLogin;
-    existingDevice.userAgent = userAgentValue;
-    existingDevice.isActive = true;
-    if (
-      deviceName !== "Unknown device" &&
-      existingDevice.deviceName === "Unknown device"
-    ) {
-      existingDevice.deviceName = deviceName;
-    }
-  } else {
-    loginDevices.push({
-      deviceId,
-      userAgent: userAgentValue,
-      lastActive: currentLogin,
-      deviceName,
-      isActive: true,
-    });
+  const registered = findDeviceEntry({ loginDevices }, deviceId);
+  if (registered && isSessionValid(registered)) {
+    registered.lastActive = currentLogin;
+    if (userAgentValue) registered.userAgent = userAgentValue;
   }
 
   const activeDevices = buildActiveDevices(
     loginDevices,
     deviceId,
     deviceName,
+    deviceType,
     currentLogin,
   );
-  const currentDeviceId =
-    loginDevices.find((device) => device.userAgent === userAgentValue)
-      ?.deviceId || deviceId;
 
   return {
     deviceId,
     deviceName,
+    deviceType,
     currentLogin,
     activeDevices,
-    currentDeviceId,
+    currentDeviceId: deviceId,
     totalActiveDevices: activeDevices.length,
+    maxDevices: MAX_DEVICES,
   };
 };
 
@@ -183,87 +284,88 @@ export const persistDeviceActivity = async (
   const user = await User.findById(userId);
   if (!user) return;
 
-  const userAgentValue = userAgent || "";
-  const ipValue = ip || "";
-  const deviceId = deviceIdHeader || generateDeviceId(userAgentValue, ipValue);
-  const deviceName = getDeviceName(userAgentValue);
-  const currentLogin = new Date();
-
-  if (!user.loginDevices) {
-    user.loginDevices = [];
-  }
-
-  let existingDevice = user.loginDevices.find(
-    (device) => device.deviceId === deviceId,
+  const ctx = resolveDeviceContext(userAgent, ip, deviceIdHeader);
+  const active = listActiveSessions(user);
+  const isRegistered = active.some(
+    (device) => device.deviceId === ctx.deviceId,
   );
 
-  if (!existingDevice) {
-    const twoWeeksAgo = new Date();
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-    const similarDevice = user.loginDevices.find(
-      (device) =>
-        device.deviceName === deviceName &&
-        new Date(device.lastActive) > twoWeeksAgo,
-    );
-
-    if (similarDevice) {
-      similarDevice.deviceId = deviceId;
-      existingDevice = similarDevice;
-    }
+  if (!isRegistered && active.length >= MAX_DEVICES) {
+    return;
   }
 
-  if (existingDevice) {
-    existingDevice.lastActive = currentLogin;
-    existingDevice.userAgent = userAgentValue;
-    existingDevice.isActive = true;
-    if (
-      deviceName !== "Unknown device" &&
-      existingDevice.deviceName === "Unknown device"
-    ) {
-      existingDevice.deviceName = deviceName;
-    }
-  } else {
-    user.loginDevices.push({
-      deviceId,
-      userAgent: userAgentValue,
-      lastActive: currentLogin,
-      deviceName,
-      isActive: true,
-    });
-  }
-
-  const deviceGroups = {};
-  user.loginDevices.forEach((device) => {
-    if (!deviceGroups[device.deviceName]) {
-      deviceGroups[device.deviceName] = [];
-    }
-    deviceGroups[device.deviceName].push(device);
-  });
-
-  Object.keys(deviceGroups).forEach((name) => {
-    if (deviceGroups[name].length > 1) {
-      deviceGroups[name].sort(
-        (a, b) => new Date(b.lastActive) - new Date(a.lastActive),
-      );
-      for (let i = 1; i < deviceGroups[name].length; i += 1) {
-        deviceGroups[name][i].isActive = false;
-      }
-    }
-  });
-
-  const sixtyDaysAgo = new Date();
-  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
-  user.loginDevices = user.loginDevices.filter(
-    (device) => device.isActive || new Date(device.lastActive) > sixtyDaysAgo,
-  );
-
-  if (user.loginDevices.length > 10) {
-    user.loginDevices.sort((a, b) => {
-      if (a.isActive !== b.isActive) return b.isActive ? 1 : -1;
-      return new Date(b.lastActive) - new Date(a.lastActive);
-    });
-    user.loginDevices = user.loginDevices.slice(0, 10);
-  }
-
+  upsertDeviceSession(user, ctx);
+  pruneInactiveDevices(user);
   await user.save();
+};
+
+export const findDeviceByRefreshHash = (
+  user,
+  refreshHash,
+  now = new Date(),
+) => {
+  ensureLoginDevices(user);
+
+  for (const device of user.loginDevices) {
+    if (!device.isActive) continue;
+
+    if (device.refreshTokenHash === refreshHash) {
+      if (device.tokenExpiresAt && new Date(device.tokenExpiresAt) <= now) {
+        continue;
+      }
+      return device;
+    }
+
+    if (
+      device.previousRefreshTokenHash === refreshHash &&
+      device.previousRefreshTokenExpiresAt &&
+      new Date(device.previousRefreshTokenExpiresAt) > now
+    ) {
+      return device;
+    }
+  }
+
+  return null;
+};
+
+export const mirrorUserSessionFromDevice = (user, device) => {
+  if (!device) return;
+  user.refreshTokenHash = device.refreshTokenHash;
+  user.previousRefreshTokenHash = device.previousRefreshTokenHash;
+  user.previousRefreshTokenExpiresAt = device.previousRefreshTokenExpiresAt;
+  user.tokenExpiresAt = device.tokenExpiresAt;
+};
+
+export const applySessionToDevice = (user, deviceId, sessionFields) => {
+  const device = upsertDeviceSession(user, {
+    deviceId,
+    deviceName: sessionFields.deviceName,
+    deviceType: sessionFields.deviceType,
+    userAgent: sessionFields.userAgent,
+  });
+
+  if (sessionFields.preservePrevious && device.refreshTokenHash) {
+    device.previousRefreshTokenHash = device.refreshTokenHash;
+    device.previousRefreshTokenExpiresAt = sessionFields.previousExpiresAt;
+  } else {
+    device.previousRefreshTokenHash = undefined;
+    device.previousRefreshTokenExpiresAt = undefined;
+  }
+
+  device.refreshTokenHash = sessionFields.refreshTokenHash;
+  device.tokenExpiresAt = sessionFields.tokenExpiresAt;
+  device.isActive = true;
+  device.lastActive = new Date();
+
+  mirrorUserSessionFromDevice(user, device);
+  return device;
+};
+
+export const clearDeviceSessionFields = (device) => {
+  if (!device) return;
+  device.refreshTokenHash = undefined;
+  device.previousRefreshTokenHash = undefined;
+  device.previousRefreshTokenExpiresAt = undefined;
+  device.tokenExpiresAt = undefined;
+  device.isActive = false;
 };

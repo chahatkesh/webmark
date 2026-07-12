@@ -406,8 +406,8 @@ const Header = () => {
     </div>
   );
 
-  const showSortCreditHint = sortsLeft <= 3;
   const sortCreditLabel = formatCreditCount(sortsLeft);
+  const importCreditLabel = formatCreditCount(importsLeft);
 
   const desktopToolButtons = (
     <>
@@ -427,13 +427,11 @@ const Header = () => {
       >
         <Wand2 className="h-3.5 w-3.5" />
         <span className="text-[13px] font-medium">AI Sort</span>
-        {showSortCreditHint && (
-          <span
-            className={`text-[11px] font-semibold tabular-nums ${creditTone(sortsLeft)}`}
-          >
-            {sortCreditLabel}
-          </span>
-        )}
+        <span
+          className={`text-[11px] font-semibold tabular-nums ${creditTone(sortsLeft)}`}
+        >
+          {sortCreditLabel}
+        </span>
       </Button>
       <Button
         type="button"
@@ -447,10 +445,15 @@ const Header = () => {
         }
         onClick={() => dispatchDashboardAction("import")}
         className="h-8 gap-1.5 px-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-        aria-label="Import"
+        aria-label={`Import, ${importsLeft} left this month`}
       >
         <Upload className="h-3.5 w-3.5" />
         <span className="text-[13px] font-medium">Import</span>
+        <span
+          className={`text-[11px] font-semibold tabular-nums ${creditTone(importsLeft)}`}
+        >
+          {importCreditLabel}
+        </span>
       </Button>
     </>
   );
@@ -463,17 +466,15 @@ const Header = () => {
           variant="ghost"
           size="sm"
           className="relative h-8 w-8 shrink-0 px-0 text-gray-600"
-          aria-label="Tools"
+          aria-label={`Tools, ${sortsLeft} AI sort${sortsLeft !== 1 ? "s" : ""} left`}
           title="Tools"
         >
           <MoreHorizontal className="h-4 w-4" />
-          {showSortCreditHint && (
-            <span
-              className={`absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[9px] font-semibold leading-none ${creditBadgeTone(sortsLeft)}`}
-            >
-              {sortCreditLabel}
-            </span>
-          )}
+          <span
+            className={`absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full px-0.5 text-[9px] font-semibold leading-none ${creditBadgeTone(sortsLeft)}`}
+          >
+            {sortCreditLabel}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
@@ -487,7 +488,9 @@ const Header = () => {
         >
           <Wand2 className="h-4 w-4" />
           <span className="flex-1">AI Sort</span>
-          <span className={`text-xs tabular-nums ${creditTone(sortsLeft)}`}>
+          <span
+            className={`text-xs font-semibold tabular-nums ${creditTone(sortsLeft)}`}
+          >
             {sortCreditLabel}
           </span>
         </DropdownMenuItem>
@@ -498,8 +501,10 @@ const Header = () => {
         >
           <Upload className="h-4 w-4" />
           <span className="flex-1">Import</span>
-          <span className="text-xs tabular-nums text-gray-400">
-            {formatCreditCount(importsLeft)}
+          <span
+            className={`text-xs font-semibold tabular-nums ${creditTone(importsLeft)}`}
+          >
+            {importCreditLabel}
           </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
