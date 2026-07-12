@@ -8,6 +8,7 @@ import {
 } from "../controllers/googleAuthController.js";
 import {
   getProfileInfo,
+  getProfileAnalytics,
   updateProfile,
 } from "../controllers/profileController.js";
 import authMiddleware from "../middleware/authmiddleware.js";
@@ -38,6 +39,7 @@ userRouter.post("/logout", authMiddleware, logoutUser);
 
 // Profile management
 userRouter.post("/profile", authMiddleware, getProfileInfo);
+userRouter.get("/profile/analytics", authMiddleware, getProfileAnalytics);
 userRouter.put("/profile", authMiddleware, updateProfile);
 
 export default userRouter;

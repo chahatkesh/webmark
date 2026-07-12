@@ -613,7 +613,7 @@ const Header = () => {
                 </p>
                 <p className="text-xs text-gray-400">
                   {isProfile
-                    ? "Account & bookmark stats"
+                    ? "Your library at a glance"
                     : "One-click save from any page"}
                 </p>
               </div>

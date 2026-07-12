@@ -112,35 +112,27 @@ export const useProfile = () => {
     }
   };
 
+  // Compact for tight UI (stat tiles); avoids truncation like "17 hours and …"
   const formatTimeSaved = (seconds) => {
-    if (!seconds || Number.isNaN(seconds)) return "0 minutes";
+    if (!seconds || Number.isNaN(seconds)) return "0m";
 
-    if (seconds < 60) {
-      return `${seconds} second${seconds !== 1 ? "s" : ""}`;
-    }
+    if (seconds < 60) return `${seconds}s`;
 
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) {
-      return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
-    }
+    if (minutes < 60) return `${minutes}m`;
 
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
 
     if (hours < 24) {
-      if (remainingMinutes === 0) {
-        return `${hours} hour${hours !== 1 ? "s" : ""}`;
-      }
-      return `${hours} hour${hours !== 1 ? "s" : ""} and ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}`;
+      return remainingMinutes === 0
+        ? `${hours}h`
+        : `${hours}h ${remainingMinutes}m`;
     }
 
     const days = Math.floor(hours / 24);
     const remainingHours = hours % 24;
-
-    if (remainingHours === 0) {
-      return `${days} day${days !== 1 ? "s" : ""}`;
-    }
-    return `${days} day${days !== 1 ? "s" : ""} and ${remainingHours} hour${remainingHours !== 1 ? "s" : ""}`;
+    return remainingHours === 0 ? `${days}d` : `${days}d ${remainingHours}h`;
   };
 
   return {

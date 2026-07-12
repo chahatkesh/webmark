@@ -126,6 +126,131 @@ export const getProfileInfo = async (req, res) => {
   }
 };
 
+const parseAnalyticsRange = (rangeParam) => {
+  const range = rangeParam === "7d" ? "7d" : "30d";
+  const days = range === "7d" ? 7 : 30;
+  const startDate = new Date();
+  startDate.setUTCHours(0, 0, 0, 0);
+  startDate.setUTCDate(startDate.getUTCDate() - (days - 1));
+  return { range, days, startDate };
+};
+
+const formatDateKey = (date) => date.toISOString().slice(0, 10);
+
+const buildClicksOverTime = (startDate, days, aggregated) => {
+  const clickMap = Object.fromEntries(
+    aggregated.map((entry) => [entry._id, entry.clicks]),
+  );
+  const clicksOverTime = [];
+
+  for (let i = 0; i < days; i += 1) {
+    const date = new Date(startDate);
+    date.setUTCDate(startDate.getUTCDate() + i);
+    const key = formatDateKey(date);
+    clicksOverTime.push({
+      date: key,
+      clicks: clickMap[key] || 0,
+    });
+  }
+
+  return clicksOverTime;
+};
+
+// Per-user analytics for profile charts
+export const getProfileAnalytics = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const { range, days, startDate } = parseAnalyticsRange(req.query.range);
+    const categories = await Category.find({ userId: user._id })
+      .select("_id category emoji")
+      .lean();
+    const categoryIds = categories.map((category) => category._id);
+
+    if (categoryIds.length === 0) {
+      return res.json({
+        success: true,
+        range,
+        clicksOverTime: buildClicksOverTime(startDate, days, []),
+        categoryBreakdown: [],
+      });
+    }
+
+    const [clickAgg, categoryAgg] = await Promise.all([
+      Bookmark.aggregate([
+        { $match: { categoryId: { $in: categoryIds } } },
+        { $unwind: "$clickHistory" },
+        {
+          $match: {
+            "clickHistory.timestamp": { $gte: startDate },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$clickHistory.timestamp",
+              },
+            },
+            clicks: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+      Bookmark.aggregate([
+        { $match: { categoryId: { $in: categoryIds } } },
+        {
+          $group: {
+            _id: "$categoryId",
+            bookmarkCount: { $sum: 1 },
+            clickCount: { $sum: { $ifNull: ["$clickCount", 0] } },
+          },
+        },
+      ]),
+    ]);
+
+    const categoryById = Object.fromEntries(
+      categories.map((category) => [category._id.toString(), category]),
+    );
+
+    const categoryBreakdown = categoryAgg
+      .map((entry) => {
+        const category = categoryById[entry._id.toString()];
+        return {
+          id: entry._id,
+          name: category?.category || "Unknown",
+          emoji: category?.emoji || "📑",
+          bookmarkCount: entry.bookmarkCount,
+          clickCount: entry.clickCount,
+        };
+      })
+      .sort(
+        (a, b) =>
+          b.clickCount - a.clickCount || b.bookmarkCount - a.bookmarkCount,
+      );
+
+    res.json({
+      success: true,
+      range,
+      clicksOverTime: buildClicksOverTime(startDate, days, clickAgg),
+      categoryBreakdown,
+    });
+  } catch (error) {
+    console.error("Error fetching profile analytics:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching profile analytics",
+    });
+  }
+};
+
 // Update user profile information
 export const updateProfile = async (req, res) => {
   try {
