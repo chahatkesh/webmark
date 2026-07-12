@@ -51,7 +51,7 @@ Auth redirect error query params (`?error=`) are mapped in `utils/authErrors.js`
 | --------------------- | ------------------------- |
 | `auth_failed`         | Generic auth failure      |
 | `oauth_state_invalid` | Expired / invalid sign-in |
-| `device_limit`        | Device limit reached      |
+| `device_limit`        | Session limit reached     |
 
 ## Extending
 

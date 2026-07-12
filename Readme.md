@@ -7,7 +7,7 @@ A modern bookmark manager with categories, drag-and-drop organization, browser i
 ## Features
 
 - **Google sign-in** — OAuth with httpOnly cookies, refresh rotation, and rate-limited auth
-- **Device limit** — Up to 2 active devices; revoke from Profile or during sign-in
+- **Device limit** — Up to 2 active sessions (any device type); revoke from Profile or during sign-in
 - **Categories** — Custom names, emoji icons, and color themes
 - **Bookmarks** — Add, edit, notes, delete, and reorder (within and across categories)
 - **Search** — Instant client-side filtering across names, URLs, notes, and categories

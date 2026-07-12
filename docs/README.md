@@ -28,10 +28,10 @@ Product and engineering docs for [Webmark](https://webmark.chahatkesh.me) — a 
 
 ### Auth
 
-| Document                                         | Description                           |
-| ------------------------------------------------ | ------------------------------------- |
-| [Session Flow](./auth/session-flow.md)           | OAuth, cookies, refresh rotation      |
-| [Device Management](./auth/device-management.md) | 2-device limit, pending login, revoke |
+| Document                                         | Description                            |
+| ------------------------------------------------ | -------------------------------------- |
+| [Session Flow](./auth/session-flow.md)           | OAuth, cookies, refresh rotation       |
+| [Device Management](./auth/device-management.md) | 2-session limit, pending login, revoke |
 
 ### Features
 

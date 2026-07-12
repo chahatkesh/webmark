@@ -49,4 +49,4 @@ Each includes a few sample bookmarks so the dashboard is immediately usable.
 
 ## Related Auth
 
-Device-limit conflicts can interrupt OAuth before onboarding — users finish `/auth/devices` first, then land on onboarding if still needed. See [Device Management](../auth/device-management.md).
+Session-limit conflicts can interrupt OAuth before onboarding — users finish `/auth/devices` first, then land on onboarding if still needed. See [Device Management](../auth/device-management.md).

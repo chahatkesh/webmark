@@ -32,7 +32,7 @@ sequenceDiagram
     alt Slot available
         API->>DB: issueUserSession
         API->>Browser: Set cookies → redirect SPA
-    else Device limit
+    else Session limit
         API->>DB: PendingLogin code
         API->>Browser: Redirect /auth/devices?code=
     end
@@ -112,4 +112,4 @@ Optional `COOKIE_DOMAIN=.example.com` when SPA and API share a parent domain.
 | `refreshRateLimit`     | 15m    | 60  |
 | `deviceLoginRateLimit` | 15m    | 20  |
 
-See [Device Management](./device-management.md) for the 2-device cap flow.
+See [Device Management](./device-management.md) for the 2-session cap flow.

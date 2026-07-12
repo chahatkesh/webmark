@@ -123,8 +123,7 @@ const AuthDevices = () => {
           Choose a device to sign out
         </h1>
         <p className="mt-2 text-center text-sm text-gray-500">
-          Webmark allows up to 2 devices (one desktop, one mobile). Sign out one
-          to continue on{" "}
+          Webmark allows up to 2 active sessions. Sign out one to continue on{" "}
           <span className="font-medium text-gray-700">
             {newDevice?.deviceName || "this device"}
           </span>

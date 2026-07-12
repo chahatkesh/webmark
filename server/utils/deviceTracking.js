@@ -17,9 +17,7 @@ export const generateDeviceId = (userAgent, ip) => {
     );
     const osName = osMatch ? osMatch[1] : "Unknown";
 
-    const deviceType = getDeviceType(userAgent);
-
-    stableFingerprint = `${browserName}-${osName}-${deviceType}`;
+    stableFingerprint = `${browserName}-${osName}`;
   }
 
   const cleanIp = ip
@@ -165,22 +163,7 @@ export const upsertDeviceSession = (
   const currentLogin = new Date();
   let device = findDeviceEntry(user, deviceId);
 
-  if (!device) {
-    const twoWeeksAgo = new Date();
-    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-    const similarDevice = user.loginDevices.find(
-      (entry) =>
-        entry.deviceName === deviceName &&
-        entry.isActive &&
-        new Date(entry.lastActive) > twoWeeksAgo,
-    );
-
-    if (similarDevice) {
-      similarDevice.deviceId = deviceId;
-      device = similarDevice;
-    }
-  }
-
+  // Match by deviceId only — never merge by display name or device type.
   if (device) {
     device.lastActive = currentLogin;
     device.userAgent = userAgent;

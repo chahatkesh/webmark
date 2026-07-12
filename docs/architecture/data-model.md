@@ -32,14 +32,14 @@ All collections are Mongoose schemas under `server/models/`.
 | Field                                                                             | Notes                                |
 | --------------------------------------------------------------------------------- | ------------------------------------ |
 | `deviceId`                                                                        | Client-stable ID                     |
-| `deviceName`, `deviceType`                                                        | `desktop` or `mobile`                |
+| `deviceName`, `deviceType`                                                        | Display only (`desktop` \| `mobile`) |
 | `userAgent`                                                                       |                                      |
 | `lastActive`                                                                      |                                      |
 | `isActive`                                                                        | `false` after logout / remote revoke |
 | `refreshTokenHash` / `previousRefreshTokenHash` / `previousRefreshTokenExpiresAt` | Device-bound refresh                 |
 | `tokenExpiresAt`                                                                  |                                      |
 
-**Cap:** max **2** active devices. See [Device Management](../auth/device-management.md).
+**Cap:** max **2** active sessions (any mix of device types). See [Device Management](../auth/device-management.md).
 
 ## Category
 
@@ -75,7 +75,7 @@ URLs are validated on write (`server/utils/urlValidation.js`) — private/localh
 
 **Collection:** `pendinglogins` · **File:** `server/models/pendingLoginModel.js`
 
-Used when OAuth succeeds but the account already has 2 active devices.
+Used when OAuth succeeds but the account already has 2 active sessions.
 
 | Field                                   | Notes                   |
 | --------------------------------------- | ----------------------- |

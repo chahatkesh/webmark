@@ -40,4 +40,4 @@ Credits are authoritative on the server (`aiSortsRemaining`, import month fields
 
 ## Devices
 
-See [Device Management](../auth/device-management.md). Profile lists `activeDevices` / `maxDevices` and supports `POST /api/user/devices/revoke` (atomic remote sign-out). Logout on this page only clears the current device; use Devices → Sign out for the other one.
+See [Device Management](../auth/device-management.md). Profile lists `activeDevices` / `maxDevices` (2 sessions, any device type) and supports `POST /api/user/devices/revoke` (atomic remote sign-out). Logout only clears the current session; use Devices → Sign out for the other one.

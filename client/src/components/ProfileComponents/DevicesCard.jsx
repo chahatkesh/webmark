@@ -50,9 +50,7 @@ const DevicesCard = ({ devices = [], maxDevices = 2, loading, onRevoked }) => {
             </span>
           )}
         </div>
-        <CardDescription>
-          Up to 2 devices (one desktop, one mobile)
-        </CardDescription>
+        <CardDescription>Up to 2 active sessions</CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
