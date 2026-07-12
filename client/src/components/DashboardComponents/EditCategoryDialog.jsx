@@ -298,7 +298,9 @@ const EditCategoryDialog = ({ open, onClose, category }) => {
               onChange={handleCategoryChange}
               placeholder="Enter category name..."
               className={`w-full h-12 px-4 bg-white border ${
-                error ? "border-red-500 focus:ring-red-500" : "border-gray-200"
+                error
+                  ? "border-red-500 focus-visible:border-red-500"
+                  : "border-gray-200"
               } rounded-md`}
             />
             {error && <p className="mt-1 text-xs text-red-500">{error}</p>}

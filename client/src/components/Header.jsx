@@ -352,7 +352,7 @@ const Header = () => {
         }}
         onFocus={() => setShowSuggestions(true)}
         placeholder="Search bookmarks…"
-        className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50/80 pl-9 pr-[4.75rem] text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 hover:border-gray-300 hover:bg-white focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-500/15"
+        className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50/80 pl-9 pr-[4.75rem] text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 hover:border-gray-300 hover:bg-white focus:border-blue-500 focus:bg-white focus:ring-0"
         aria-label="Search bookmarks"
         aria-keyshortcuts="Meta+K Control+K"
       />
