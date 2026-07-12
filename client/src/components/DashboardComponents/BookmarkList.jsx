@@ -17,7 +17,7 @@ import {
 } from "../../hooks/useBookmarks";
 import BookmarkItem, { BookmarkCard, CategoryCard } from "./BookmarkItem";
 import { Button } from "../ui/button";
-import { PlusCircle, Upload, Wand2 } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { CategoryListSkeleton } from "./LoadingSkeletons";
 import {
   DndContext,
@@ -238,12 +238,6 @@ const BookmarkList = () => {
   const isDraggingCategoryRef = useRef(false);
   const isDraggingBookmarkRef = useRef(false);
   const columnCount = useCategoryColumnCount();
-  const [sortsLeft, setSortsLeft] = useState(() =>
-    parseInt(localStorage.getItem("aiSortsRemaining") ?? "5", 10),
-  );
-  const [importsLeft, setImportsLeft] = useState(() =>
-    parseInt(localStorage.getItem("importsRemainingThisMonth") ?? "2", 10),
-  );
   const {
     mutate: aiSort,
     isPending: isSorting,
@@ -259,6 +253,31 @@ const BookmarkList = () => {
     [categories, searchTerm],
   );
 
+  const totalBookmarks = useMemo(
+    () =>
+      filteredCategories.reduce(
+        (sum, category) => sum + (category.bookmarks?.length || 0),
+        0,
+      ),
+    [filteredCategories],
+  );
+
+  const matchingCategories = useMemo(() => {
+    if (!categories || !searchTerm.trim()) return [];
+    const words = searchTerm.toLowerCase().trim().split(/\s+/);
+    return categories
+      .filter(
+        (category) =>
+          category.category &&
+          words.some((word) => category.category.toLowerCase().includes(word)),
+      )
+      .map((category) => ({
+        id: category._id,
+        name: category.category,
+        emoji: category.emoji,
+      }));
+  }, [categories, searchTerm]);
+
   const uncategorizedCount = useMemo(() => {
     const uncategorized = categories?.find(
       (c) => c.category?.toLowerCase() === "uncategorized",
@@ -267,6 +286,26 @@ const BookmarkList = () => {
   }, [categories]);
 
   const isDragDisabled = !!searchTerm.trim();
+
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      window.dispatchEvent(
+        new CustomEvent("searchResultsUpdated", {
+          detail: { count: null, matchingCategories: [] },
+        }),
+      );
+      return;
+    }
+
+    window.dispatchEvent(
+      new CustomEvent("searchResultsUpdated", {
+        detail: {
+          count: totalBookmarks,
+          matchingCategories,
+        },
+      }),
+    );
+  }, [searchTerm, totalBookmarks, matchingCategories]);
 
   useEffect(() => {
     if (!isDraggingCategoryRef.current && !isDraggingBookmarkRef.current) {
@@ -427,32 +466,6 @@ const BookmarkList = () => {
     setItemsByCategory(buildItemsByCategory(categories));
   }, [categories]);
 
-  const syncLimitsFromStorage = () => {
-    const storedSorts = parseInt(
-      localStorage.getItem("aiSortsRemaining") ?? "5",
-      10,
-    );
-    const storedImports = parseInt(
-      localStorage.getItem("importsRemainingThisMonth") ?? "2",
-      10,
-    );
-    setSortsLeft(storedSorts);
-    setImportsLeft(storedImports);
-  };
-
-  useEffect(() => {
-    syncLimitsFromStorage();
-  }, [sortResults, sortError, importMutation.data]);
-
-  useEffect(() => {
-    window.addEventListener("storage", syncLimitsFromStorage);
-    window.addEventListener("limitsUpdated", syncLimitsFromStorage);
-    return () => {
-      window.removeEventListener("storage", syncLimitsFromStorage);
-      window.removeEventListener("limitsUpdated", syncLimitsFromStorage);
-    };
-  }, []);
-
   useEffect(() => {
     const headerSearchTerm = sessionStorage.getItem("bookmarkSearchTerm") || "";
     setSearchTerm(headerSearchTerm);
@@ -467,142 +480,114 @@ const BookmarkList = () => {
     };
   }, []);
 
-  if (isLoading) return <CategoryListSkeleton />;
+  useEffect(() => {
+    const handleDashboardAction = (event) => {
+      const action = event.detail?.action;
+      if (action === "addCategory") setIsAddingCategory(true);
+      if (action === "aiSort") setIsAISortOpen(true);
+      if (action === "import") setIsImporting(true);
+    };
+
+    window.addEventListener("dashboardAction", handleDashboardAction);
+    return () => {
+      window.removeEventListener("dashboardAction", handleDashboardAction);
+    };
+  }, []);
+
+  const dialogs = (
+    <Suspense fallback={null}>
+      {isAddingCategory && (
+        <AddCategoryDialog
+          open={isAddingCategory}
+          onClose={() => setIsAddingCategory(false)}
+        />
+      )}
+      {isImporting && (
+        <ImportBookmarksDialog
+          open={isImporting}
+          onClose={() => setIsImporting(false)}
+          importMutation={importMutation}
+        />
+      )}
+      {isAISortOpen && (
+        <AISortDialog
+          open={isAISortOpen}
+          onClose={() => setIsAISortOpen(false)}
+          onConfirm={(mode) => aiSort(mode)}
+          uncategorizedCount={uncategorizedCount}
+          isSorting={isSorting}
+          results={sortResults ?? null}
+          sortError={sortError}
+          onReset={resetSort}
+          onRevert={revertSort}
+          isReverting={isReverting}
+        />
+      )}
+    </Suspense>
+  );
+
+  if (isLoading) {
+    return (
+      <>
+        <CategoryListSkeleton />
+        {dialogs}
+      </>
+    );
+  }
+
   if (error) {
     return (
-      <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-6 text-center text-red-600">
-        Failed to load bookmarks. Please refresh the page.
-      </div>
+      <>
+        <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-6 text-center text-red-600">
+          Failed to load bookmarks. Please refresh the page.
+        </div>
+        {dialogs}
+      </>
     );
   }
 
   if (!categories || categories.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
-        <h2 className="text-lg font-semibold text-gray-900">
-          No categories yet
-        </h2>
-        <p className="mt-2 text-sm text-gray-500">
-          Create your first category to start organizing bookmarks.
-        </p>
-        <Button
-          onClick={() => setIsAddingCategory(true)}
-          className="mt-6 h-10 bg-blue-500 px-4 text-white hover:bg-blue-600"
-        >
-          <PlusCircle className="mr-2 h-5 w-5" />
-          Add Category
-        </Button>
-        <Suspense fallback={null}>
-          {isAddingCategory && (
-            <AddCategoryDialog
-              open={isAddingCategory}
-              onClose={() => setIsAddingCategory(false)}
-            />
-          )}
-        </Suspense>
-      </div>
+      <>
+        <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
+          <h2 className="text-lg font-semibold text-gray-900">
+            No categories yet
+          </h2>
+          <p className="mt-2 text-sm text-gray-500">
+            Create your first category to start organizing bookmarks.
+          </p>
+          <Button
+            onClick={() => setIsAddingCategory(true)}
+            className="mt-6 h-10 bg-blue-500 px-4 text-white hover:bg-blue-600"
+          >
+            <PlusCircle className="mr-2 h-5 w-5" />
+            Add Category
+          </Button>
+        </div>
+        {dialogs}
+      </>
     );
   }
 
-  const totalBookmarks = filteredCategories.reduce(
-    (sum, category) => sum + (category.bookmarks?.length || 0),
-    0,
-  );
-
   return (
     <>
-      <div className="mb-6 flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-gray-900">My Bookmarks</h1>
-          {searchTerm && (
-            <div className="ml-4 hidden text-sm text-gray-600 sm:block">
-              {totalBookmarks === 0 ? (
-                <span>No bookmarks found</span>
-              ) : (
-                <span>
-                  {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""}{" "}
-                  found
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button
-            onClick={() => setIsAISortOpen(true)}
-            variant="outline"
-            disabled={sortsLeft <= 0 || isSorting}
-            title={
-              sortsLeft <= 0
-                ? "No AI Sort credits left. Import bookmarks to earn more."
-                : `${sortsLeft} credit${sortsLeft !== 1 ? "s" : ""} remaining`
-            }
-            className="h-10 gap-2 whitespace-nowrap px-4"
-          >
-            <Wand2 className="h-5 w-5" />
-            <span>AI Sort</span>
-            <span
-              className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
-                sortsLeft <= 0
-                  ? "bg-red-100 text-red-600"
-                  : sortsLeft <= 2
-                    ? "bg-amber-100 text-amber-700"
-                    : "bg-blue-100 text-blue-700"
-              }`}
-            >
-              {sortsLeft}
-            </span>
-          </Button>
-          <Button
-            onClick={() => setIsImporting(true)}
-            variant="outline"
-            disabled={importMutation.isPending || importsLeft <= 0}
-            title={
-              importsLeft <= 0
-                ? "Import limit reached for this month (2/month). Resets next month."
-                : `${importsLeft} import${importsLeft !== 1 ? "s" : ""} remaining this month`
-            }
-            className="h-10 gap-2 whitespace-nowrap px-4"
-          >
-            <Upload className="h-5 w-5" />
-            <span>Import</span>
-            <span
-              className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
-                importsLeft <= 0
-                  ? "bg-red-100 text-red-600"
-                  : importsLeft <= 1
-                    ? "bg-amber-100 text-amber-700"
-                    : "bg-blue-100 text-blue-700"
-              }`}
-            >
-              {importsLeft}
-            </span>
-          </Button>
-          <Button
-            onClick={() => setIsAddingCategory(true)}
-            className="h-10 gap-2 whitespace-nowrap bg-blue-500 px-4 text-white hover:bg-blue-600"
-          >
-            <PlusCircle className="h-5 w-5" />
-            <span>Add Category</span>
-          </Button>
-        </div>
-      </div>
-      {searchTerm && (
-        <div className="mb-4 text-sm text-gray-600 sm:hidden">
-          {totalBookmarks === 0 ? (
-            <p>No bookmarks found for &quot;{searchTerm}&quot;</p>
-          ) : (
-            <p>
-              Found {totalBookmarks} bookmark{totalBookmarks !== 1 ? "s" : ""}{" "}
-              for &quot;{searchTerm}&quot;
-            </p>
-          )}
-        </div>
-      )}
       {filteredCategories.length === 0 ? (
-        <div className="rounded-xl border border-gray-100 bg-gray-50 px-6 py-10 text-center text-gray-600">
-          No bookmarks match your search.
+        <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-10 text-center">
+          <p className="text-base font-medium text-gray-900">
+            No bookmarks match your search
+          </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Try a different term, or clear search to see everything.
+          </p>
+          <Button
+            variant="outline"
+            className="mt-5"
+            onClick={() => {
+              window.dispatchEvent(new Event("clearBookmarkSearch"));
+            }}
+          >
+            Clear search
+          </Button>
         </div>
       ) : isDragDisabled ? (
         <CategoryColumns
@@ -670,35 +655,7 @@ const BookmarkList = () => {
           </DragOverlay>
         </DndContext>
       )}
-      <Suspense fallback={null}>
-        {isAddingCategory && (
-          <AddCategoryDialog
-            open={isAddingCategory}
-            onClose={() => setIsAddingCategory(false)}
-          />
-        )}
-        {isImporting && (
-          <ImportBookmarksDialog
-            open={isImporting}
-            onClose={() => setIsImporting(false)}
-            importMutation={importMutation}
-          />
-        )}
-        {isAISortOpen && (
-          <AISortDialog
-            open={isAISortOpen}
-            onClose={() => setIsAISortOpen(false)}
-            onConfirm={(mode) => aiSort(mode)}
-            uncategorizedCount={uncategorizedCount}
-            isSorting={isSorting}
-            results={sortResults ?? null}
-            sortError={sortError}
-            onReset={resetSort}
-            onRevert={revertSort}
-            isReverting={isReverting}
-          />
-        )}
-      </Suspense>
+      {dialogs}
     </>
   );
 };

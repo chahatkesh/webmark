@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import useSWR from "swr";
 import { toast } from "react-toastify";
 import { StoreContext } from "../context/StoreContext";
@@ -42,7 +42,7 @@ const profileFetcher = async (url) => {
 };
 
 export const useProfile = () => {
-  const { url } = useContext(StoreContext);
+  const { url, user, setUser } = useContext(StoreContext);
   const profileKey = `${url}/api/user/profile`;
 
   const { data, error, isLoading, mutate } = useSWR(
@@ -53,6 +53,21 @@ export const useProfile = () => {
       revalidateOnFocus: false,
     },
   );
+
+  // Keep header avatar in sync with profile (same Google photo)
+  useEffect(() => {
+    const picture = data?.profile?.profilePicture;
+    if (!data?.success || !picture || !user) return;
+    if (user.profilePicture === picture) return;
+
+    setUser({
+      ...user,
+      profilePicture: picture,
+      name: data.profile.name || user.name,
+      username: data.profile.username || user.username,
+      email: data.profile.email || user.email,
+    });
+  }, [data, user, setUser]);
 
   const fetchProfileData = useCallback(() => mutate(), [mutate]);
 
@@ -74,6 +89,15 @@ export const useProfile = () => {
           }),
           { revalidate: false },
         );
+
+        if (user) {
+          setUser({
+            ...user,
+            name: response.profile?.name ?? user.name,
+            profilePicture:
+              response.profile?.profilePicture ?? user.profilePicture,
+          });
+        }
         return true;
       }
 

@@ -510,6 +510,7 @@ export const useImportBookmarks = () => {
         "importsRemainingThisMonth",
         String(importsRemainingThisMonth),
       );
+    window.dispatchEvent(new Event("limitsUpdated"));
     return data;
   });
 };
@@ -531,6 +532,13 @@ export const useAISort = () => {
         String(results.aiSortsRemaining),
       );
     if (results?.canRevert) localStorage.setItem("canRevertAISort", "true");
+    const moved = results?.bookmarksMoved ?? results?.totalMoved;
+    toast.success(
+      moved != null
+        ? `AI Sort complete · ${moved} bookmark${moved !== 1 ? "s" : ""} organized. Undo is available in the dialog.`
+        : "AI Sort complete. Undo is available in the dialog.",
+    );
+    window.dispatchEvent(new Event("limitsUpdated"));
     return results;
   });
 };

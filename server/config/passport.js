@@ -26,30 +26,47 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
+        const email = profile.emails?.[0]?.value;
+        const photo = profile.photos?.[0]?.value;
+        const displayName = profile.displayName;
+
         // Check if user exists
         let user = await User.findOne({ googleId: profile.id });
 
         if (user) {
+          // Refresh Google profile fields on each sign-in
+          let dirty = false;
+          if (photo && user.profilePicture !== photo) {
+            user.profilePicture = photo;
+            dirty = true;
+          }
+          if (displayName && user.name !== displayName) {
+            user.name = displayName;
+            dirty = true;
+          }
+          if (dirty) await user.save();
           return done(null, user);
         }
 
         // If user with this email exists but no googleId (legacy user), update with googleId
-        user = await User.findOne({ email: profile.emails[0].value });
-        if (user) {
-          user.googleId = profile.id;
-          user.profilePicture = profile.photos[0].value;
-          user.name = profile.displayName;
-          await user.save();
-          return done(null, user);
+        if (email) {
+          user = await User.findOne({ email });
+          if (user) {
+            user.googleId = profile.id;
+            if (photo) user.profilePicture = photo;
+            if (displayName) user.name = displayName;
+            await user.save();
+            return done(null, user);
+          }
         }
 
         // New user - create in pre-onboarding state
         // Username will be set during onboarding
         const newUser = new User({
-          email: profile.emails[0].value,
+          email,
           googleId: profile.id,
-          profilePicture: profile.photos[0].value,
-          name: profile.displayName,
+          profilePicture: photo,
+          name: displayName,
           username: `user_${Math.random().toString(36).substring(2, 10)}`, // Temporary username
           hasCompletedOnboarding: false,
         });

@@ -13,7 +13,7 @@ const Dashboard = () => {
         path="/user/dashboard"
         indexPage={false}
       />
-      <div className="w-[95vw] h-auto m-auto bg-white rounded-md px-6 py-8 mt-11">
+      <div className="mx-auto mt-14 min-h-[calc(100vh-3.5rem)] w-full max-w-[1600px] px-3 py-5 sm:px-6 sm:py-6 lg:px-8">
         <BookmarkList />
       </div>
     </>

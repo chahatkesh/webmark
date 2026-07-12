@@ -248,12 +248,13 @@ const Profile = () => {
                   <img
                     src={profile.profilePicture}
                     alt="Profile"
+                    referrerPolicy="no-referrer"
                     className="h-20 w-20 rounded-xl border-4 border-white shadow-md object-cover"
                     onError={(e) => {
-                      e.target.onerror = null;
+                      e.currentTarget.onerror = null;
                       const displayName =
                         profile.name || profile.username || "User";
-                      e.target.src =
+                      e.currentTarget.src =
                         "https://ui-avatars.com/api/?name=" +
                         encodeURIComponent(displayName) +
                         "&size=200&background=4F46E5&color=fff";

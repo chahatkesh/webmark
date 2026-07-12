@@ -357,9 +357,22 @@ const BookmarkItem = ({
       />
     );
 
+  const isEmpty = !displayBookmarks || displayBookmarks.length === 0;
+
   const bookmarkGrid = (
-    <div className="grid grid-cols-2 mt-2 md:mt-4 gap-x-2 gap-y-2 md:gap-x-3 md:gap-y-3 min-h-[2.5rem]">
-      {displayBookmarks?.map(renderBookmark)}
+    <div className="mt-2 grid min-h-[2.5rem] grid-cols-2 gap-x-2 gap-y-2 md:mt-4 md:gap-x-3 md:gap-y-3">
+      {isEmpty ? (
+        <button
+          type="button"
+          onClick={() => setIsAddingBookmark(true)}
+          className="col-span-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300/80 bg-white/50 px-4 py-6 text-sm font-medium text-gray-600 transition-colors hover:border-blue-300 hover:bg-white hover:text-blue-600"
+        >
+          <PlusCircle size={18} className="opacity-80" />
+          Add bookmark
+        </button>
+      ) : (
+        displayBookmarks.map(renderBookmark)
+      )}
     </div>
   );
 
@@ -380,19 +393,20 @@ const BookmarkItem = ({
   return (
     <>
       <div
+        id={`category-${categoryId}`}
         style={{ backgroundColor: color }}
-        className="px-2 md:px-4 pt-3 md:pt-6 pb-4 md:pb-8 rounded relative"
+        className="relative scroll-mt-20 rounded px-2 pb-4 pt-3 transition-shadow md:px-4 md:pb-8 md:pt-6"
       >
-        <div className="flex justify-between items-center mb-4">
+        <div className="mb-4 flex items-center justify-between gap-2">
           <h1
             style={{ color: hcolor }}
-            className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2 min-w-0"
+            className="flex min-w-0 items-center gap-2 pl-1 text-[14px] font-medium md:text-[18px]"
           >
             {categoryDragHandleProps && (
               <div
                 {...categoryDragHandleProps}
                 data-category-drag-handle
-                className="touch-none shrink-0 cursor-grab active:cursor-grabbing outline-none focus:outline-none"
+                className="touch-none shrink-0 cursor-grab outline-none focus:outline-none active:cursor-grabbing"
               >
                 <GripVertical className="h-4 w-4 opacity-60" />
               </div>
@@ -401,20 +415,24 @@ const BookmarkItem = ({
               {emoji} {category}
             </span>
           </h1>
-          <div className="flex items-center justify-center gap-1">
+          <div className="flex shrink-0 items-center justify-center gap-0.5">
             <Button
               variant="ghost2"
               size="sm"
               onClick={() => setIsAddingBookmark(true)}
               aria-label="Add bookmark"
+              title="Add bookmark"
+              className="gap-1.5 text-gray-700"
             >
-              <PlusCircle size={20} />
+              <PlusCircle size={18} />
+              <span className="hidden text-sm font-medium sm:inline">Add</span>
             </Button>
             <Button
               variant="ghost2"
               size="sm"
               onClick={() => setIsEditingCategory(true)}
               aria-label="Edit category"
+              title="Edit category"
             >
               <Pencil size={18} />
             </Button>
@@ -423,6 +441,7 @@ const BookmarkItem = ({
               size="sm"
               onClick={() => setIsConfirmDeleteOpen(true)}
               aria-label="Delete category"
+              title="Delete category"
             >
               <Trash2 size={18} />
             </Button>
