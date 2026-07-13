@@ -1,5 +1,5 @@
-import useSWR, { mutate as globalMutate } from "swr";
-import { useState, useCallback, useContext } from "react";
+import useSWR from "swr";
+import { useContext } from "react";
 import { StoreContext } from "../context/StoreContext";
 
 const statsFetcher = (url) =>
@@ -16,10 +16,7 @@ const statsFetcher = (url) =>
 
 export const useStats = () => {
   const { url } = useContext(StoreContext);
-  const [timeRange, setTimeRange] = useState("month");
-  const [error, setError] = useState(null);
-
-  const swrKey = `${url}/api/stats/public?range=${timeRange}`;
+  const swrKey = `${url}/api/stats/public?scope=hero`;
 
   const {
     data: stats,
@@ -31,35 +28,13 @@ export const useStats = () => {
     errorRetryCount: 1,
     revalidateOnFocus: false,
     revalidateOnMount: true,
-    onError: (err) => setError(err.message),
   });
-
-  const isError = !!swrError;
-
-  const refreshStats = useCallback(() => {
-    globalMutate(
-      (key) => typeof key === "string" && key.includes("/api/stats/"),
-    );
-    setError(null);
-  }, []);
-
-  const calculateGrowth = useCallback(
-    (currentValue, type) => {
-      if (!stats?.growth?.[type]) return 0;
-      return stats.growth[type];
-    },
-    [stats],
-  );
 
   return {
     stats,
     isLoading,
-    isError,
-    error,
-    timeRange,
-    setTimeRange,
-    refreshStats,
-    calculateGrowth,
+    isError: !!swrError,
+    error: swrError?.message ?? null,
   };
 };
 

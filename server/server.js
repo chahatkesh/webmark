@@ -8,6 +8,7 @@ import statsRoute from "./routes/statsRoute.js";
 import clickRoute from "./routes/clickRoute.js";
 import cronRoute from "./routes/cronRoute.js";
 import tweetRoute from "./routes/tweetRoute.js";
+import adminRoute from "./routes/adminRoute.js";
 import { initializeCronJobs } from "./utils/cronJobs.js";
 import passport from "./config/passport.js";
 import "dotenv/config";
@@ -108,6 +109,7 @@ app.use("/api/stats", statsRoute);
 app.use("/api/clicks", clickRoute);
 app.use("/api/cron", cronRoute);
 app.use("/api/tweets", tweetRoute);
+app.use("/api/admin", adminRoute);
 
 app.get("/", (req, res) => {
   res.send("API Working");

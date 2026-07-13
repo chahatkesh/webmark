@@ -1,10 +1,8 @@
-import { useAuth } from "../../hooks/useAuth";
 import LandingButton from "./LandingButton";
 import StarRepo from "./StarRepo";
 
 const Navbar = () => {
   let logoColour = "#1361F5";
-  const { isAuthenticated } = useAuth();
 
   const scrollToSection = (sectionId) => {
     document.getElementById(sectionId).scrollIntoView({
@@ -89,12 +87,12 @@ const Navbar = () => {
               <StarRepo variant="navbar" />
             </div>
             <LandingButton
-              href={isAuthenticated ? "/user/dashboard" : "/auth"}
+              href="/auth"
               variant="dark"
               size="sm"
               className="shrink-0"
             >
-              {isAuthenticated ? "Dashboard" : "Get Started"}
+              Get Started
             </LandingButton>
           </div>
         </div>

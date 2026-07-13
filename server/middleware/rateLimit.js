@@ -55,3 +55,19 @@ export const publicStatsRateLimit = rateLimit({
   legacyHeaders: false,
   handler: jsonHandler,
 });
+
+export const adminLoginRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: jsonHandler,
+});
+
+export const adminApiRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: jsonHandler,
+});

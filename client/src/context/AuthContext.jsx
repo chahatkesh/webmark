@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { mutate as globalMutate } from "swr";
 import { StoreContext } from "./StoreContext";
 import { apiRequest, clearLocalSession } from "../utils/apiClient";
@@ -38,11 +38,17 @@ const applyUserLimits = (data) => {
   }
 };
 
+const shouldBootstrapAuthForPath = (pathname = "/") =>
+  pathname.startsWith("/user") ||
+  pathname.startsWith("/auth") ||
+  pathname === "/onboarding";
+
 export const AuthProvider = ({ children }) => {
   const { url, setUser, user } = useContext(StoreContext);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const fetchUserData = useCallback(async () => {
     try {
@@ -139,11 +145,17 @@ export const AuthProvider = ({ children }) => {
   );
 
   useEffect(() => {
+    if (!shouldBootstrapAuthForPath(location.pathname)) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
     fetchUserData();
-  }, [fetchUserData]);
+  }, [fetchUserData, location.pathname]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !location.pathname.startsWith("/user")) return;
 
     import("../pages/Dashboard");
 
@@ -153,7 +165,7 @@ export const AuthProvider = ({ children }) => {
     }).catch((error) => {
       console.error("Failed to prefetch categories:", error);
     });
-  }, [isAuthenticated, url]);
+  }, [isAuthenticated, location.pathname, url]);
 
   const value = useMemo(
     () => ({

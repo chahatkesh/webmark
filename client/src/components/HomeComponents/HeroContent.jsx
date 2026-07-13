@@ -4,16 +4,49 @@ import { assets } from "../../assets/assests";
 import LandingButton from "./LandingButton";
 import { useStats } from "../../hooks/useStats";
 
-const fmtStat = (n) => {
-  if (!n) return null;
-  if (n >= 1000) return `${Math.floor(n / 1000)}k+`;
-  return n.toLocaleString();
+const parseStat = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+};
+
+const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
+
+const CounterValue = ({ value }) => {
+  const [displayValue, setDisplayValue] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!Number.isFinite(value) || value < 0) return;
+
+    let rafId = null;
+    const durationMs = 1300;
+    const startAt = performance.now();
+
+    const tick = (now) => {
+      const elapsed = now - startAt;
+      const progress = Math.min(elapsed / durationMs, 1);
+      const nextValue = Math.round(value * easeOutCubic(progress));
+
+      setDisplayValue(nextValue);
+
+      if (progress < 1) {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+
+    rafId = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, [value]);
+
+  return displayValue.toLocaleString();
 };
 
 const Hero = () => {
   const { stats } = useStats();
-  const users = fmtStat(stats?.totalUsers);
-  const bookmarks = fmtStat(stats?.totalBookmarks);
+  const users = parseStat(stats?.totalUsers);
+  const bookmarks = parseStat(stats?.totalBookmarks);
   // Stagger animation for avatar stack
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -136,14 +169,14 @@ const Hero = () => {
                 </LandingButton>
               </div>
             </div>
-            {users && bookmarks && (
+            {users !== null && bookmarks !== null && (
               <p className="mt-5 text-center text-[13px] text-[#9ca3af]">
                 <span className="font-medium text-[#374151]">
-                  {users} people
+                  <CounterValue value={users} /> people
                 </span>
                 {" have saved "}
                 <span className="font-medium text-[#374151]">
-                  {bookmarks} bookmarks
+                  <CounterValue value={bookmarks} /> bookmarks
                 </span>
                 {" with Webmark"}
               </p>

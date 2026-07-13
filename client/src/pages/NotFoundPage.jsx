@@ -1,16 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { assets } from "../assets/assests";
-import { Home, Search, ArrowLeft } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { useAuth } from "../hooks/useAuth";
 import { reportError } from "../utils/errorReporter";
 import { useEffect } from "react";
 import SEO from "../components/SEO";
 
 const NotFoundPage = () => {
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-
   // Report 404 error for analytics
   useEffect(() => {
     reportError(new Error("404 Page Not Found"), {
@@ -28,59 +22,36 @@ const NotFoundPage = () => {
         keywords="404, page not found, error, webmark"
         indexPage={false}
       />
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-        <div className="w-full max-w-lg text-center">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <img
-              src={assets.logo_color}
-              alt="Webmark Logo"
-              className="h-12 md:h-16 w-auto"
-            />
-          </div>
+      <div className="relative min-h-screen overflow-hidden bg-[#02050c] text-white">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(29,78,216,0.14),rgba(2,5,12,0)_42%)]" />
 
-          {/* 404 Illustration */}
-          <div className="relative mx-auto mb-8">
-            <div className="text-[10rem] leading-none font-bold text-gray-200">
+        <div className="relative mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center px-6 text-center">
+          <img
+            src={assets.logo_color}
+            alt="Webmark Logo"
+            className="mb-10 h-10 w-auto md:mb-12 md:h-12"
+          />
+
+          <div className="relative">
+            <p className="select-none text-[7.5rem] font-bold leading-none tracking-[-0.05em] text-white/[0.06] md:text-[13rem]">
               404
-            </div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-              <Search className="h-16 w-16 text-blue-500" />
-            </div>
+            </p>
+            <h1 className="absolute inset-0 flex items-center justify-center text-[2rem] font-semibold tracking-[-0.02em] text-white md:text-[2.15rem]">
+              Nothing here.
+            </h1>
           </div>
 
-          {/* Error Status */}
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Page not found
-          </h1>
-
-          {/* Error Message */}
-          <p className="mt-4 text-base text-gray-600">
-            Sorry, we couldn&apos;t find the page you&apos;re looking for. It
-            might have been moved, deleted, or the URL may have been mistyped.
+          <p className="mt-6 max-w-2xl text-[1.05rem] leading-8 text-white/60 md:text-[1.1rem]">
+            The page you&apos;re looking for doesn&apos;t exist, or it was moved
+            somewhere else.
           </p>
 
-          {/* Action Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              onClick={() => navigate(-1)}
-              variant="outline"
-              className="w-full sm:w-auto flex gap-2 items-center"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Go Back
-            </Button>
-
-            <Button
-              asChild
-              className="w-full sm:w-auto flex gap-2 items-center"
-            >
-              <Link to={isAuthenticated ? "/user/dashboard" : "/"}>
-                <Home className="h-4 w-4" />
-                {isAuthenticated ? "Go to Dashboard" : "Return Home"}
-              </Link>
-            </Button>
-          </div>
+          <Link
+            to="/"
+            className="mt-9 inline-flex items-center justify-center rounded-xl border border-white/20 px-8 py-3 text-lg font-medium text-white transition hover:border-white/35 hover:bg-white/5"
+          >
+            Go home
+          </Link>
         </div>
       </div>
     </>

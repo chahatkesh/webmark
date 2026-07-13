@@ -63,6 +63,7 @@ const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const BookmarkletSave = lazy(() => import("./pages/BookmarkletSave"));
 const BookmarkletSync = lazy(() => import("./pages/BookmarkletSync"));
+const Admin = lazy(() => import("./pages/Admin"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 const ProtectedRoute = ({ children }) => {
@@ -150,6 +151,14 @@ const App = () => {
             element={
               <Suspense fallback={<Loader />}>
                 <PrivacyPolicy />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <Suspense fallback={<Loader />}>
+                <Admin />
               </Suspense>
             }
           />

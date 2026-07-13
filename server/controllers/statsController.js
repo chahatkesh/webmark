@@ -226,11 +226,13 @@ export const getHistoricalStats = async (req, res) => {
 
 export const getPublicStats = async (req, res) => {
   try {
-    const { range = "month" } = req.query;
+    const { range = "month", scope = "full" } = req.query;
+    const safeScope = scope === "hero" ? "hero" : "full";
     const safeRange = ["week", "month", "year", "all"].includes(range)
       ? range
       : "month";
-    const cached = publicStatsCache.get(safeRange);
+    const cacheKey = safeScope === "hero" ? "hero" : safeRange;
+    const cached = publicStatsCache.get(cacheKey);
 
     if (cached && cached.expiresAt > Date.now()) {
       res.set(
@@ -239,6 +241,31 @@ export const getPublicStats = async (req, res) => {
       );
       res.set("X-Cache", "HIT");
       return res.status(200).json(cached.payload);
+    }
+
+    if (safeScope === "hero") {
+      const [totalUsers, totalBookmarks] = await Promise.all([
+        User.countDocuments(),
+        Bookmark.countDocuments(),
+      ]);
+
+      const heroStats = {
+        success: true,
+        totalUsers,
+        totalBookmarks,
+      };
+
+      publicStatsCache.set(cacheKey, {
+        expiresAt: Date.now() + PUBLIC_STATS_CACHE_TTL_MS,
+        payload: heroStats,
+      });
+
+      res.set(
+        "Cache-Control",
+        "public, s-maxage=300, stale-while-revalidate=1800",
+      );
+      res.set("X-Cache", "MISS");
+      return res.status(200).json(heroStats);
     }
 
     const { startDate, previousStartDate, endDate } = getDateRanges(safeRange);
@@ -348,7 +375,7 @@ export const getPublicStats = async (req, res) => {
       },
     };
 
-    publicStatsCache.set(safeRange, {
+    publicStatsCache.set(cacheKey, {
       expiresAt: Date.now() + PUBLIC_STATS_CACHE_TTL_MS,
       payload: stats,
     });
