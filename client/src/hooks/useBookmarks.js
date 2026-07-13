@@ -556,3 +556,148 @@ export const useRevertAISort = () => {
     return data;
   });
 };
+
+export const useSeedDefaultBookmarks = () => {
+  const { url } = useContext(StoreContext);
+
+  return useMutationAction("seed-defaults", async () => {
+    const data = await apiRequest(`${url}/api/bookmarks/seed-defaults`, {
+      method: "POST",
+    });
+    if (!data.success) throw new Error(data.message);
+    globalMutate(catKey(url));
+    toast.success("Default bookmarks created!");
+    return data;
+  });
+};
+
+// ── Optimistic helpers ─────────────────────────────────────────────────────────
+
+/**
+ * Returns a callback that immediately removes a bookmark from the SWR cache
+ * and returns a rollback function to restore the previous state.
+ */
+export const useOptimisticRemoveBookmark = () => {
+  const { url } = useContext(StoreContext);
+
+  return useCallback(
+    ({ bookmarkId, categoryId }) => {
+      return updateCatCache(url, (current) => {
+        if (!current?.categories) return current;
+        return {
+          ...current,
+          categories: current.categories.map((c) =>
+            c._id === categoryId
+              ? {
+                  ...c,
+                  bookmarks: (c.bookmarks || []).filter(
+                    (b) => b._id !== bookmarkId,
+                  ),
+                }
+              : c,
+          ),
+        };
+      });
+    },
+    [url],
+  );
+};
+
+export const useMoveBookmark = () => {
+  const { url } = useContext(StoreContext);
+
+  return useMutationAction(
+    "move-bookmark",
+    async (_, { arg: { bookmarkId, sourceCategoryId, targetCategoryId } }) => {
+      const rollback = updateCatCache(url, (current) => {
+        if (!current?.categories) return current;
+        const srcCat = current.categories.find(
+          (c) => c._id === sourceCategoryId,
+        );
+        const bookmark = (srcCat?.bookmarks || []).find(
+          (b) => b._id === bookmarkId,
+        );
+        if (!bookmark) return current;
+        const tgtCat = current.categories.find(
+          (c) => c._id === targetCategoryId,
+        );
+        const tgtBookmarks = tgtCat?.bookmarks || [];
+        const newOrder =
+          tgtBookmarks.length > 0
+            ? Math.max(...tgtBookmarks.map((b) => b.order ?? 0)) + 1
+            : 0;
+        return {
+          ...current,
+          categories: current.categories.map((c) => {
+            if (c._id === sourceCategoryId) {
+              return {
+                ...c,
+                bookmarks: (c.bookmarks || []).filter(
+                  (b) => b._id !== bookmarkId,
+                ),
+              };
+            }
+            if (c._id === targetCategoryId) {
+              return {
+                ...c,
+                bookmarks: [
+                  ...(c.bookmarks || []),
+                  {
+                    ...bookmark,
+                    categoryId: targetCategoryId,
+                    order: newOrder,
+                  },
+                ],
+              };
+            }
+            return c;
+          }),
+        };
+      });
+
+      try {
+        const data = await apiRequest(`${url}/api/bookmarks/bookmark`, {
+          method: "PUT",
+          body: { bookmarkId, targetCategoryId },
+        });
+        // Sync actual server bookmark data into the cache
+        const updated = data.bookmark;
+        globalMutate(
+          catKey(url),
+          (current) => {
+            if (!current?.categories) return current;
+            return {
+              ...current,
+              categories: current.categories.map((c) => {
+                if (c._id === sourceCategoryId) {
+                  return {
+                    ...c,
+                    bookmarks: (c.bookmarks || []).filter(
+                      (b) => b._id !== bookmarkId,
+                    ),
+                  };
+                }
+                if (c._id === targetCategoryId) {
+                  return {
+                    ...c,
+                    bookmarks: (c.bookmarks || []).map((b) =>
+                      b._id === bookmarkId ? updated : b,
+                    ),
+                  };
+                }
+                return c;
+              }),
+            };
+          },
+          { revalidate: false },
+        );
+        toast.success("Bookmark moved successfully");
+        return updated;
+      } catch (err) {
+        rollback();
+        toast.error("Failed to move bookmark");
+        throw err;
+      }
+    },
+  );
+};

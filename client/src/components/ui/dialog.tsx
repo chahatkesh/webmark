@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -32,7 +31,7 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     hideClose?: boolean;
   }
->(({ className, children, hideClose = false, ...props }, ref) => (
+>(({ className, children, hideClose: _hideClose, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
@@ -44,12 +43,6 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      {!hideClose && (
-        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-50 ring-offset-background transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
-      )}
     </DialogPrimitive.Content>
   </DialogPortal>
 ));
@@ -72,7 +65,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex shrink-0 flex-col-reverse gap-2 border-t border-gray-100 px-6 py-4 sm:flex-row sm:justify-end",
+      "flex shrink-0 flex-row gap-2 border-t border-gray-100 px-6 py-4 justify-end",
       className,
     )}
     {...props}

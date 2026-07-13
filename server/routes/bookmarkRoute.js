@@ -17,6 +17,7 @@ import {
   bookmarkletSave,
 } from "../controllers/bookmarkController.js";
 import { aiSortBookmarks, revertAISort } from "../controllers/aiController.js";
+import { seedDefaultBookmarks } from "../controllers/bookmarkController.js";
 import authMiddleware from "../middleware/authmiddleware.js";
 import bookmarkletAuthMiddleware from "../middleware/bookmarkletAuth.js";
 import { aiRateLimit, importRateLimit } from "../middleware/rateLimit.js";
@@ -42,6 +43,9 @@ router.delete("/bookmark", authMiddleware, deleteBookmark);
 router.put("/reorder", authMiddleware, reorderBookmarks);
 router.put("/reorder-layout", authMiddleware, reorderBookmarkLayout);
 router.post("/import", authMiddleware, importRateLimit, importBookmarks);
+
+// Seed default categories + bookmarks for new users
+router.post("/seed-defaults", authMiddleware, seedDefaultBookmarks);
 
 // AI categorization
 router.post("/ai/sort", authMiddleware, aiRateLimit, aiSortBookmarks);

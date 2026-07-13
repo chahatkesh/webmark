@@ -126,6 +126,16 @@ const ShareModal = ({ isOpen, onClose }) => {
       open={isOpen}
       onClose={onClose}
       size="md"
+      footer={
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full sm:w-auto"
+          onClick={onClose}
+        >
+          Close
+        </Button>
+      }
       title={
         <span className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">

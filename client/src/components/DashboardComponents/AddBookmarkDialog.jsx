@@ -95,23 +95,34 @@ const AddBookmarkDialog = ({ open, onClose, categoryId }) => {
       title="Add New Bookmark"
       size="md"
       footer={
-        <Button
-          type="submit"
-          form="add-bookmark-form"
-          className="w-full sm:w-auto"
-          disabled={
-            isSubmitting || !formData.link.trim() || !formData.name.trim()
-          }
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Adding Bookmark...
-            </>
-          ) : (
-            "Add Bookmark"
-          )}
-        </Button>
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            disabled={isSubmitting}
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="add-bookmark-form"
+            className="w-full sm:w-auto"
+            disabled={
+              isSubmitting || !formData.link.trim() || !formData.name.trim()
+            }
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Adding Bookmark...
+              </>
+            ) : (
+              "Add Bookmark"
+            )}
+          </Button>
+        </>
       }
     >
       <form

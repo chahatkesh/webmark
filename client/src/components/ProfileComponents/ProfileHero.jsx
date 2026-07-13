@@ -1,9 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { CalendarDays, Check, Edit2, Loader2, Mail, X } from "lucide-react";
-import { format } from "date-fns";
-import { toast } from "react-toastify";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Bookmark,
+  CalendarDays,
+  Clock,
+  FolderOpen,
+  Mail,
+  MousePointer,
+} from "lucide-react";
+import { format, formatDistanceToNow } from "date-fns";
+import { Card } from "@/components/ui/card";
+
+const BANNER_QUOTE = "Organise your web, one bookmark at a time.";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -17,69 +23,16 @@ const formatJoinDate = (date) => {
   return format(new Date(date), "MMM d, yyyy");
 };
 
-const ProfileHero = ({ profile, updateProfile }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const inputRef = useRef(null);
+const formatCount = (value) => (Number(value) || 0).toLocaleString();
 
+const ProfileHero = ({
+  profile,
+  clickStats,
+  formatTimeSaved,
+  statsLoading,
+}) => {
   const displayName = profile?.name || profile?.username || "there";
   const greeting = getGreeting();
-
-  useEffect(() => {
-    if (!isEditing) return;
-    inputRef.current?.focus();
-    inputRef.current?.select();
-  }, [isEditing]);
-
-  const handleEditClick = () => {
-    setFullName(profile?.name || "");
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    if (submitting) return;
-    setFullName(profile?.name || "");
-    setIsEditing(false);
-  };
-
-  const handleSave = async () => {
-    const nextName = fullName.trim();
-    if (!nextName) {
-      toast.error("Name can't be empty");
-      inputRef.current?.focus();
-      return;
-    }
-
-    if (nextName === (profile?.name || "").trim()) {
-      setIsEditing(false);
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const success = await updateProfile({ name: nextName });
-      if (success) {
-        setIsEditing(false);
-        toast.success("Name updated");
-      }
-    } catch {
-      toast.error("Could not update profile");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSave();
-    }
-    if (e.key === "Escape") {
-      e.preventDefault();
-      handleCancel();
-    }
-  };
 
   const avatarFallback =
     "https://ui-avatars.com/api/?name=" +
@@ -91,102 +44,145 @@ const ProfileHero = ({ profile, updateProfile }) => {
       src={profile.profilePicture}
       alt=""
       referrerPolicy="no-referrer"
-      className="h-14 w-14 shrink-0 rounded-2xl object-cover ring-1 ring-gray-200 sm:h-16 sm:w-16"
+      className="h-14 w-14 shrink-0 rounded-xl object-cover ring-1 ring-gray-200 sm:h-16 sm:w-16"
       onError={(e) => {
         e.currentTarget.onerror = null;
         e.currentTarget.src = avatarFallback;
       }}
     />
   ) : (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-lg font-semibold text-white ring-1 ring-blue-500/20 sm:h-16 sm:w-16 sm:text-xl">
+    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-lg font-semibold text-white ring-1 ring-blue-500/20 sm:h-16 sm:w-16 sm:text-xl">
       {(profile?.username || "U").charAt(0).toUpperCase()}
     </div>
   );
 
   return (
-    <Card className="border-gray-100 shadow-sm">
-      <CardContent className="p-4 sm:p-5">
-        <div className="flex min-w-0 gap-3.5 sm:gap-4">
-          <div className="shrink-0">{avatar}</div>
+    <Card className="overflow-hidden border-gray-100 shadow-sm">
+      {/* Banner */}
+      <div className="relative h-24 bg-blue-500 sm:h-28">
+        {/* Subtle stripe texture */}
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.4) 10px, rgba(255,255,255,0.4) 11px)",
+          }}
+        />
+        {/* Quote */}
+        <div className="absolute inset-0 flex items-center justify-end px-5 sm:px-6">
+          <p className="max-w-xs text-right text-[11px] font-medium italic leading-relaxed text-white/70 sm:text-xs">
+            &ldquo;{BANNER_QUOTE}&rdquo;
+          </p>
+        </div>
+      </div>
 
-          <div className="min-w-0 flex-1">
-            <p className="text-sm text-gray-500">
-              {greeting},{" "}
-              <span className="font-medium text-gray-700">
-                @{profile?.username}
-              </span>
-            </p>
-
-            <div className="mt-0.5 flex min-h-10 min-w-0 items-center gap-1.5">
-              {isEditing ? (
-                <>
-                  <Input
-                    ref={inputRef}
-                    id="profile-name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    disabled={submitting}
-                    maxLength={80}
-                    aria-label="Display name"
-                    className="max-w-xs"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={submitting}
-                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-blue-500 text-white transition-colors hover:bg-blue-600 disabled:opacity-60"
-                    aria-label="Save name"
-                    title="Save"
-                  >
-                    {submitting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Check className="h-4 w-4" />
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    disabled={submitting}
-                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700 disabled:opacity-60"
-                    aria-label="Cancel editing"
-                    title="Cancel"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <h1 className="truncate text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
-                    {displayName}
-                  </h1>
-                  <button
-                    type="button"
-                    onClick={handleEditClick}
-                    className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
-                    aria-label="Edit display name"
-                    title="Edit name"
-                  >
-                    <Edit2 className="h-3.5 w-3.5" />
-                  </button>
-                </>
-              )}
-            </div>
-
-            <div className="mt-3 flex flex-col gap-1.5 text-sm text-gray-600 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1">
-              <span className="inline-flex min-w-0 items-center gap-1.5">
-                <Mail className="h-3.5 w-3.5 shrink-0 text-blue-500" />
-                <span className="truncate">{profile?.email}</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-blue-500" />
-                Joined {formatJoinDate(profile?.joinedAt)}
-              </span>
-            </div>
+      {/* Profile info */}
+      <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+        {/* Avatar — overlaps banner */}
+        <div className="relative -mt-8 mb-3 sm:-mt-10">
+          <div className="inline-block rounded-2xl ring-4 ring-white">
+            {avatar}
           </div>
         </div>
-      </CardContent>
+
+        {/* Greeting */}
+        <p className="text-[12px] text-gray-400">
+          {greeting},{" "}
+          <span className="font-medium text-gray-500">
+            @{profile?.username}
+          </span>
+        </p>
+
+        {/* Name */}
+        <h1 className="mt-0.5 truncate text-xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+          {displayName}
+        </h1>
+
+        {/* Email + join date */}
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span className="inline-flex min-w-0 items-center gap-1.5 text-[12px] text-gray-400">
+            <Mail className="h-3 w-3 shrink-0" />
+            <span className="truncate">{profile?.email}</span>
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-[12px] text-gray-400">
+            <CalendarDays className="h-3 w-3 shrink-0" />
+            Joined {formatJoinDate(profile?.joinedAt)}
+          </span>
+        </div>
+      </div>
+
+      {/* ── Stats strip ───────────────────────────────── */}
+      <div className="border-t border-gray-100">
+        <div className="grid grid-cols-2 divide-x divide-y divide-gray-100 sm:grid-cols-4 sm:divide-y-0">
+          {[
+            {
+              icon: Bookmark,
+              label: "Bookmarks",
+              value: formatCount(profile?.bookmarkCount),
+            },
+            {
+              icon: FolderOpen,
+              label: "Categories",
+              value: formatCount(profile?.categoryCount),
+            },
+            {
+              icon: MousePointer,
+              label: "Clicks",
+              value: formatCount(clickStats?.totalClicks),
+            },
+            {
+              icon: Clock,
+              label: "Time saved",
+              value: formatTimeSaved
+                ? formatTimeSaved(clickStats?.timeSaved || 0)
+                : "—",
+              title: "Estimated time saved",
+            },
+          ].map(({ icon: Icon, label, value, title }) => (
+            <div
+              key={label}
+              className="flex flex-col gap-1 px-5 py-4 sm:px-6"
+              title={title}
+            >
+              <div className="flex items-center gap-1.5">
+                <Icon className="h-3 w-3 shrink-0 text-blue-400" />
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                  {label}
+                </span>
+              </div>
+              {statsLoading ? (
+                <div className="mt-1 h-6 w-14 animate-pulse rounded bg-gray-100" />
+              ) : (
+                <p className="mt-0.5 text-[22px] font-semibold leading-none tracking-tight text-gray-900 tabular-nums">
+                  {value}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Last opened footer */}
+        {clickStats?.lastClickedBookmark?.name && (
+          <div className="flex items-center gap-2 border-t border-gray-100 bg-gray-50/50 px-5 py-2.5 sm:px-6">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-blue-400" />
+            <p className="min-w-0 truncate text-[11px] text-gray-400">
+              Last opened{" "}
+              <span className="font-medium text-gray-600">
+                {clickStats.lastClickedBookmark.name}
+              </span>
+              {clickStats.lastClickedBookmark.timestamp && (
+                <span className="text-gray-400">
+                  {" · "}
+                  {formatDistanceToNow(
+                    new Date(clickStats.lastClickedBookmark.timestamp),
+                    { addSuffix: true },
+                  )}
+                </span>
+              )}
+            </p>
+          </div>
+        )}
+      </div>
     </Card>
   );
 };

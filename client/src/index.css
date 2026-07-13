@@ -88,6 +88,47 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ── Global subtle scrollbar ─────────────────────────────────────────────── */
+/* Prevent body from scrolling only inside the authenticated app shell.
+   Landing page and other public routes keep normal body scroll. */
+.authenticated-layout {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Firefox */
+html,
+body,
+main,
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+}
+
+/* Chrome / Safari / Edge */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.22);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Keep header scrollbar-free */
+header::-webkit-scrollbar {
+  display: none;
+}
 a {
   text-decoration: inherit;
   color: inherit;
@@ -355,46 +396,83 @@ ul {
   animation-delay: 4s;
 }
 
-/* ─── Toast overrides ───────────────────────────────────────────────────────── */
-.Toastify__toast-container {
-  padding: 0 !important;
-  width: auto !important;
-  max-width: 360px !important;
-}
-.Toastify__toast {
-  margin-bottom: 8px !important;
-  font-family: "Inter", sans-serif;
-}
-.Toastify__toast--success {
-  border-left: 3px solid #22c55e !important;
-}
-.Toastify__toast--error {
-  border-left: 3px solid #ef4444 !important;
-}
-.Toastify__toast--info {
-  border-left: 3px solid #3b82f6 !important;
-}
-.Toastify__toast--warning {
-  border-left: 3px solid #f59e0b !important;
+/* ── Webmark toast — push notification style ─────────────────────────────── */
+
+/* Container: top-center, constrained width */
+.Toastify__toast-container--top-center {
+  top: 16px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  padding: 0 12px !important;
+  width: min(400px, 100vw) !important;
 }
 
-.Toastify__progress-bar--success {
-  background: #22c55e !important;
+@media (max-width: 480px) {
+  .Toastify__toast-container--top-center {
+    top: 12px !important;
+    width: calc(100vw - 24px) !important;
+  }
 }
-.Toastify__progress-bar--error {
-  background: #ef4444 !important;
+
+/* Individual toast */
+.webmark-toast {
+  background: rgba(20, 20, 22, 0.94) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.18),
+    0 12px 40px rgba(0, 0, 0, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.07) inset !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 18px !important;
+  padding: 12px 14px !important;
+  min-height: 0 !important;
+  margin-bottom: 6px !important;
+  font-family: "Inter", sans-serif;
+  cursor: default !important;
 }
-.Toastify__progress-bar--info {
-  background: #3b82f6 !important;
+
+/* Body row — icon + text side by side */
+.webmark-toast .Toastify__toast-body {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.45 !important;
 }
-.Toastify__progress-bar--warning {
-  background: #f59e0b !important;
+
+/* App icon */
+.webmark-toast .Toastify__toast-icon {
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
 }
-.Toastify__progress-bar {
+
+/* Hairline progress bar — shows the auto-dismiss countdown */
+.webmark-toast .Toastify__progress-bar {
   height: 2px !important;
   bottom: 0 !important;
+  left: 14px !important;
+  right: 14px !important;
+  width: auto !important;
+  border-radius: 0 0 18px 18px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  opacity: 1 !important;
 }
-
-.Toastify__toast-icon {
-  margin-right: 8px !important;
+.Toastify__toast--success.webmark-toast .Toastify__progress-bar {
+  background: rgba(74, 222, 128, 0.55) !important;
+}
+.Toastify__toast--error.webmark-toast .Toastify__progress-bar {
+  background: rgba(248, 113, 113, 0.55) !important;
+}
+.Toastify__toast--info.webmark-toast .Toastify__progress-bar {
+  background: rgba(96, 165, 250, 0.55) !important;
 }

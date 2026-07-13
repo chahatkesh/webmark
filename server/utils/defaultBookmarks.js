@@ -3,6 +3,9 @@ import Category from "../models/categoryModel.js";
 import Bookmark from "../models/bookmarkModel.js";
 import { UNCATEGORIZED_CATEGORY } from "./uncategorizedCategory.js";
 
+const fav = (domain) =>
+  `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+
 export const defaultCategories = [
   {
     category: "Social Media",
@@ -11,22 +14,28 @@ export const defaultCategories = [
     emoji: "🌐",
     bookmarks: [
       {
-        name: "Twitter",
-        link: "https://twitter.com/",
-        logo: "https://www.google.com/s2/favicons?domain=twitter.com&sz=128",
+        name: "X (Twitter)",
+        link: "https://x.com/",
+        logo: fav("x.com"),
         order: 0,
       },
       {
         name: "LinkedIn",
         link: "https://www.linkedin.com/",
-        logo: "https://www.google.com/s2/favicons?domain=www.linkedin.com&sz=128",
+        logo: fav("linkedin.com"),
         order: 1,
       },
       {
         name: "Instagram",
         link: "https://www.instagram.com/",
-        logo: "https://www.google.com/s2/favicons?domain=www.instagram.com&sz=128",
+        logo: fav("instagram.com"),
         order: 2,
+      },
+      {
+        name: "Reddit",
+        link: "https://www.reddit.com/",
+        logo: fav("reddit.com"),
+        order: 3,
       },
     ],
   },
@@ -38,21 +47,27 @@ export const defaultCategories = [
     bookmarks: [
       {
         name: "Gmail",
-        link: "https://mail.google.com/mail/u/0/#inbox",
-        logo: "https://cdn1.iconfinder.com/data/icons/google-new-logos-1/32/gmail_new_logo-512.png",
+        link: "https://mail.google.com/",
+        logo: fav("mail.google.com"),
         order: 0,
       },
       {
         name: "Google Calendar",
-        link: "https://calendar.google.com",
-        logo: "https://icon.horse/icon/calendar.google.com",
+        link: "https://calendar.google.com/",
+        logo: fav("calendar.google.com"),
         order: 1,
       },
       {
         name: "Notion",
-        link: "https://notion.so",
-        logo: "https://www.notion.so/images/favicon.ico",
+        link: "https://notion.so/",
+        logo: fav("notion.so"),
         order: 2,
+      },
+      {
+        name: "Google Drive",
+        link: "https://drive.google.com/",
+        logo: fav("drive.google.com"),
+        order: 3,
       },
     ],
   },
@@ -64,73 +79,91 @@ export const defaultCategories = [
     bookmarks: [
       {
         name: "YouTube",
-        link: "https://youtube.com",
-        logo: "https://www.google.com/s2/favicons?domain=youtube.com&sz=128",
+        link: "https://youtube.com/",
+        logo: fav("youtube.com"),
         order: 0,
       },
       {
         name: "Netflix",
-        link: "https://netflix.com",
-        logo: "https://www.google.com/s2/favicons?domain=netflix.com&sz=128",
+        link: "https://netflix.com/",
+        logo: fav("netflix.com"),
         order: 1,
       },
       {
         name: "Spotify",
-        link: "https://spotify.com",
-        logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSd-eHyIHkbiQ428WtDUb7s6dFnDK3CQ7YQog&s",
+        link: "https://spotify.com/",
+        logo: fav("spotify.com"),
         order: 2,
+      },
+      {
+        name: "Twitch",
+        link: "https://twitch.tv/",
+        logo: fav("twitch.tv"),
+        order: 3,
       },
     ],
   },
   {
-    category: "Tools",
+    category: "AI Tools",
     bgcolor: "#fff1f2",
     hcolor: "#be123c",
-    emoji: "📚",
+    emoji: "🤖",
     bookmarks: [
       {
-        name: "Chat GPT",
+        name: "ChatGPT",
         link: "https://chat.openai.com/",
-        logo: "https://www.google.com/s2/favicons?domain=chat.openai.com&sz=128",
+        logo: fav("chat.openai.com"),
         order: 0,
       },
       {
-        name: "Claude AI",
+        name: "Claude",
         link: "https://claude.ai/new",
-        logo: "https://www.google.com/s2/favicons?domain=claude.ai&sz=128",
+        logo: fav("claude.ai"),
         order: 1,
       },
       {
-        name: "Pinterest",
-        link: "https://in.pinterest.com/",
-        logo: "https://www.google.com/s2/favicons?domain=in.pinterest.com&sz=128",
+        name: "Gemini",
+        link: "https://gemini.google.com/",
+        logo: fav("gemini.google.com"),
         order: 2,
+      },
+      {
+        name: "Perplexity",
+        link: "https://www.perplexity.ai/",
+        logo: fav("perplexity.ai"),
+        order: 3,
       },
     ],
   },
   {
-    category: "Let's Code",
+    category: "Dev Tools",
     bgcolor: "#faf5ff",
     hcolor: "#7e22ce",
-    emoji: "🐞",
+    emoji: "💻",
     bookmarks: [
       {
-        name: "Github",
+        name: "GitHub",
         link: "https://github.com/",
-        logo: "https://www.google.com/s2/favicons?domain=github.com&sz=128",
+        logo: fav("github.com"),
         order: 0,
+      },
+      {
+        name: "Stack Overflow",
+        link: "https://stackoverflow.com/",
+        logo: fav("stackoverflow.com"),
+        order: 1,
       },
       {
         name: "LeetCode",
-        link: "https://leetcode.com/u/",
-        logo: "https://www.google.com/s2/favicons?domain=leetcode.com&sz=128",
-        order: 1,
+        link: "https://leetcode.com/",
+        logo: fav("leetcode.com"),
+        order: 2,
       },
       {
-        name: "Geeksforgeeks",
-        link: "https://www.geeksforgeeks.org/",
-        logo: "https://www.google.com/s2/favicons?domain=www.geeksforgeeks.org&sz=128",
-        order: 2,
+        name: "MDN Web Docs",
+        link: "https://developer.mozilla.org/",
+        logo: fav("developer.mozilla.org"),
+        order: 3,
       },
     ],
   },
@@ -141,33 +174,20 @@ export const defaultCategories = [
 ];
 
 const createDefaultBookmarks = async (userId) => {
-  try {
-    for (const [index, categoryData] of defaultCategories.entries()) {
-      const { bookmarks, ...categoryFields } = categoryData;
+  for (const [index, categoryData] of defaultCategories.entries()) {
+    const { bookmarks, ...categoryFields } = categoryData;
 
-      // Create category
-      const category = new Category({
-        userId,
-        ...categoryFields,
-        order: index,
-      });
-      await category.save();
+    const category = await Category.create({
+      userId,
+      ...categoryFields,
+      order: index,
+    });
 
-      // Create bookmarks for this category
-      const bookmarkPromises = bookmarks.map((bookmarkData) => {
-        const bookmark = new Bookmark({
-          categoryId: category._id,
-          ...bookmarkData,
-        });
-        return bookmark.save();
-      });
-
-      await Promise.all(bookmarkPromises);
+    if (bookmarks.length > 0) {
+      await Bookmark.insertMany(
+        bookmarks.map((b) => ({ categoryId: category._id, ...b })),
+      );
     }
-    return true;
-  } catch (error) {
-    console.error("Error creating default bookmarks:", error);
-    throw error;
   }
 };
 

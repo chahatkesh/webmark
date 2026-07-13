@@ -8,7 +8,9 @@ const AuthenticatedLayout = ({ children }) => {
   return (
     <div className="authenticated-layout">
       <Header />
-      <main>{children}</main>
+      <main className="fixed inset-x-0 bottom-0 top-14 overflow-y-auto">
+        {children}
+      </main>
     </div>
   );
 };

@@ -279,7 +279,7 @@ const AISortDialog = ({
       }
       description="Choose how you want AI to organize your bookmarks."
       footer={
-        <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex w-full flex-row items-center justify-between gap-2">
           <div>
             {localStorage.getItem("canRevertAISort") === "true" && (
               <Button

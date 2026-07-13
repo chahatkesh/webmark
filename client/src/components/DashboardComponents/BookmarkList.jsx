@@ -14,10 +14,11 @@ import {
   useRevertAISort,
   useUpdateCategoryOrder,
   useUpdateBookmarkLayout,
+  useSeedDefaultBookmarks,
 } from "../../hooks/useBookmarks";
 import BookmarkItem, { BookmarkCard, CategoryCard } from "./BookmarkItem";
 import { Button } from "../ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, LayoutGrid, Upload } from "lucide-react";
 import { CategoryListSkeleton } from "./LoadingSkeletons";
 import {
   DndContext,
@@ -247,6 +248,7 @@ const BookmarkList = () => {
   } = useAISort();
   const { mutate: revertSort, isPending: isReverting } = useRevertAISort();
   const importMutation = useImportBookmarks();
+  const seedDefaults = useSeedDefaultBookmarks();
 
   const filteredCategories = useMemo(
     () => filterCategories(categories, searchTerm),
@@ -549,20 +551,88 @@ const BookmarkList = () => {
   if (!categories || categories.length === 0) {
     return (
       <>
-        <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
-          <h2 className="text-lg font-semibold text-gray-900">
-            No categories yet
-          </h2>
-          <p className="mt-2 text-sm text-gray-500">
-            Create your first category to start organizing bookmarks.
-          </p>
-          <Button
-            onClick={() => setIsAddingCategory(true)}
-            className="mt-6 h-10 bg-blue-500 px-4 text-white hover:bg-blue-600"
-          >
-            <PlusCircle className="mr-2 h-5 w-5" />
-            Add Category
-          </Button>
+        <div className="flex min-h-[calc(100vh-10rem)] flex-col items-center justify-center">
+          <div className="flex w-full max-w-md flex-col gap-3">
+            {/* Add category — blue */}
+            <button
+              type="button"
+              onClick={() => setIsAddingCategory(true)}
+              className="group flex items-center gap-4 rounded-xl border border-dashed border-blue-100 bg-blue-50/30 px-5 py-4 text-left transition duration-150 hover:border-blue-300 hover:bg-blue-50/60 active:scale-[0.99]"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 transition-colors duration-150 group-hover:bg-blue-200">
+                <PlusCircle className="h-5 w-5 text-blue-500" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600">
+                  Add a category
+                </p>
+                <p className="mt-0.5 text-xs text-gray-400">
+                  Create your first category manually
+                </p>
+              </div>
+            </button>
+
+            {/* Start with defaults — violet */}
+            <button
+              type="button"
+              onClick={() => seedDefaults.mutate()}
+              disabled={seedDefaults.isPending}
+              className="group flex items-center gap-4 rounded-xl border border-dashed border-violet-100 bg-violet-50/30 px-5 py-4 text-left transition duration-150 hover:border-violet-300 hover:bg-violet-50/60 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-100 transition-colors duration-150 group-hover:bg-violet-200">
+                {seedDefaults.isPending ? (
+                  <svg
+                    className="h-5 w-5 animate-spin text-violet-500"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8z"
+                    />
+                  </svg>
+                ) : (
+                  <LayoutGrid className="h-5 w-5 text-violet-500" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-gray-700 group-hover:text-violet-600">
+                  Start with defaults
+                </p>
+                <p className="mt-0.5 text-xs text-gray-400">
+                  5 ready-made categories with popular bookmarks
+                </p>
+              </div>
+            </button>
+
+            {/* Import from browser — amber */}
+            <button
+              type="button"
+              onClick={() => setIsImporting(true)}
+              className="group flex items-center gap-4 rounded-xl border border-dashed border-amber-100 bg-amber-50/30 px-5 py-4 text-left transition duration-150 hover:border-amber-300 hover:bg-amber-50/60 active:scale-[0.99]"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 transition-colors duration-150 group-hover:bg-amber-200">
+                <Upload className="h-5 w-5 text-amber-500" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-gray-700 group-hover:text-amber-600">
+                  Import bookmarks
+                </p>
+                <p className="mt-0.5 text-xs text-gray-400">
+                  Import from Chrome, Firefox or Safari
+                </p>
+              </div>
+            </button>
+          </div>
         </div>
         {dialogs}
       </>
@@ -640,7 +710,6 @@ const BookmarkList = () => {
                   []
                 }
                 isOverlay
-                showCategoryGrip
               />
             ) : activeBookmark ? (
               <BookmarkCard

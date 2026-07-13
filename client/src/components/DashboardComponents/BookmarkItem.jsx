@@ -1,23 +1,39 @@
-import React, { lazy, Suspense, useState, useMemo, useCallback } from "react";
+import React, {
+  lazy,
+  Suspense,
+  useState,
+  useMemo,
+  useCallback,
+  useContext,
+  useRef,
+} from "react";
 import {
   useBookmarks,
   useDeleteCategory,
-  useDeleteBookmark,
+  useOptimisticRemoveBookmark,
+  useMoveBookmark,
+  useCategories,
 } from "../../hooks/useBookmarks";
+import { StoreContext } from "../../context/StoreContext";
+import { apiRequest } from "../../utils/apiClient";
+import { toast } from "react-toastify";
 import useClicks from "../../hooks/useClicks";
-import { Button } from "../ui/button";
 import {
   PlusCircle,
   Pencil,
   Trash2,
   MoreVertical,
-  GripVertical,
   StickyNote,
+  ArrowRight,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -30,6 +46,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { bookmarkDragId } from "../../utils/bookmarkDnd";
 import { applyFaviconFallback } from "../../utils/faviconFallback";
 import { BookmarkItemSkeleton } from "./LoadingSkeletons";
+import { playToastSound } from "../../utils/toastSound";
 
 const AddBookmarkDialog = lazy(() => import("./AddBookmarkDialog"));
 const EditBookmarkDialog = lazy(() => import("./EditBookmarkDialog"));
@@ -48,30 +65,34 @@ export const BookmarkCard = ({
   onEdit,
   onNotes,
   onDelete,
+  categories = [],
+  onMoveToCategory,
   isOverlay = false,
   isPreview = false,
   dragHandleProps = null,
 }) => (
   <div
-    className={`flex justify-between items-center p-2 md:p-2.5 bg-white rounded gap-3 ${
+    {...(dragHandleProps || {})}
+    className={`group flex justify-between items-center p-2 md:p-2.5 bg-white rounded gap-3 transition duration-150 ${
+      dragHandleProps ? "touch-none" : ""
+    } ${
       isOverlay
-        ? "shadow-lg scale-[1.01] cursor-grabbing"
+        ? "shadow-lg scale-[1.02] cursor-grabbing"
         : isPreview
           ? ""
-          : "hover:bg-blue-100 cursor-pointer"
+          : dragHandleProps
+            ? "hover:shadow-sm hover:-translate-y-px cursor-grab active:cursor-grabbing active:shadow-none active:translate-y-0"
+            : "hover:shadow-sm hover:-translate-y-px cursor-pointer active:shadow-none active:translate-y-0"
     }`}
   >
-    <div
-      {...(dragHandleProps || {})}
-      data-drag-handle
-      className={`touch-none shrink-0 outline-none focus:outline-none ${
-        dragHandleProps
-          ? "cursor-grab active:cursor-grabbing"
-          : "cursor-default"
-      }`}
-    >
-      <GripVertical className="h-4 w-4 text-gray-400" />
-    </div>
+    <img
+      className="h-4 md:h-5 rounded shrink-0"
+      src={item.logo || undefined}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      onError={applyFaviconFallback}
+    />
 
     <div className="min-w-0 flex-1">
       {isPreview ? (
@@ -93,34 +114,18 @@ export const BookmarkCard = ({
       )}
     </div>
 
-    <div className="flex items-center gap-2 shrink-0">
-      <img
-        className="h-4 md:h-6 rounded"
-        src={item.logo || undefined}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        onError={applyFaviconFallback}
-      />
+    <div className="flex items-center shrink-0">
       {!isOverlay && !isPreview && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="menu"
-              className="hover:bg-blue-200 py-1"
+            <button
+              type="button"
+              className="rounded-md p-1 text-gray-300 opacity-0 transition-[opacity,color] duration-150 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 data-[state=open]:opacity-100 data-[state=open]:text-gray-600 hover:text-gray-600 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
             >
               <MoreVertical className="h-4 w-4" />
-            </Button>
+            </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem
-              onClick={() => onNotes(item)}
-              className="cursor-pointer"
-            >
-              <StickyNote className="h-4 w-4 mr-2" />
-              Notes
-            </DropdownMenuItem>
+          <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuItem
               onClick={() => onEdit(item)}
               className="cursor-pointer"
@@ -128,6 +133,38 @@ export const BookmarkCard = ({
               <Pencil className="h-4 w-4 mr-2" />
               Edit
             </DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="cursor-pointer">
+                <ArrowRight className="h-4 w-4 mr-2" />
+                Move to
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="w-44">
+                {categories.length === 0 ? (
+                  <DropdownMenuItem disabled>
+                    No other categories
+                  </DropdownMenuItem>
+                ) : (
+                  categories.map((cat) => (
+                    <DropdownMenuItem
+                      key={cat._id}
+                      onClick={() => onMoveToCategory(item, cat._id)}
+                      className="cursor-pointer gap-2"
+                    >
+                      <span className="text-sm leading-none">{cat.emoji}</span>
+                      <span className="truncate">{cat.category}</span>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuItem
+              onClick={() => onNotes(item)}
+              className="cursor-pointer"
+            >
+              <StickyNote className="h-4 w-4 mr-2" />
+              Notes
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => onDelete(item)}
               className="cursor-pointer text-red-600"
@@ -149,7 +186,6 @@ export const CategoryCard = ({
   emoji,
   bookmarks = [],
   isOverlay = false,
-  showCategoryGrip = false,
 }) => (
   <div
     style={{ backgroundColor: color }}
@@ -164,11 +200,6 @@ export const CategoryCard = ({
         style={{ color: hcolor }}
         className="text-[14px] md:text-[18px] font-medium pl-1 flex items-center gap-2 min-w-0"
       >
-        {showCategoryGrip && (
-          <div className="shrink-0">
-            <GripVertical className="h-4 w-4 opacity-60" />
-          </div>
-        )}
         <span className="truncate">
           {emoji} {category}
         </span>
@@ -217,6 +248,8 @@ export const SortableBookmark = ({
   onEdit,
   onNotes,
   onDelete,
+  categories,
+  onMoveToCategory,
 }) => {
   const {
     attributes,
@@ -254,6 +287,8 @@ export const SortableBookmark = ({
         onEdit={onEdit}
         onNotes={onNotes}
         onDelete={onDelete}
+        categories={categories}
+        onMoveToCategory={onMoveToCategory}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
     </div>
@@ -271,30 +306,33 @@ const BookmarkItem = ({
   sharedDrag = false,
   categoryDragHandleProps = null,
 }) => {
+  const { url } = useContext(StoreContext);
   const shouldFetchBookmarks = !Array.isArray(filteredBookmarks);
   const { data: bookmarks, isLoading } = useBookmarks(
     shouldFetchBookmarks ? categoryId : null,
   );
   const deleteCategory = useDeleteCategory();
-  const deleteBookmark = useDeleteBookmark();
+  const optimisticRemove = useOptimisticRemoveBookmark();
+  const moveBookmark = useMoveBookmark();
+  const { data: allCategories } = useCategories();
+  const undoTimersRef = useRef({});
   const { trackClick } = useClicks();
   const [isAddingBookmark, setIsAddingBookmark] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [selectedBookmark, setSelectedBookmark] = useState(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [bookmarkToDelete, setBookmarkToDelete] = useState(null);
   const [selectedBookmarkForNotes, setSelectedBookmarkForNotes] =
     useState(null);
 
   const displayBookmarks = filteredBookmarks || bookmarks;
+  const otherCategories = useMemo(
+    () => (allCategories || []).filter((c) => c._id !== categoryId),
+    [allCategories, categoryId],
+  );
 
   const handleBookmarkClick = useCallback(
     async (bookmarkId, e) => {
-      if (
-        e.target.closest("button") ||
-        e.target.closest("[role='menuitem']") ||
-        e.target.closest("[data-drag-handle]")
-      ) {
+      if (e.target.closest("button") || e.target.closest("[role='menuitem']")) {
         e.preventDefault();
         return;
       }
@@ -325,14 +363,54 @@ const BookmarkItem = ({
     setIsConfirmDeleteOpen(false);
   };
 
-  const handleDeleteBookmark = async () => {
-    if (bookmarkToDelete) {
-      await deleteBookmark.mutateAsync({
-        bookmarkId: bookmarkToDelete._id,
-        categoryId,
-      });
-      setBookmarkToDelete(null);
-    }
+  const handleBookmarkDelete = (item) => {
+    const rollback = optimisticRemove({ bookmarkId: item._id, categoryId });
+    let undone = false;
+    let toastId;
+
+    const handleUndo = () => {
+      undone = true;
+      rollback();
+      clearTimeout(undoTimersRef.current[item._id]);
+      toast.dismiss(toastId);
+    };
+
+    playToastSound("delete");
+    toastId = toast(
+      <div className="flex items-center gap-3">
+        <span className="flex-1 text-[13px] text-white/88">
+          Deleted &ldquo;{item.name}&rdquo;
+        </span>
+        <button
+          className="shrink-0 font-medium text-white/60 text-[13px] hover:text-white transition-colors"
+          onClick={handleUndo}
+        >
+          Undo
+        </button>
+      </div>,
+      { autoClose: 5000, closeButton: false },
+    );
+
+    undoTimersRef.current[item._id] = setTimeout(async () => {
+      if (undone) return;
+      try {
+        await apiRequest(`${url}/api/bookmarks/bookmark`, {
+          method: "DELETE",
+          body: { bookmarkId: item._id },
+        });
+      } catch {
+        rollback();
+        toast.error("Failed to delete bookmark");
+      }
+    }, 4800);
+  };
+
+  const handleMoveToCategory = async (item, targetCategoryId) => {
+    await moveBookmark.mutateAsync({
+      bookmarkId: item._id,
+      sourceCategoryId: categoryId,
+      targetCategoryId,
+    });
   };
 
   const renderBookmark = (item) =>
@@ -343,7 +421,9 @@ const BookmarkItem = ({
           onBookmarkClick={handleBookmarkClick}
           onEdit={setSelectedBookmark}
           onNotes={setSelectedBookmarkForNotes}
-          onDelete={setBookmarkToDelete}
+          onDelete={handleBookmarkDelete}
+          categories={otherCategories}
+          onMoveToCategory={handleMoveToCategory}
         />
       </div>
     ) : (
@@ -354,7 +434,9 @@ const BookmarkItem = ({
         onBookmarkClick={handleBookmarkClick}
         onEdit={setSelectedBookmark}
         onNotes={setSelectedBookmarkForNotes}
-        onDelete={setBookmarkToDelete}
+        onDelete={handleBookmarkDelete}
+        categories={otherCategories}
+        onMoveToCategory={handleMoveToCategory}
       />
     );
 
@@ -366,7 +448,7 @@ const BookmarkItem = ({
         <button
           type="button"
           onClick={() => setIsAddingBookmark(true)}
-          className="col-span-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300/80 bg-white/50 px-4 py-6 text-sm font-medium text-gray-600 transition-colors hover:border-blue-300 hover:bg-white hover:text-blue-600"
+          className="flex items-center justify-center gap-2 rounded border border-dashed border-gray-300/80 bg-white/50 px-4 py-2 md:py-2.5 text-sm font-medium text-gray-600 transition-colors hover:border-blue-300 hover:bg-white hover:text-blue-600"
         >
           <PlusCircle size={18} className="opacity-80" />
           Add bookmark
@@ -396,56 +478,53 @@ const BookmarkItem = ({
       <div
         id={`category-${categoryId}`}
         style={{ backgroundColor: color }}
-        className="relative scroll-mt-20 rounded px-2 pb-4 pt-3 transition-shadow md:px-4 md:pb-8 md:pt-6"
+        className="group/cat relative scroll-mt-20 rounded px-2 pb-4 pt-3 transition-shadow md:px-4 md:pb-8 md:pt-6"
       >
-        <div className="mb-4 flex items-center justify-between gap-2">
+        <div
+          {...(categoryDragHandleProps || {})}
+          className={`mb-4 flex items-center justify-between gap-2 ${
+            categoryDragHandleProps
+              ? "touch-none cursor-grab active:cursor-grabbing outline-none"
+              : ""
+          }`}
+        >
           <h1
             style={{ color: hcolor }}
-            className="flex min-w-0 items-center gap-2 pl-1 text-[14px] font-medium md:text-[18px]"
+            className="flex min-w-0 items-center gap-2 pl-1 text-[14px] font-medium md:text-[18px] pointer-events-none select-none"
           >
-            {categoryDragHandleProps && (
-              <div
-                {...categoryDragHandleProps}
-                data-category-drag-handle
-                className="touch-none shrink-0 cursor-grab outline-none focus:outline-none active:cursor-grabbing"
-              >
-                <GripVertical className="h-4 w-4 opacity-60" />
-              </div>
-            )}
             <span className="truncate">
               {emoji} {category}
             </span>
           </h1>
-          <div className="flex shrink-0 items-center justify-center gap-0.5">
-            <Button
-              variant="ghost2"
-              size="sm"
+          <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover/cat:opacity-100 group-focus-within/cat:opacity-100 [@media(hover:none)]:opacity-100 pointer-events-auto cursor-auto">
+            <button
+              type="button"
               onClick={() => setIsAddingBookmark(true)}
               aria-label="Add bookmark"
               title="Add bookmark"
-              className="gap-1.5 text-gray-700"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-gray-500 transition-colors duration-150 hover:text-gray-900 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
             >
-              <PlusCircle size={18} />
-              <span className="hidden text-sm font-medium sm:inline">Add</span>
-            </Button>
-            <Button
-              variant="ghost2"
-              size="sm"
+              <PlusCircle size={15} strokeWidth={2} />
+              <span className="hidden sm:inline">Add</span>
+            </button>
+            <button
+              type="button"
               onClick={() => setIsEditingCategory(true)}
               aria-label="Edit category"
               title="Edit category"
+              className="rounded-lg p-1.5 text-gray-400 transition-colors duration-150 hover:text-gray-800 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
             >
-              <Pencil size={18} />
-            </Button>
-            <Button
-              variant="ghost2"
-              size="sm"
+              <Pencil size={14} strokeWidth={2} />
+            </button>
+            <button
+              type="button"
               onClick={() => setIsConfirmDeleteOpen(true)}
               aria-label="Delete category"
               title="Delete category"
+              className="rounded-lg p-1.5 text-gray-400 transition-colors duration-150 hover:text-red-400 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200"
             >
-              <Trash2 size={18} />
-            </Button>
+              <Trash2 size={14} strokeWidth={2} />
+            </button>
           </div>
         </div>
 
@@ -492,17 +571,6 @@ const BookmarkItem = ({
             message="Are you sure you want to delete this category? All bookmarks in this category will be deleted permanently."
           />
         )}
-
-        {bookmarkToDelete && (
-          <ConfirmDeleteDialog
-            open={!!bookmarkToDelete}
-            onClose={() => setBookmarkToDelete(null)}
-            onConfirm={handleDeleteBookmark}
-            title="Delete Bookmark"
-            itemName={`${bookmarkToDelete?.name}`}
-            message={`Are you sure you want to delete "${bookmarkToDelete?.name}"? This action cannot be undone.`}
-          />
-        )}
       </Suspense>
 
       <Suspense fallback={null}>
@@ -510,10 +578,6 @@ const BookmarkItem = ({
           open={!!selectedBookmarkForNotes}
           onClose={() => setSelectedBookmarkForNotes(null)}
           bookmark={selectedBookmarkForNotes}
-          onEdit={() => {
-            setSelectedBookmark(selectedBookmarkForNotes);
-            setSelectedBookmarkForNotes(null);
-          }}
         />
       </Suspense>
     </>

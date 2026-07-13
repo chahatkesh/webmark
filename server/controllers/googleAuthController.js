@@ -1,5 +1,5 @@
 import userModel from "../models/userModel.js";
-import createDefaultBookmarks from "../utils/defaultBookmarks.js";
+
 import {
   clearAuthCookies,
   getRefreshTokenFromRequest,
@@ -120,8 +120,6 @@ const completeOnboarding = async (req, res) => {
     user.username = username;
     user.hasCompletedOnboarding = true;
     await user.save();
-
-    await createDefaultBookmarks(userId);
 
     return res.json({
       success: true,

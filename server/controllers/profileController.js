@@ -223,7 +223,7 @@ export const getProfileAnalytics = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.body.userId;
-    const { name, profilePicture } = req.body;
+    const { profilePicture } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -233,7 +233,6 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    if (name !== undefined) user.name = name;
     if (profilePicture !== undefined) {
       if (profilePicture === "" || profilePicture === null) {
         user.profilePicture = "";

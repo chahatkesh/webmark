@@ -7,8 +7,48 @@ import Home from "./pages/Home";
 import Loader, { PageContentLoader } from "./components/Loader";
 import Prefetcher from "./components/Prefetcher"; // Prefetcher component for performance
 import AuthenticatedLayout from "./layouts/AuthenticatedLayout";
-import { ToastContainer, Slide } from "react-toastify";
+import { ToastContainer, Slide, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
+import { playToastSound } from "./utils/toastSound";
+import smallLogoColor from "./assets/small_logo_color.svg";
+
+const TYPE_DOT = {
+  success: "#22c55e",
+  error: "#ef4444",
+  info: "#3b82f6",
+  warning: "#f59e0b",
+  default: "#a3a3a3",
+};
+
+const ToastAppIcon = ({ type }) => (
+  <div className="relative shrink-0">
+    <img src={smallLogoColor} alt="" className="h-5 w-5 rounded-md block" />
+    <span
+      style={{ background: TYPE_DOT[type] ?? TYPE_DOT.default }}
+      className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border border-white/20"
+    />
+  </div>
+);
+
+// Patch toast methods globally so every call site gets audio feedback
+// without touching 47 call sites individually.
+(function patchToast() {
+  const _success = toast.success.bind(toast);
+  const _error = toast.error.bind(toast);
+  const _info = toast.info.bind(toast);
+  toast.success = (msg, opts) => {
+    playToastSound("success");
+    return _success(msg, opts);
+  };
+  toast.error = (msg, opts) => {
+    playToastSound("error");
+    return _error(msg, opts);
+  };
+  toast.info = (msg, opts) => {
+    playToastSound("info");
+    return _info(msg, opts);
+  };
+})();
 // Use the enhanced error components
 import { ErrorBoundary } from "./components/enhanced/ErrorComponents";
 
@@ -180,20 +220,21 @@ const App = () => {
         </Routes>
       </div>
       <ToastContainer
-        position="bottom-right"
+        position="top-center"
         autoClose={3000}
-        hideProgressBar={false}
+        hideProgressBar
         newestOnTop
-        closeOnClick
+        closeOnClick={false}
         rtl={false}
         pauseOnFocusLoss={false}
         draggable={false}
         pauseOnHover={false}
         transition={Slide}
         limit={3}
-        toastClassName="!bg-white !shadow-lg !shadow-black/5 !border !border-gray-100 !rounded-xl !px-4 !py-3 !min-h-0"
-        bodyClassName="!text-sm !font-medium !text-gray-800 !p-0 !m-0"
+        toastClassName={() => "webmark-toast"}
+        bodyClassName="!text-[13px] !font-normal !text-white/90 !p-0 !m-0"
         closeButton={false}
+        icon={({ type }) => <ToastAppIcon type={type} />}
       />
     </ErrorBoundary>
   );

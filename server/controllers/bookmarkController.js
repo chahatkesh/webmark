@@ -1,6 +1,7 @@
 import Bookmark from "../models/bookmarkModel.js";
 import Category from "../models/categoryModel.js";
 import User from "../models/userModel.js";
+import createDefaultBookmarks from "../utils/defaultBookmarks.js";
 import { pickCategoryForSingleBookmark } from "./aiController.js";
 import { sendBookmarkletPage } from "../utils/bookmarkletPage.js";
 import {
@@ -252,14 +253,14 @@ export const bookmarkletSave = async (req, res) => {
 // Update bookmark
 export const updateBookmark = async (req, res) => {
   try {
-    const { bookmarkId, name, link, logo, notes } = req.body;
+    const { bookmarkId, name, link, logo, notes, targetCategoryId } = req.body;
 
     const bookmark = await Bookmark.findById(bookmarkId);
     if (!bookmark) {
       return res.json({ success: false, message: "Bookmark not found" });
     }
 
-    // Verify category belongs to user
+    // Verify current category belongs to user
     const category = await Category.findOne({
       _id: bookmark.categoryId,
       userId: req.body.userId,
@@ -299,6 +300,26 @@ export const updateBookmark = async (req, res) => {
     if (notes !== undefined) {
       updates.notes =
         typeof notes === "string" ? notes.slice(0, 2000) : bookmark.notes;
+    }
+    if (
+      targetCategoryId !== undefined &&
+      String(targetCategoryId) !== String(bookmark.categoryId)
+    ) {
+      const targetCategory = await Category.findOne({
+        _id: targetCategoryId,
+        userId: req.body.userId,
+      });
+      if (!targetCategory) {
+        return res.json({
+          success: false,
+          message: "Target category not found",
+        });
+      }
+      const lastBookmarkInTarget = await Bookmark.findOne({
+        categoryId: targetCategoryId,
+      }).sort("-order");
+      updates.categoryId = targetCategoryId;
+      updates.order = lastBookmarkInTarget ? lastBookmarkInTarget.order + 1 : 0;
     }
 
     const updatedBookmark = await Bookmark.findByIdAndUpdate(
@@ -373,36 +394,58 @@ export const reorderBookmarks = async (req, res) => {
 export const reorderBookmarkLayout = async (req, res) => {
   try {
     const { categories } = req.body;
+    const userId = req.body.userId;
 
     if (!Array.isArray(categories) || categories.length === 0) {
       return res.json({ success: false, message: "Invalid layout payload" });
     }
 
+    // 1. Verify every target category belongs to this user
     for (const { categoryId, bookmarks } of categories) {
-      const category = await Category.findOne({
-        _id: categoryId,
-        userId: req.body.userId,
-      });
-
+      const category = await Category.findOne({ _id: categoryId, userId });
       if (!category) {
         return res.json({ success: false, message: "Category not found" });
       }
-
       if (!Array.isArray(bookmarks)) {
         return res.json({
           success: false,
           message: "Invalid bookmarks payload",
         });
       }
+    }
 
-      await Bookmark.bulkWrite(
-        bookmarks.map(({ id, order }) => ({
-          updateOne: {
-            filter: { _id: id, categoryId: category._id },
-            update: { $set: { order } },
-          },
-        })),
+    // 2. Collect all bookmark IDs referenced in the payload
+    const allBookmarkIds = categories.flatMap(({ bookmarks }) =>
+      bookmarks.map(({ id }) => id),
+    );
+
+    // 3. Verify all those bookmarks currently belong to a category owned by
+    //    this user — prevents moving another user's bookmarks via crafted payload
+    if (allBookmarkIds.length > 0) {
+      const userCategoryIds = await Category.find({ userId }, "_id").then(
+        (cats) => cats.map((c) => c._id),
       );
+      const unauthorizedCount = await Bookmark.countDocuments({
+        _id: { $in: allBookmarkIds },
+        categoryId: { $nin: userCategoryIds },
+      });
+      if (unauthorizedCount > 0) {
+        return res.json({ success: false, message: "Not authorized" });
+      }
+    }
+
+    // 4. Bulk-update order AND categoryId so cross-category DnD moves persist
+    const writes = categories.flatMap(({ categoryId, bookmarks }) =>
+      bookmarks.map(({ id, order }) => ({
+        updateOne: {
+          filter: { _id: id },
+          update: { $set: { order, categoryId } },
+        },
+      })),
+    );
+
+    if (writes.length > 0) {
+      await Bookmark.bulkWrite(writes);
     }
 
     res.json({
@@ -561,5 +604,26 @@ export const importBookmarks = async (req, res) => {
       message: "Import failed",
       error: error.message,
     });
+  }
+};
+// Seed default categories + bookmarks for a user who has none
+export const seedDefaultBookmarks = async (req, res) => {
+  try {
+    const userId = req.body.userId;
+
+    // Prevent seeding if user already has categories
+    const existing = await Category.countDocuments({ userId });
+    if (existing > 0) {
+      return res.json({
+        success: false,
+        message: "Categories already exist",
+      });
+    }
+
+    await createDefaultBookmarks(userId);
+    res.json({ success: true, message: "Default bookmarks created" });
+  } catch (error) {
+    console.error("Seed defaults error:", error);
+    res.json({ success: false, message: "Failed to create default bookmarks" });
   }
 };

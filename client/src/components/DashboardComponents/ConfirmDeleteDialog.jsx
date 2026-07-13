@@ -60,7 +60,7 @@ const ConfirmDeleteDialog = ({
             onClick={onClose}
             disabled={isDeleting}
             ref={cancelRef}
-            className="h-11 w-full px-5 font-medium sm:w-auto"
+            className="w-full px-4 sm:w-auto"
           >
             Cancel
           </Button>
@@ -69,7 +69,7 @@ const ConfirmDeleteDialog = ({
             onClick={handleConfirm}
             disabled={isDeleting}
             className={cn(
-              "h-11 w-full px-5 font-medium sm:w-auto",
+              "w-full px-4 sm:w-auto",
               "bg-red-500 hover:bg-red-600 text-white",
               "transition-colors relative",
               isDeleting && "pl-9",

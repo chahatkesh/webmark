@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
-import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -39,7 +38,7 @@ const SheetContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & {
     hideClose?: boolean;
   }
->(({ className, children, hideClose = false, ...props }, ref) => (
+>(({ className, children, hideClose: _hideClose, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
     <DrawerPrimitive.Content
@@ -55,12 +54,6 @@ const SheetContent = React.forwardRef<
         aria-hidden="true"
       />
       {children}
-      {!hideClose && (
-        <DrawerPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-50 ring-offset-background transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DrawerPrimitive.Close>
-      )}
     </DrawerPrimitive.Content>
   </SheetPortal>
 ));
@@ -83,7 +76,7 @@ const SheetFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "mt-auto flex shrink-0 flex-col-reverse gap-2 border-t border-gray-100 bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:flex-row sm:justify-end",
+      "mt-auto flex shrink-0 flex-row gap-2 border-t border-gray-100 bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] justify-end",
       className,
     )}
     {...props}

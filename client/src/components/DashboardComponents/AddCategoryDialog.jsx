@@ -208,20 +208,31 @@ const AddCategoryDialog = ({ open, onClose }) => {
       title="Add New Category"
       size="md"
       footer={
-        <Button
-          type="submit"
-          form="add-category-form"
-          className={cn(
-            "h-12 w-full px-5 text-base font-medium sm:w-auto",
-            "bg-blue-500 hover:bg-blue-600 text-white",
-            "transition-colors relative",
-            isSubmitting && "pl-9",
-          )}
-          disabled={isSubmitting || !formData.category.trim() || !!error}
-        >
-          {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          {isSubmitting ? "Adding..." : "Add Category"}
-        </Button>
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            disabled={isSubmitting}
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="add-category-form"
+            className={cn(
+              "w-full sm:w-auto",
+              "bg-blue-500 hover:bg-blue-600 text-white",
+              "transition-colors relative",
+              isSubmitting && "pl-9",
+            )}
+            disabled={isSubmitting || !formData.category.trim() || !!error}
+          >
+            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {isSubmitting ? "Adding..." : "Add Category"}
+          </Button>
+        </>
       }
     >
       <form
@@ -237,7 +248,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
             </label>
             <button
               type="button"
-              className="w-12 h-12 flex items-center justify-center text-md rounded-md border border-gray-200 bg-white hover:bg-gray-50"
+              className="w-9 h-9 flex items-center justify-center text-base rounded-md border border-gray-200 bg-white hover:bg-gray-50"
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             >
               {formData.emoji}
@@ -272,7 +283,7 @@ const AddCategoryDialog = ({ open, onClose }) => {
               value={formData.category}
               onChange={handleCategoryChange}
               placeholder="Enter category name..."
-              className={`w-full h-12 px-4 bg-white border ${
+              className={`w-full px-3 bg-white border ${
                 error
                   ? "border-red-500 focus-visible:border-red-500"
                   : "border-gray-200"

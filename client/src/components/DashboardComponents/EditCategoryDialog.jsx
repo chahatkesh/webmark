@@ -228,7 +228,7 @@ const EditCategoryDialog = ({ open, onClose, category }) => {
             type="button"
             variant="outline"
             onClick={onClose}
-            className="h-12 w-full text-base font-medium sm:w-auto"
+            className="w-full sm:w-auto"
           >
             Cancel
           </Button>
@@ -236,7 +236,7 @@ const EditCategoryDialog = ({ open, onClose, category }) => {
             type="submit"
             form="edit-category-form"
             className={cn(
-              "h-12 w-full px-5 text-base font-medium sm:w-auto",
+              "w-full px-4 sm:w-auto",
               "bg-blue-500 hover:bg-blue-600 text-white",
               "transition-colors relative",
               isSubmitting && "pl-9",
@@ -262,7 +262,7 @@ const EditCategoryDialog = ({ open, onClose, category }) => {
             </label>
             <button
               type="button"
-              className="w-12 h-12 flex items-center justify-center text-md rounded-md border border-gray-200 bg-white hover:bg-gray-50"
+              className="w-9 h-9 flex items-center justify-center text-base rounded-md border border-gray-200 bg-white hover:bg-gray-50"
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             >
               {formData.emoji}
@@ -297,7 +297,7 @@ const EditCategoryDialog = ({ open, onClose, category }) => {
               value={formData.category}
               onChange={handleCategoryChange}
               placeholder="Enter category name..."
-              className={`w-full h-12 px-4 bg-white border ${
+              className={`w-full px-3 bg-white border ${
                 error
                   ? "border-red-500 focus-visible:border-red-500"
                   : "border-gray-200"
