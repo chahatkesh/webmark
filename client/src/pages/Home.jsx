@@ -9,7 +9,6 @@ import Cta from "../components/HomeComponents/Cta";
 import Testimonial from "../components/HomeComponents/Testimonial";
 import Features from "../components/HomeComponents/Features";
 import HowtoUse from "../components/HomeComponents/HowtoUse";
-import StatsSection from "../components/HomeComponents/StatsSection";
 import SEO from "../components/SEO";
 
 const Home = () => {
@@ -53,7 +52,7 @@ const Home = () => {
           <HeroContent />
         </section>
         <Features />
-        <StatsSection />
+
         <HowtoUse />
         <Testimonial />
         <Cta />

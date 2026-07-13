@@ -2,8 +2,18 @@ import React from "react";
 import { motion } from "framer-motion";
 import { assets } from "../../assets/assests";
 import LandingButton from "./LandingButton";
+import { useStats } from "../../hooks/useStats";
+
+const fmtStat = (n) => {
+  if (!n) return null;
+  if (n >= 1000) return `${Math.floor(n / 1000)}k+`;
+  return n.toLocaleString();
+};
 
 const Hero = () => {
+  const { stats } = useStats();
+  const users = fmtStat(stats?.totalUsers);
+  const bookmarks = fmtStat(stats?.totalBookmarks);
   // Stagger animation for avatar stack
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -126,6 +136,18 @@ const Hero = () => {
                 </LandingButton>
               </div>
             </div>
+            {users && bookmarks && (
+              <p className="mt-5 text-center text-[13px] text-[#9ca3af]">
+                <span className="font-medium text-[#374151]">
+                  {users} people
+                </span>
+                {" have saved "}
+                <span className="font-medium text-[#374151]">
+                  {bookmarks} bookmarks
+                </span>
+                {" with Webmark"}
+              </p>
+            )}
           </motion.div>
         </div>
 
@@ -133,11 +155,21 @@ const Hero = () => {
           variants={imageVariants}
           initial="hidden"
           animate="visible"
-          className="max-w-[48rem] ml-auto mr-auto border-t-1 border-b-1 border border-transparent border-in-header"
+          className="max-w-[56rem] aspect-video ml-auto mr-auto border-t-1 border-b-1 border border-transparent border-in-header"
         >
-          <div className="border-in-header-2 p-4">
-            <div className="relative shadow-xl pt-3 pb-3 pl-5 pr-5 rounded-xl md:rounded-2xl bg-[#111827] aspect-[16/9]">
-              <img src={assets.hero_image} alt="" loading="lazy" />
+          <div className="border-in-header-2 p-2 md:p-4">
+            <div className="relative shadow-xl rounded-xl md:rounded-2xl bg-[#111827]">
+              <video
+                src={assets.hero_video}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                poster={assets.hero_image}
+                className="h-full w-full rounded-lg md:rounded-xl object-cover pointer-events-none select-none"
+                aria-hidden="true"
+              />
             </div>
           </div>
         </motion.div>

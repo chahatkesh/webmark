@@ -4,11 +4,12 @@ import { assets } from "../../assets/assests";
 const featureCards = [
   {
     id: 1,
-    title: "Collections",
-    description: "Organize bookmarks into meaningful collections with tags",
+    title: "Category Themes",
+    description:
+      "Organize links with emoji categories, color themes, and flexible ordering",
     icon: (
       <svg
-        className="w-4 h-4 md:w-8 md:h-8 text-blue-500"
+        className="w-3.5 h-3.5 md:w-7 md:h-7 text-blue-500"
         fill="currentColor"
         viewBox="0 0 24 24"
       >
@@ -19,11 +20,11 @@ const featureCards = [
   },
   {
     id: 2,
-    title: "Quick Search",
-    description: "Find any bookmark instantly with powerful search",
+    title: "Instant Search",
+    description: "Find bookmarks by name, URL, notes, or category in real time",
     icon: (
       <svg
-        className="w-4 h-4 md:w-8 md:h-8 text-indigo-500"
+        className="w-3.5 h-3.5 md:w-7 md:h-7 text-indigo-500"
         fill="currentColor"
         viewBox="0 0 24 24"
       >
@@ -34,11 +35,12 @@ const featureCards = [
   },
   {
     id: 3,
-    title: "Dark Mode",
-    description: "Easy on your eyes with beautiful dark theme",
+    title: "AI Sort + Undo",
+    description:
+      "Reorganize all or uncategorized bookmarks with AI, then revert if needed",
     icon: (
       <svg
-        className="w-4 h-4 md:w-8 md:h-8 text-violet-500"
+        className="w-3.5 h-3.5 md:w-7 md:h-7 text-violet-500"
         fill="currentColor"
         viewBox="0 0 24 24"
       >
@@ -49,11 +51,12 @@ const featureCards = [
   },
   {
     id: 4,
-    title: "Multi-Device",
-    description: "Access your bookmarks from any device",
+    title: "Bookmarklet Save",
+    description:
+      "Save the page you are viewing in one click from your bookmarks bar",
     icon: (
       <svg
-        className="w-4 h-4 md:w-8 md:h-8 text-rose-500"
+        className="w-3.5 h-3.5 md:w-7 md:h-7 text-rose-500"
         fill="currentColor"
         viewBox="0 0 24 24"
       >
@@ -64,11 +67,12 @@ const featureCards = [
   },
   {
     id: 5,
-    title: "Custom Tags",
-    description: "Create and manage custom tags for better organization",
+    title: "Multi-Device Access",
+    description:
+      "Stay signed in on up to two devices and revoke sessions anytime",
     icon: (
       <svg
-        className="w-4 h-4 md:w-8 md:h-8 text-emerald-500"
+        className="w-3.5 h-3.5 md:w-7 md:h-7 text-emerald-500"
         fill="currentColor"
         viewBox="0 0 24 24"
       >
@@ -76,6 +80,22 @@ const featureCards = [
       </svg>
     ),
     bgColor: "from-emerald-500/20 to-teal-500/20",
+  },
+  {
+    id: 6,
+    title: "AI Categorization",
+    description:
+      "Get smart category suggestions while saving links from the bookmarklet",
+    icon: (
+      <svg
+        className="w-3.5 h-3.5 md:w-7 md:h-7 text-cyan-500"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path d="M19 9l-2.5-.5L15 6l-1.5 2.5L11 9l2.5 1.5L15 13l1.5-2.5L19 9zm-9 1.5L7 9l-1.5-2.5L4 9l-2.5 1.5L4 12l1.5 2.5L7 12l2.5-1.5zM22 18l-1.5-.5L20 16l-.5 1.5L18 18l1.5.5L20 20l.5-1.5L22 18z" />
+      </svg>
+    ),
+    bgColor: "from-cyan-500/20 to-blue-500/20",
   },
 ];
 
@@ -125,7 +145,7 @@ const Features1 = () => {
         <div className="pt-12 pb-12 md:pt-28 md:pb-20">
           <div className="max-w-[48rem] pb-8 md:pb-20 text-center ml-auto mr-auto">
             <h2 className="md:leading-[1.2777] leading-[1.3333] text-[1.875rem] tracking-[-0.037em] md:text-[2.25rem] text-[#e5e7eb] font-[700]">
-              Organize, Manage, and Personalize Your Bookmarks with Webmark!
+              Everything You Need to Keep Bookmarks Fast, Clean, and Actionable
             </h2>
           </div>
           <div className="pb-8 md:pb-20 pointer-events-none flex justify-center items-center">
@@ -176,9 +196,8 @@ const Features1 = () => {
                   <span className="ml-2">Smart Bookmarking</span>
                 </h3>
                 <p className="text-[#9ca3af] text-[15px]">
-                  Effortlessly organize your bookmarks with collections,
-                  categories, and tags. Our intuitive drag-and-drop interface
-                  makes managing your digital library a breeze.
+                  Create categories with curated color themes, then reorder
+                  categories and bookmarks with smooth drag-and-drop.
                 </p>
               </article>
             </div>
@@ -196,9 +215,8 @@ const Features1 = () => {
                   <span className="ml-2">Powerful Search</span>
                 </h3>
                 <p className="text-[#9ca3af] text-[15px]">
-                  Find any bookmark instantly with our integrated search engine.
-                  Search through your bookmarks, notes, and tags to quickly
-                  locate exactly what you need.
+                  Search instantly across bookmark names, links, notes, and
+                  category names. Jump straight to what matters.
                 </p>
               </article>
             </div>
@@ -213,12 +231,11 @@ const Features1 = () => {
                   >
                     <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"></path>
                   </svg>
-                  <span className="ml-2">Personalized Experience</span>
+                  <span className="ml-2">AI Sorting with Revert</span>
                 </h3>
                 <p className="text-[#9ca3af] text-[15px]">
-                  Make Webmark yours with custom themes, colors, and icons.
-                  Choose between dark and light modes, and arrange your
-                  bookmarks in list or grid views.
+                  Use AI to reorganize your full library or only uncategorized
+                  links, then roll back with one-click undo when needed.
                 </p>
               </article>
             </div>
@@ -233,12 +250,11 @@ const Features1 = () => {
                   >
                     <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
                   </svg>
-                  <span className="ml-2">Enhanced Privacy</span>
+                  <span className="ml-2">Secure Multi-Device Sessions</span>
                 </h3>
                 <p className="text-[#9ca3af] text-[15px]">
-                  Keep your bookmarks private by default, with the option to
-                  share collections publicly. Your data security and privacy are
-                  our top priorities.
+                  Stay signed in on up to two devices and revoke access from
+                  your profile whenever you need to lock things down.
                 </p>
               </article>
             </div>
@@ -253,12 +269,11 @@ const Features1 = () => {
                   >
                     <path d="M14 5.5V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h7.5L14 5.5zM3 2v12h10V6h-4V2H3z M10 8v1h-3v1h3v1h-3v1h3v-1h1v-1h-1V8h-1z"></path>
                   </svg>
-                  <span className="ml-2">Smart Notes</span>
+                  <span className="ml-2">Rich Bookmark Notes</span>
                 </h3>
                 <p className="text-[#9ca3af] text-[15px]">
-                  Add detailed, multiline notes to your bookmarks for better
-                  context and recall. Never forget why you saved that important
-                  link again.
+                  Add multiline notes to every bookmark so context stays with
+                  the link and rediscovery is effortless later.
                 </p>
               </article>
             </div>
@@ -273,12 +288,11 @@ const Features1 = () => {
                   >
                     <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"></path>
                   </svg>
-                  <span className="ml-2">Social Sharing (Coming Soon)</span>
+                  <span className="ml-2">Bookmarklet + Browser Import</span>
                 </h3>
                 <p className="text-[#9ca3af] text-[15px]">
-                  Share your public collections and collaborate with others.
-                  Connect with like-minded individuals and discover new
-                  resources together.
+                  Save pages from your bookmarks bar and import Chrome or
+                  Firefox exports to populate your library in minutes.
                 </p>
               </article>
             </div>
